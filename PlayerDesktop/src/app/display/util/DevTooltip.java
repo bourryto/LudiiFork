@@ -10,7 +10,7 @@ import javax.swing.ToolTipManager;
 
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
-import app.DesktopApp;
+import app.App;
 import app.PlayerApp;
 import app.utils.SVGUtil;
 import app.views.tools.ToolButton;
@@ -50,21 +50,21 @@ public class DevTooltip
 	 * - hidden value for each player
 	 * - component image
 	 */
-	public static void displayToolTipMessage(final PlayerApp app, final Point pt)
+	public static void displayToolTipMessage(final App app, final Point pt)
 	{
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     	ToolTipManager.sharedInstance().setReshowDelay(500);
     	boolean toolTipShown = false;
     	
     	// If cursor is over any tool buttons then print message.
-    	for (final ToolButton toolButton : DesktopApp.view().toolPanel().buttons)
+    	for (final ToolButton toolButton : app.view().toolPanel().buttons)
     	{
     		if (toolButton != null && toolButton.mouseOver())
     		{
     			String toolTipMessage = "<html>";
     			toolTipMessage += toolButton.tooltipMessage();
     			toolTipMessage += "</html>";
-    			DesktopApp.view().setToolTipText(toolTipMessage);
+    			app.view().setToolTipText(toolTipMessage);
     			toolTipShown = true;
     			break;
     		}
@@ -202,20 +202,20 @@ public class DevTooltip
 				}
 	
 				toolTipMessage += "</html>";
-		    	DesktopApp.view().setToolTipText(toolTipMessage);
+		    	app.view().setToolTipText(toolTipMessage);
 		    	toolTipShown = true;
 		    	
 			}
 			catch (final Exception e)
 			{
 				//e.printStackTrace();
-				DesktopApp.view().setToolTipText(null);
+				app.view().setToolTipText(null);
 				return;
 			}
 		}
 		
 		if (!toolTipShown)
-			DesktopApp.view().setToolTipText(null);
+			app.view().setToolTipText(null);
 	}
 	
 	//-------------------------------------------------------------------------

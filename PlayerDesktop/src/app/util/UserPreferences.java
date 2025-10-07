@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import app.App;
+import app.Apps;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -87,9 +89,9 @@ public class UserPreferences
 					System.err.println("Cannot get the last modified time - " + e);
 				}
 			}
-
+			App aapp = Apps.getFromID(app.manager().getAppID());
 			// Settings Desktop
-			json.put("FrameMaximizedBoth", DesktopApp.frame().getExtendedState() == Frame.MAXIMIZED_BOTH);
+			json.put("FrameMaximizedBoth", aapp.frame().getExtendedState() == Frame.MAXIMIZED_BOTH);
 			
 			// Settings Manager/Network
 			json.put("networkPolling", app.manager().settingsNetwork().longerNetworkPolling());
@@ -216,10 +218,10 @@ public class UserPreferences
 			}
 			
 			// Save frame parameters
-			json.put("FrameWidth", DesktopApp.frame().getWidth());
-			json.put("FrameHeight", DesktopApp.frame().getHeight());
-			json.put("FrameLocX", DesktopApp.frame().getLocation().x);
-			json.put("FrameLocY", DesktopApp.frame().getLocation().y);
+			json.put("FrameWidth", aapp.frame().getWidth());
+			json.put("FrameHeight", aapp.frame().getHeight());
+			json.put("FrameLocX", aapp.frame().getLocation().x);
+			json.put("FrameLocY", aapp.frame().getLocation().y);
 
 			// Save the Name and AI preferences
 			for (int p = 0; p < app.manager().aiSelected().length; ++p)
@@ -234,31 +236,31 @@ public class UserPreferences
 			}
 			
 			// Save filepaths of filechoosers
-			final File selectedJsonFile = DesktopApp.jsonFileChooser().getSelectedFile();
+			final File selectedJsonFile = aapp.jsonFileChooser().getSelectedFile();
 			if (selectedJsonFile != null && selectedJsonFile.exists())
 				json.put("LastSelectedJsonFile", selectedJsonFile.getCanonicalPath());
 			
-			final File selectedJarFile = DesktopApp.jarFileChooser().getSelectedFile();
+			final File selectedJarFile = aapp.jarFileChooser().getSelectedFile();
 			if (selectedJarFile != null && selectedJarFile.exists())
 				json.put("LastSelectedJarFile", selectedJarFile.getCanonicalPath());
 			
-			final File selectedAiDefFile = DesktopApp.aiDefFileChooser().getSelectedFile();
+			final File selectedAiDefFile = aapp.aiDefFileChooser().getSelectedFile();
 			if (selectedAiDefFile != null && selectedAiDefFile.exists())
 				json.put("LastSelectedAiDefFile", selectedAiDefFile.getCanonicalPath());
 			
-			final File selectedGameFile = DesktopApp.gameFileChooser().getSelectedFile();
+			final File selectedGameFile = aapp.gameFileChooser().getSelectedFile();
 			if (selectedGameFile != null && selectedGameFile.exists())
 				json.put("LastSelectedGameFile", selectedGameFile.getCanonicalPath());
 			
-			final File selectedSaveGameFile = DesktopApp.saveGameFileChooser().getSelectedFile();
+			final File selectedSaveGameFile = aapp.saveGameFileChooser().getSelectedFile();
 			if (selectedSaveGameFile != null && selectedSaveGameFile.exists())
 				json.put("LastSelectedSaveGameFile", selectedSaveGameFile.getCanonicalPath());
 			
-			final File selectedLoadTrialFile = DesktopApp.loadTrialFileChooser().getSelectedFile();
+			final File selectedLoadTrialFile = aapp.loadTrialFileChooser().getSelectedFile();
 			if (selectedLoadTrialFile != null && selectedLoadTrialFile.exists())
 				json.put("LastSelectedLoadTrialFile", selectedLoadTrialFile.getCanonicalPath());
 			
-			final File selectedLoadTournamentFile = DesktopApp.loadTournamentFileChooser().getSelectedFile();
+			final File selectedLoadTournamentFile = aapp.loadTournamentFileChooser().getSelectedFile();
 			if (selectedLoadTournamentFile != null && selectedLoadTournamentFile.exists())
 				json.put("LastSelectedLoadTournamentFile", selectedLoadTournamentFile.getCanonicalPath());
 
@@ -345,7 +347,7 @@ public class UserPreferences
 					FileTime fileTime = null;
 					fileTime = Files.getLastModifiedTime(path);
 					if (fileModifiedTime.matches(fileTime.toString()))
-						DesktopApp.setLoadTrial(true);
+						Apps.getFromID(app.manager().getAppID()).setLoadTrial(true);
 					else
 						System.out.println("External .lud has been modified since last load.");
 				}
@@ -356,7 +358,7 @@ public class UserPreferences
 			}
 			else
 			{
-				DesktopApp.setLoadTrial(true);
+				Apps.getFromID(app.manager().getAppID()).setLoadTrial(true);
 			}
 			
 			// Settings General
@@ -528,13 +530,14 @@ public class UserPreferences
 			app.manager().settingsNetwork().setRememberDetails(json.optBoolean("RememberDetails", app.manager().settingsNetwork().rememberDetails()));
 			
 			// Load last-selected filepaths in filechoosers
-			DesktopApp.setLastSelectedJsonPath(json.optString("LastSelectedJsonFile", DesktopApp.lastSelectedJsonPath()));
-			DesktopApp.setLastSelectedJarPath(json.optString("LastSelectedJarFile", DesktopApp.lastSelectedJarPath()));
-			DesktopApp.setLastSelectedAiDefPath(json.optString("LastSelectedAiDefFile", DesktopApp.lastSelectedAiDefPath()));
-			DesktopApp.setLastSelectedGamePath(json.optString("LastSelectedGameFile", DesktopApp.lastSelectedGamePath()));
-			DesktopApp.setLastSelectedSaveGamePath(json.optString("LastSelectedSaveGameFile", DesktopApp.lastSelectedSaveGamePath()));
-			DesktopApp.setLastSelectedLoadTrialPath(json.optString("LastSelectedLoadTrialFile", DesktopApp.lastSelectedLoadTrialPath()));
-			DesktopApp.setLastSelectedLoadTournamentPath(json.optString("LastSelectedLoadTournamentFile", DesktopApp.lastSelectedLoadTournamentPath()));
+			App aapp = Apps.getFromID(app.manager().getAppID());
+			aapp.setLastSelectedJsonPath(json.optString("LastSelectedJsonFile", aapp.lastSelectedJsonPath()));
+			aapp.setLastSelectedJarPath(json.optString("LastSelectedJarFile", aapp.lastSelectedJarPath()));
+			aapp.setLastSelectedAiDefPath(json.optString("LastSelectedAiDefFile", aapp.lastSelectedAiDefPath()));
+			aapp.setLastSelectedGamePath(json.optString("LastSelectedGameFile", aapp.lastSelectedGamePath()));
+			aapp.setLastSelectedSaveGamePath(json.optString("LastSelectedSaveGameFile", aapp.lastSelectedSaveGamePath()));
+			aapp.setLastSelectedLoadTrialPath(json.optString("LastSelectedLoadTrialFile", aapp.lastSelectedLoadTrialPath()));
+			aapp.setLastSelectedLoadTournamentPath(json.optString("LastSelectedLoadTournamentFile", aapp.lastSelectedLoadTournamentPath()));
 			
 			// Recent games
 			for (int p = 0; p < app.settingsPlayer().recentGames().length; p++)

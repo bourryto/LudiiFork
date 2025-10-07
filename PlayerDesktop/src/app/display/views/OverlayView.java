@@ -14,8 +14,12 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.JTextArea;
 
+import app.Apps;
+import app.ClientApp;
 import app.DesktopApp;
 import app.PlayerApp;
+import app.display.MainWindow;
+import app.display.MainWindowClient;
 import app.display.MainWindowDesktop;
 import app.move.MoveVisuals;
 import app.move.animation.MoveAnimation;
@@ -46,6 +50,8 @@ public final class OverlayView extends View
 	
 	final JTextArea englishDescriptionField = new JTextArea();
 
+	private boolean isClient;
+
 	//------------------------------------------------------------------------
 
 	/**
@@ -54,7 +60,7 @@ public final class OverlayView extends View
 	public OverlayView(final PlayerApp app)
 	{
 		super(app);
-		DesktopApp.frame().add(englishDescriptionField);
+		Apps.getFromID(app.manager().getAppID()).frame().add(englishDescriptionField);
 	}
 
 	//-------------------------------------------------------------------------
@@ -64,8 +70,9 @@ public final class OverlayView extends View
 	{		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		
-		final ToolView toolview = DesktopApp.view().toolPanel();
+
+		final ToolView toolview;
+		toolview = Apps.getFromID(app.manager().getAppID()).view().toolPanel();
 		
 		final Rectangle passRect = toolview.buttons.get(ToolView.PASS_BUTTON_INDEX).rect();
 		
@@ -167,15 +174,19 @@ public final class OverlayView extends View
 				&& 
 				app.bridge().settingsVC().pieceBeingDragged()
 				&& 
-				DesktopApp.view().getMousePosition() != null
+				getView().getMousePosition() != null
 			)
-				drawDraggedPiece(g2d, app.bridge().settingsVC().selectedFromLocation(), DesktopApp.view().getMousePosition().x, DesktopApp.view().getMousePosition().y);
+				drawDraggedPiece(g2d, app.bridge().settingsVC().selectedFromLocation(), getView().getMousePosition().x, getView().getMousePosition().y);
 		}
 
 		drawSandBoxIcon(g2d);
 		drawExtraGameInformation(g2d, context);
 		
 		paintDebug(g2d, Color.BLACK);
+	}
+
+	private MainWindow getView(){
+		return Apps.getFromID(app.manager().getAppID()).view();
 	}
 	
 	//-------------------------------------------------------------------------
@@ -210,7 +221,7 @@ public final class OverlayView extends View
 	{
 		final int r = 7;
 		final Color markerColour = (app.manager().settingsNetwork().getLoginId() == 0) ? Color.RED : Color.GREEN;
-		ImageProcessing.ballImage(g2d, DesktopApp.view().getWidth()-r*2-r, r, r, markerColour);	
+		ImageProcessing.ballImage(g2d, Apps.getFromID(app.manager().getAppID()).view().getWidth()-r*2-r, r, r, markerColour);
 	}
 
 	//-------------------------------------------------------------------------
@@ -237,7 +248,7 @@ public final class OverlayView extends View
 		
 		final int maxDisplayNumber = Math.max(maxVertices, Math.max(maxEdges, maxFaces));
 		
-		final int fontMultiplier  = (int) (app.bridge().getContainerStyle(context.board().index()).cellRadius() * 2 * DesktopApp.view().getBoardPanel().boardSize());
+		final int fontMultiplier  = (int) (app.bridge().getContainerStyle(context.board().index()).cellRadius() * 2 * getView().getBoardPanel().boardSize());
 
 		
 		int fontSize = (fontMultiplier);
@@ -265,15 +276,23 @@ public final class OverlayView extends View
 			return;
 		
 		// temporary message
-		if (MainWindowDesktop.volatileMessage().length() > 0)
+		int volatileMessageLength;
+		int temporaryMessageLength;
+
+		volatileMessageLength = Apps.getFromID(app.manager().getAppID()).view().volatileMessage().length();
+		temporaryMessageLength = Apps.getFromID(app.manager().getAppID()).view().temporaryMessage().length();
+
+		if (volatileMessageLength > 0)
 		{
-			drawStringBelowBoard(g2d, MainWindowDesktop.volatileMessage(), 0.98);
+			drawStringBelowBoard(g2d, Apps.getFromID(app.manager().getAppID()).view().volatileMessage(), 0.98);
 		}
-		else if (DesktopApp.view().temporaryMessage().length() > 0)
+		else if (temporaryMessageLength > 0)
 		{
-			drawStringBelowBoard(g2d, DesktopApp.view().temporaryMessage(), 0.98);
+			drawStringBelowBoard(g2d, Apps.getFromID(app.manager().getAppID()).view().temporaryMessage(), 0.98);
 		}
-		
+		// BREAK --
+		// SWAPPING DESKTOP AND CLIENT
+
 		// shared pot
 		if (context.game().requiresBet())
 		{
@@ -335,7 +354,7 @@ public final class OverlayView extends View
 	 */
 	private void drawStringBelowBoard(final Graphics2D g2d, final String message, final double percentageBelow)
 	{
-		final int pixels = DesktopApp.view().getBoardPanel().placement().width;
+		final int pixels = Apps.getFromID(app.manager().getAppID()).view().getBoardPanel().placement().width;
 		final Font font = new Font("Arial", Font.PLAIN, 16);
 		g2d.setFont(font);
 		g2d.setColor(Color.BLACK);

@@ -40,9 +40,9 @@ public class JFrameListener extends JFrame implements KeyListener
 		else if (e.getKeyCode() == KeyEvent.VK_TAB)
 		{
 			int nextTabIndex = app.settingsPlayer().tabSelected() + 1;
-			if (nextTabIndex >= DesktopApp.view().tabPanel().pages().size())
+			if (nextTabIndex >= Apps.getFromID(app.manager().getAppID()).view().tabPanel().pages().size())
 				nextTabIndex = 0;
-			DesktopApp.view().tabPanel().select(nextTabIndex);
+			Apps.getFromID(app.manager().getAppID()).view().tabPanel().select(nextTabIndex);
 		}
 		else if (e.getKeyCode() == KeyEvent.VK_NUMPAD8)
 		{

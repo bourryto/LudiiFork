@@ -14,6 +14,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import app.App;
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.util.DialogUtil;
@@ -43,7 +45,7 @@ public class ReconstructionDialog extends JDialog
 		try
 		{
 			final ReconstructionDialog dialog = new ReconstructionDialog(app);
-			DialogUtil.initialiseSingletonDialog(dialog, "Reconstruction", null);
+			DialogUtil.initialiseSingletonDialog(dialog, "Reconstruction", null, app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{
@@ -82,10 +84,11 @@ public class ReconstructionDialog extends JDialog
 			@Override
 			public void actionPerformed(final ActionEvent arg0)
 			{
-				final JFileChooser fileChooser = DesktopApp.gameFileChooser();
+				App aapp = Apps.getFromID(app.manager().getAppID());
+				final JFileChooser fileChooser = aapp.gameFileChooser();
 				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fileChooser.setDialogTitle("Select input reconstruction.");
-				final int gameReturnVal = fileChooser.showOpenDialog(DesktopApp.frame());
+				final int gameReturnVal = fileChooser.showOpenDialog(App.getFrameFromAppID(app.manager().getAppID()));
 				final File fileReconstruction;
 
 				if (gameReturnVal == JFileChooser.APPROVE_OPTION)
@@ -124,10 +127,11 @@ public class ReconstructionDialog extends JDialog
 			@Override
 			public void actionPerformed(final ActionEvent arg0)
 			{
-				final JFileChooser fileChooser = DesktopApp.jsonFileChooser();
+				App aapp = Apps.getFromID(app.manager().getAppID());
+				final JFileChooser fileChooser = aapp.jsonFileChooser();
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				fileChooser.setDialogTitle("Select output directory.");
-				final int jsonReturnVal = fileChooser.showOpenDialog(DesktopApp.frame());
+				final int jsonReturnVal = fileChooser.showOpenDialog(App.getFrameFromAppID(app.manager().getAppID()));
 				final File directory;
 
 				if (jsonReturnVal == JFileChooser.APPROVE_OPTION)
@@ -166,10 +170,11 @@ public class ReconstructionDialog extends JDialog
 			@Override
 			public void actionPerformed(final ActionEvent arg0)
 			{
-				final JFileChooser fileChooser = DesktopApp.jsonFileChooser();
+				App aapp = Apps.getFromID(app.manager().getAppID());
+				final JFileChooser fileChooser = aapp.jsonFileChooser();
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				fileChooser.setDialogTitle("Select data directory.");
-				final int jsonReturnVal = fileChooser.showOpenDialog(DesktopApp.frame());
+				final int jsonReturnVal = fileChooser.showOpenDialog(App.getFrameFromAppID(app.manager().getAppID()));
 				final File directory;
 
 				if (jsonReturnVal == JFileChooser.APPROVE_OPTION)

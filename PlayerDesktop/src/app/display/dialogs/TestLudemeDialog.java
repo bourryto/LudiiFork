@@ -59,7 +59,7 @@ public class TestLudemeDialog extends JDialog
 		try
 		{
 			final TestLudemeDialog dialog = new TestLudemeDialog(app);
-			DialogUtil.initialiseDialog(dialog, "Test Ludeme Dialog", null);
+			DialogUtil.initialiseDialog(dialog, "Test Ludeme Dialog", null, app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{

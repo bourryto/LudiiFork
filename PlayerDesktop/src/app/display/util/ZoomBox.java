@@ -15,9 +15,11 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.MainWindowDesktop;
+import app.display.MainWindow;
 
 /**
  * Magnifying glass like zoom view.
@@ -44,7 +46,7 @@ public class ZoomBox extends JPanel
     /**
      * Create ZoomBox window.
      */
-    public ZoomBox(final PlayerApp app, final MainWindowDesktop parent) 
+    public ZoomBox(final PlayerApp app, final MainWindow parent)
     {
     	this.parent = parent;
     	popup = new JWindow();
@@ -60,7 +62,7 @@ public class ZoomBox extends JPanel
 	        	(
 	        		app.settingsPlayer().showZoomBox()
 	        		&& 
-	        		DesktopApp.view().getBoardPanel().placement().contains(e.getPoint())
+	        		Apps.getFromID(app.manager().getAppID()).view().getBoardPanel().placement().contains(e.getPoint())
 	        	)
 	        	{
 	        		popup.setVisible(true);

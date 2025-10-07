@@ -89,21 +89,25 @@ public class MainMenu extends JMenuBar
 		UIManager.put("RadioButtonMenuItem.font", new Font("Arial", Font.PLAIN, 16));
 
 		//---------------------------------------------------------------------
+
+		JMenu menu;
+
 		// Ludii Menu
-		
-		JMenu menu = new JMenu("Ludii");
-		this.add(menu);
-		
-		menuItem = new JMenuItem("Preferences");
-		menuItem.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.SHIFT_DOWN_MASK));
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
 
-		menuItem = new JMenuItem("Quit");
-		menuItem.setAccelerator(KeyStroke.getKeyStroke('Q', CTRL_DOWN_MASK));
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
+		if(!app.isClient) {
+			menu = new JMenu("Ludii");
+			this.add(menu);
 
+			menuItem = new JMenuItem("Preferences");
+			menuItem.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.SHIFT_DOWN_MASK));
+			menuItem.addActionListener(al);
+			menu.add(menuItem);
+
+			menuItem = new JMenuItem("Quit");
+			menuItem.setAccelerator(KeyStroke.getKeyStroke('Q', CTRL_DOWN_MASK));
+			menuItem.addActionListener(al);
+			menu.add(menuItem);
+		}
 		//---------------------------------------------------------------------
 		// File Menu
 
@@ -142,274 +146,274 @@ public class MainMenu extends JMenuBar
 				submenu.add(menuItem);
 			}
 			menu.add(submenu);
-		
-			menuItem = new JMenuItem("Load Game from File");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('F', CTRL_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menuItem.setToolTipText("Load a game description from and external .lud file");
-			menu.add(menuItem);
+
+
+			if(!app.isClient) {
+				menuItem = new JMenuItem("Load Game from File");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('F', CTRL_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menuItem.setToolTipText("Load a game description from and external .lud file");
+				menu.add(menuItem);
+			}
 			
 			menuItem = new JMenuItem("Load Random Game");
 			menuItem.addActionListener(al);
 			menu.add(menuItem);
-			
-			menu.addSeparator();
-	
-			menuItem = new JMenuItem("Load Trial");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('T', CTRL_DOWN_MASK));
-	
-			menuItem = new JMenuItem("Save Trial");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('S', CTRL_DOWN_MASK));
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Create Game");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Editor (Packed)");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
 
-			menuItem = new JMenuItem("Editor (Expanded)");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
 
-			menuItem = new JMenuItem("Visual Editor (Beta)");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
+			if(!app.isClient) {
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Load Trial");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('T', CTRL_DOWN_MASK));
+
+				menuItem = new JMenuItem("Save Trial");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('S', CTRL_DOWN_MASK));
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Create Game");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Editor (Packed)");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Editor (Expanded)");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Visual Editor (Beta)");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+			}
 		}
 
 		//---------------------------------------------------------------------
 		// Game Menu
-		
-		menu = new JMenu("Game");
-		this.add(menu);
-		
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
-		{
-			menuItem = new JMenuItem("Restart");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('R', CTRL_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
 
-			menuItem = new JMenuItem("Random Move");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('M', CTRL_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-
-			menuItem = new JMenuItem("Random Playout");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('P', CTRL_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-		}
-		else if (app.manager().settingsNetwork().getActiveGameId() != 0)
-		{
-			menuItem = new JMenuItem("Propose/Accept a Draw");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Resign Game");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Leave Game");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-		}
-
-		menu.addSeparator();
-
-		// Don't allow legal moves to be listed if playing an online game with hidden information.
-		if (app.manager().settingsNetwork().getActiveGameId() == 0 || !app.contextSnapshot().getContext(app).game().hiddenInformation())
-		{
-			menuItem = new JMenuItem("List Legal Moves");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('L', InputEvent.SHIFT_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-		}
-
-		menu.addSeparator();
-		
-		menuItem = new JMenuItem("Game Screenshot");
-		menuItem.setAccelerator(KeyStroke.getKeyStroke('C', InputEvent.SHIFT_DOWN_MASK));
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Game Gif");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Make QR Code");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
-		{
-			menu.addSeparator();
-
-			menuItem = new JMenuItem("Cycle Players");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('R', ALT_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menu.addSeparator();
-	
-			menuItem = new JMenuItem("Test Ludeme");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-		
-			menu.addSeparator();
-				
-			menuItem = new JMenuItem("Generate Grammar");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('G', CTRL_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menuItem = new JMenuItem("Count Ludemes");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Game Description Length");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Game Description Length (All Games)");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-		}
-
-		//---------------------------------------------------------------------
-		// Navigation Menu
-
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
-		{
-			menu = new JMenu("Navigation");
+		if(!app.isClient) {
+			menu = new JMenu("Game");
 			this.add(menu);
-	
-			menuItem = new JMenuItem("Play/Pause");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke("SPACE"));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menu.addSeparator();
-	
-			menuItem = new JMenuItem("Previous Move");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke("LEFT"));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menuItem = new JMenuItem("Next Move");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke("RIGHT"));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menu.addSeparator();
-	
-			menuItem = new JMenuItem("Go To Start");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke("DOWN"));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menuItem = new JMenuItem("Go To End");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke("UP"));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			if (app.contextSnapshot().getContext(app).game().hasSubgames())
-			{
-				menu.addSeparator();
-				
-				menuItem = new JMenuItem("Random Playout Instance");
+
+			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+				menuItem = new JMenuItem("Restart");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('R', CTRL_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Random Move");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('M', CTRL_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Random Playout");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('P', CTRL_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+			} else if (app.manager().settingsNetwork().getActiveGameId() != 0) {
+				menuItem = new JMenuItem("Propose/Accept a Draw");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Resign Game");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Leave Game");
 				menuItem.addActionListener(al);
 				menu.add(menuItem);
 			}
-			
+
 			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Pass");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('P', ALT_DOWN_MASK));
+
+			// Don't allow legal moves to be listed if playing an online game with hidden information.
+			if (app.manager().settingsNetwork().getActiveGameId() == 0 || !app.contextSnapshot().getContext(app).game().hiddenInformation()) {
+				menuItem = new JMenuItem("List Legal Moves");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('L', InputEvent.SHIFT_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+			}
+
+			menu.addSeparator();
+
+			menuItem = new JMenuItem("Game Screenshot");
+			menuItem.setAccelerator(KeyStroke.getKeyStroke('C', InputEvent.SHIFT_DOWN_MASK));
 			menuItem.addActionListener(al);
 			menu.add(menuItem);
-		}
 
+			menuItem = new JMenuItem("Game Gif");
+			menuItem.addActionListener(al);
+			menu.add(menuItem);
+
+			menuItem = new JMenuItem("Make QR Code");
+			menuItem.addActionListener(al);
+			menu.add(menuItem);
+
+			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Cycle Players");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('R', ALT_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Test Ludeme");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Generate Grammar");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('G', CTRL_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Count Ludemes");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Game Description Length");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Game Description Length (All Games)");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+			}
+		}
 		//---------------------------------------------------------------------
-		// Puzzle Menu
+		// Navigation Menu
 
-		if (app.contextSnapshot().getContext(app).game().isDeductionPuzzle())
-		{
-			menu = new JMenu("Puzzle");
-			this.add(menu);
+		if(!app.isClient) {
+			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+				menu = new JMenu("Navigation");
+				this.add(menu);
 
-			submenu = new JMenu("Value Selection");
+				menuItem = new JMenuItem("Play/Pause");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke("SPACE"));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
-			JRadioButtonMenuItem rbMenuItem = new JRadioButtonMenuItem("Automatic");
-			rbMenuItem.setSelected(app.settingsPlayer().puzzleDialogOption() == PuzzleSelectionType.Automatic);
-			rbMenuItem.addItemListener(il);
-			submenu.add(rbMenuItem);
+				menu.addSeparator();
 
-			rbMenuItem = new JRadioButtonMenuItem("Dialog");
-			rbMenuItem.setSelected(app.settingsPlayer().puzzleDialogOption() == PuzzleSelectionType.Dialog);
-			rbMenuItem.addItemListener(il);
-			submenu.add(rbMenuItem);
+				menuItem = new JMenuItem("Previous Move");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke("LEFT"));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
-			rbMenuItem = new JRadioButtonMenuItem("Cycle");
-			rbMenuItem.setSelected(app.settingsPlayer().puzzleDialogOption() == PuzzleSelectionType.Cycle);
-			rbMenuItem.addItemListener(il);
-			submenu.add(rbMenuItem);
+				menuItem = new JMenuItem("Next Move");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke("RIGHT"));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
-			menu.add(submenu);
+				menu.addSeparator();
 
-			menu.addSeparator();
+				menuItem = new JMenuItem("Go To Start");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke("DOWN"));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
-			cbMenuItem = new JCheckBoxMenuItem("Illegal Moves Allowed");
-			cbMenuItem.setSelected(app.settingsPlayer().illegalMovesValid());
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', InputEvent.SHIFT_DOWN_MASK));
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
+				menuItem = new JMenuItem("Go To End");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke("UP"));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
-			menu.addSeparator();
+				if (app.contextSnapshot().getContext(app).game().hasSubgames()) {
+					menu.addSeparator();
 
-			cbMenuItem = new JCheckBoxMenuItem("Show Possible Values");
-			cbMenuItem.setSelected(app.bridge().settingsVC().showCandidateValues());
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('V', InputEvent.SHIFT_DOWN_MASK));
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
+					menuItem = new JMenuItem("Random Playout Instance");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+				}
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Pass");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('P', ALT_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+			}
+
+			//---------------------------------------------------------------------
+			// Puzzle Menu
+
+			if (app.contextSnapshot().getContext(app).game().isDeductionPuzzle()) {
+				menu = new JMenu("Puzzle");
+				this.add(menu);
+
+				submenu = new JMenu("Value Selection");
+
+				JRadioButtonMenuItem rbMenuItem = new JRadioButtonMenuItem("Automatic");
+				rbMenuItem.setSelected(app.settingsPlayer().puzzleDialogOption() == PuzzleSelectionType.Automatic);
+				rbMenuItem.addItemListener(il);
+				submenu.add(rbMenuItem);
+
+				rbMenuItem = new JRadioButtonMenuItem("Dialog");
+				rbMenuItem.setSelected(app.settingsPlayer().puzzleDialogOption() == PuzzleSelectionType.Dialog);
+				rbMenuItem.addItemListener(il);
+				submenu.add(rbMenuItem);
+
+				rbMenuItem = new JRadioButtonMenuItem("Cycle");
+				rbMenuItem.setSelected(app.settingsPlayer().puzzleDialogOption() == PuzzleSelectionType.Cycle);
+				rbMenuItem.addItemListener(il);
+				submenu.add(rbMenuItem);
+
+				menu.add(submenu);
+
+				menu.addSeparator();
+
+				cbMenuItem = new JCheckBoxMenuItem("Illegal Moves Allowed");
+				cbMenuItem.setSelected(app.settingsPlayer().illegalMovesValid());
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', InputEvent.SHIFT_DOWN_MASK));
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				menu.addSeparator();
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Possible Values");
+				cbMenuItem.setSelected(app.bridge().settingsVC().showCandidateValues());
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('V', InputEvent.SHIFT_DOWN_MASK));
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+			}
 		}
-
 		//---------------------------------------------------------------------
 		// Analysis Menu
 
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
-		{
-			menu = new JMenu("Analysis");
-			this.add(menu);
+		if(!app.isClient) {
+			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+				menu = new JMenu("Analysis");
+				this.add(menu);
 
-			menuItem = new JMenuItem("Estimate Branching Factor");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
+				menuItem = new JMenuItem("Estimate Branching Factor");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
-			menuItem = new JMenuItem("Estimate Game Length");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
+				menuItem = new JMenuItem("Estimate Game Length");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
-			menuItem = new JMenuItem("Estimate Game Tree Complexity");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Estimate Game Tree Complexity (No State Repetition)");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Compare Agents");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
+				menuItem = new JMenuItem("Estimate Game Tree Complexity");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Estimate Game Tree Complexity (No State Repetition)");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Compare Agents");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
 
 //			menu.addSeparator();
 //			
@@ -421,232 +425,200 @@ public class MainMenu extends JMenuBar
 //			menuItem.addActionListener(al);
 //			menu.add(menuItem);
 
-			menu.addSeparator();
-
-			menuItem = new JMenuItem("Evaluation Dialog");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('E', InputEvent.CTRL_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Show Compilation Concepts");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-
-			if (app.manager().settingsNetwork().getActiveGameId() == 0)
-			{	
-				menuItem = new JMenuItem("Time Random Playouts");
-				menuItem.setAccelerator(KeyStroke.getKeyStroke('O', CTRL_DOWN_MASK));
-				menuItem.addActionListener(al);
-				menu.add(menuItem);
-	
-				menuItem = new JMenuItem("Time Random Playouts in Background");
-				menuItem.setAccelerator(KeyStroke.getKeyStroke('R', InputEvent.SHIFT_DOWN_MASK));
-				menuItem.addActionListener(al);
-				menu.add(menuItem);
-			}
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Duplicates Moves Test");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-
-			menu.addSeparator();
-			
-			submenu = new JMenu("Predict Best Agent (internal)");
-
-			menuItem = new JMenuItem("Linear Regression (internal)");
-			menuItem.addActionListener(al);
-			submenu.add(menuItem);
-			
-			menu.add(submenu);
-			
-			if (DesktopApp.devJar)
-			{
-				final File file = new File("../../LudiiPrivate/DataMiningScripts/Sklearn/res/trainedModels");
-				final String[] directories = file.list(new FilenameFilter() {
-					  @Override
-					  public boolean accept(final File current, final String name) {
-					    return new File(current, name).isDirectory();
-					  }
-					});
-				
 				menu.addSeparator();
-				
-				//---------------------------------------------------------------------
-				// Agent prediction
-				
-				submenu = new JMenu("Predict Best Agent (external)");
-				
-				final JMenu submenuAgentReg = new JMenu("Regression");
-				final JMenu submenuAgentCla = new JMenu("Classification");
-				
-				final JMenu submenuAgentRegComp = new JMenu("Compilation");
-				final JMenu submenuAgentClaComp = new JMenu("Compilation");
-				final JMenu submenuAgentRegAll = new JMenu("All");
-				final JMenu submenuAgentClaAll = new JMenu("All");
-				
-				submenuAgentReg.add(submenuAgentRegComp);
-				submenuAgentReg.add(submenuAgentRegAll);
-				submenuAgentCla.add(submenuAgentClaComp);
-				submenuAgentCla.add(submenuAgentClaAll);
-				
-				submenu.add(submenuAgentReg);
-				submenu.add(submenuAgentCla);
 
-				if (directories != null)
-				{
-					for (final String s : directories)
-					{
-						if (s.contains("Agents"))
-						{
-							if (s.contains("Classification"))
-							{
-								if (s.contains("True"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuAgentClaComp.add(menuItem);
-								}
-								else if (s.contains("False"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuAgentClaAll.add(menuItem);
-								}
-							}
-							else
-							{
-								if (s.contains("True"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuAgentRegComp.add(menuItem);
-								}
-								else if (s.contains("False"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuAgentRegAll.add(menuItem);
-								}
-							}
-						}
-					}
-				}
-				
-				menu.add(submenu);
-				
-				//---------------------------------------------------------------------
-				// Heuristic prediction
-				
-				submenu = new JMenu("Predict Best Heuristic (external)");
-
-				final JMenu submenuHeuristicReg = new JMenu("Regression");
-				final JMenu submenuHeuristicCla = new JMenu("Classification");
-				
-				final JMenu submenuHeuristicRegComp = new JMenu("Compilation");
-				final JMenu submenuHeuristicClaComp = new JMenu("Compilation");
-				final JMenu submenuHeuristicRegAll = new JMenu("All");
-				final JMenu submenuHeuristicClaAll = new JMenu("All");
-				
-				submenuHeuristicReg.add(submenuHeuristicRegComp);
-				submenuHeuristicReg.add(submenuHeuristicRegAll);
-				submenuHeuristicCla.add(submenuHeuristicClaComp);
-				submenuHeuristicCla.add(submenuHeuristicClaAll);
-				
-				submenu.add(submenuHeuristicReg);
-				submenu.add(submenuHeuristicCla);
-				
-				if (directories != null)
-				{
-					for (final String s : directories)
-					{
-						if (s.contains("Heuristics"))
-						{
-							if (s.contains("Classification"))
-							{
-								if (s.contains("True"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuHeuristicClaComp.add(menuItem);
-								}
-								else if (s.contains("False"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuHeuristicClaAll.add(menuItem);
-								}
-							}
-							else
-							{
-								if (s.contains("True"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuHeuristicRegComp.add(menuItem);
-								}
-								else if (s.contains("False"))
-								{
-									menuItem = new JMenuItem(s.split("-")[0]);
-									menuItem.addActionListener(al);
-									submenuHeuristicRegAll.add(menuItem);
-								}
-							}
-						}
-					}
-				}
-				
-				menu.add(submenu);
-				
-				//---------------------------------------------------------------------
-				// Metric prediction
-				
-				submenu = new JMenu("Predict Metrics (external)");
-				
-				final JMenu submenuComp = new JMenu("Compilation");
-				final JMenu submenuAll = new JMenu("All");
-				
-				if (directories != null)
-				{
-					for (final String s : directories)
-					{
-						if (s.contains("Metrics"))
-						{
-							if (s.contains("True"))
-							{
-								menuItem = new JMenuItem(s.split("-")[0]);
-								menuItem.addActionListener(al);
-								submenuComp.add(menuItem);
-							}
-							else if (s.contains("False"))
-							{
-								menuItem = new JMenuItem(s.split("-")[0]);
-								menuItem.addActionListener(al);
-								submenuAll.add(menuItem);
-							}
-						}
-					}
-				}
-				
-				submenu.add(submenuComp);
-				submenu.add(submenuAll);
-				menu.add(submenu);
-				
-				//---------------------------------------------------------------------
-				// Portfolio parameter prediction
-				
-				menuItem = new JMenuItem("Portfolio Parameters (external)");
+				menuItem = new JMenuItem("Evaluation Dialog");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('E', InputEvent.CTRL_DOWN_MASK));
 				menuItem.addActionListener(al);
 				menu.add(menuItem);
-				
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Show Compilation Concepts");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+					menuItem = new JMenuItem("Time Random Playouts");
+					menuItem.setAccelerator(KeyStroke.getKeyStroke('O', CTRL_DOWN_MASK));
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Time Random Playouts in Background");
+					menuItem.setAccelerator(KeyStroke.getKeyStroke('R', InputEvent.SHIFT_DOWN_MASK));
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+				}
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Duplicates Moves Test");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				submenu = new JMenu("Predict Best Agent (internal)");
+
+				menuItem = new JMenuItem("Linear Regression (internal)");
+				menuItem.addActionListener(al);
+				submenu.add(menuItem);
+
+				menu.add(submenu);
+
+				if (DesktopApp.devJar) {
+					final File file = new File("../../LudiiPrivate/DataMiningScripts/Sklearn/res/trainedModels");
+					final String[] directories = file.list(new FilenameFilter() {
+						@Override
+						public boolean accept(final File current, final String name) {
+							return new File(current, name).isDirectory();
+						}
+					});
+
+					menu.addSeparator();
+
+					//---------------------------------------------------------------------
+					// Agent prediction
+
+					submenu = new JMenu("Predict Best Agent (external)");
+
+					final JMenu submenuAgentReg = new JMenu("Regression");
+					final JMenu submenuAgentCla = new JMenu("Classification");
+
+					final JMenu submenuAgentRegComp = new JMenu("Compilation");
+					final JMenu submenuAgentClaComp = new JMenu("Compilation");
+					final JMenu submenuAgentRegAll = new JMenu("All");
+					final JMenu submenuAgentClaAll = new JMenu("All");
+
+					submenuAgentReg.add(submenuAgentRegComp);
+					submenuAgentReg.add(submenuAgentRegAll);
+					submenuAgentCla.add(submenuAgentClaComp);
+					submenuAgentCla.add(submenuAgentClaAll);
+
+					submenu.add(submenuAgentReg);
+					submenu.add(submenuAgentCla);
+
+					if (directories != null) {
+						for (final String s : directories) {
+							if (s.contains("Agents")) {
+								if (s.contains("Classification")) {
+									if (s.contains("True")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuAgentClaComp.add(menuItem);
+									} else if (s.contains("False")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuAgentClaAll.add(menuItem);
+									}
+								} else {
+									if (s.contains("True")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuAgentRegComp.add(menuItem);
+									} else if (s.contains("False")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuAgentRegAll.add(menuItem);
+									}
+								}
+							}
+						}
+					}
+
+					menu.add(submenu);
+
+					//---------------------------------------------------------------------
+					// Heuristic prediction
+
+					submenu = new JMenu("Predict Best Heuristic (external)");
+
+					final JMenu submenuHeuristicReg = new JMenu("Regression");
+					final JMenu submenuHeuristicCla = new JMenu("Classification");
+
+					final JMenu submenuHeuristicRegComp = new JMenu("Compilation");
+					final JMenu submenuHeuristicClaComp = new JMenu("Compilation");
+					final JMenu submenuHeuristicRegAll = new JMenu("All");
+					final JMenu submenuHeuristicClaAll = new JMenu("All");
+
+					submenuHeuristicReg.add(submenuHeuristicRegComp);
+					submenuHeuristicReg.add(submenuHeuristicRegAll);
+					submenuHeuristicCla.add(submenuHeuristicClaComp);
+					submenuHeuristicCla.add(submenuHeuristicClaAll);
+
+					submenu.add(submenuHeuristicReg);
+					submenu.add(submenuHeuristicCla);
+
+					if (directories != null) {
+						for (final String s : directories) {
+							if (s.contains("Heuristics")) {
+								if (s.contains("Classification")) {
+									if (s.contains("True")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuHeuristicClaComp.add(menuItem);
+									} else if (s.contains("False")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuHeuristicClaAll.add(menuItem);
+									}
+								} else {
+									if (s.contains("True")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuHeuristicRegComp.add(menuItem);
+									} else if (s.contains("False")) {
+										menuItem = new JMenuItem(s.split("-")[0]);
+										menuItem.addActionListener(al);
+										submenuHeuristicRegAll.add(menuItem);
+									}
+								}
+							}
+						}
+					}
+
+					menu.add(submenu);
+
+					//---------------------------------------------------------------------
+					// Metric prediction
+
+					submenu = new JMenu("Predict Metrics (external)");
+
+					final JMenu submenuComp = new JMenu("Compilation");
+					final JMenu submenuAll = new JMenu("All");
+
+					if (directories != null) {
+						for (final String s : directories) {
+							if (s.contains("Metrics")) {
+								if (s.contains("True")) {
+									menuItem = new JMenuItem(s.split("-")[0]);
+									menuItem.addActionListener(al);
+									submenuComp.add(menuItem);
+								} else if (s.contains("False")) {
+									menuItem = new JMenuItem(s.split("-")[0]);
+									menuItem.addActionListener(al);
+									submenuAll.add(menuItem);
+								}
+							}
+						}
+					}
+
+					submenu.add(submenuComp);
+					submenu.add(submenuAll);
+					menu.add(submenu);
+
+					//---------------------------------------------------------------------
+					// Portfolio parameter prediction
+
+					menuItem = new JMenuItem("Portfolio Parameters (external)");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+				}
 			}
 		}
-		
 //		//---------------------------------------------------------------------
 //		// Generation menu
 //		
@@ -674,21 +646,20 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// Options Menu
 
-		boolean optionsFound = false;
-		for (int o = 0; o < app.contextSnapshot().getContext(app).game().description().gameOptions().numCategories(); o++)
-		{
-			final List<Option> options = app.contextSnapshot().getContext(app).game().description().gameOptions().categories().get(o).options();
-			if (!options.isEmpty())
-				optionsFound = true;
-		}
+		if(!app.isClient) {
+			boolean optionsFound = false;
+			for (int o = 0; o < app.contextSnapshot().getContext(app).game().description().gameOptions().numCategories(); o++) {
+				final List<Option> options = app.contextSnapshot().getContext(app).game().description().gameOptions().categories().get(o).options();
+				if (!options.isEmpty())
+					optionsFound = true;
+			}
 
-		if (optionsFound && app.manager().settingsNetwork().getActiveGameId()==0)
-		{
-			mainOptionsMenu = new JMenu("Options");
-			this.add(mainOptionsMenu);
-			updateOptionsMenu(app, app.contextSnapshot().getContext(app), mainOptionsMenu);
+			if (optionsFound && app.manager().settingsNetwork().getActiveGameId() == 0) {
+				mainOptionsMenu = new JMenu("Options");
+				this.add(mainOptionsMenu);
+				updateOptionsMenu(app, app.contextSnapshot().getContext(app), mainOptionsMenu);
+			}
 		}
-
 		//---------------------------------------------------------------------
 		// Network Menu
 
@@ -718,505 +689,500 @@ public class MainMenu extends JMenuBar
 
 		//---------------------------------------------------------------------
 		// Demos Menu
-		
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
-		{
-			menu = new JMenu("Demos");
-			final String[] demos = findDemos();
-			
-			if (demos.length > 0)
-			{
-				this.add(menu);
-				
-				for (String demo : demos)
-				{
-					if (!demo.endsWith(".json"))
-						continue;
-					
-					demo = demo.replaceAll(Pattern.quote("\\"), "/");
-					
-					if (demo.contains("/demos/"))
-						demo = demo.substring(demo.indexOf("/demos/"));
-					
-					if (!demo.startsWith("/"))
-						demo = "/" + demo;
-					
-					if (!demo.startsWith("/demos"))
-						demo = "/demos" + demo;
-		
-					try (final InputStream inputStream = MainMenu.class.getResourceAsStream(demo))
-					{
-						final JSONObject json = new JSONObject(new JSONTokener(inputStream));
-						final JSONObject jsonDemo = json.getJSONObject("Demo");
-						final String demoName = jsonDemo.getString("Name");
-		
-						menuItem = new JMenuItem(demoName);
-						menuItem.addActionListener(new ActionListener()
-								{
-									@Override
-									public void actionPerformed(final ActionEvent e)
-									{
-										MiscLoading.loadDemo(app, jsonDemo);
-									}
-								});
-						menu.add(menuItem);
-					}
-					catch (final JSONException e)
-					{
-						System.err.println("Warning: JSON parsing error for demo file: " + demo);
-					}
-					catch (final IOException e)
-					{
-						e.printStackTrace();
+
+		if(!app.isClient) {
+			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+				menu = new JMenu("Demos");
+				final String[] demos = findDemos();
+
+				if (demos.length > 0) {
+					this.add(menu);
+
+					for (String demo : demos) {
+						if (!demo.endsWith(".json"))
+							continue;
+
+						demo = demo.replaceAll(Pattern.quote("\\"), "/");
+
+						if (demo.contains("/demos/"))
+							demo = demo.substring(demo.indexOf("/demos/"));
+
+						if (!demo.startsWith("/"))
+							demo = "/" + demo;
+
+						if (!demo.startsWith("/demos"))
+							demo = "/demos" + demo;
+
+						try (final InputStream inputStream = MainMenu.class.getResourceAsStream(demo)) {
+							final JSONObject json = new JSONObject(new JSONTokener(inputStream));
+							final JSONObject jsonDemo = json.getJSONObject("Demo");
+							final String demoName = jsonDemo.getString("Name");
+
+							menuItem = new JMenuItem(demoName);
+							menuItem.addActionListener(new ActionListener() {
+								@Override
+								public void actionPerformed(final ActionEvent e) {
+									MiscLoading.loadDemo(app, jsonDemo);
+								}
+							});
+							menu.add(menuItem);
+						} catch (final JSONException e) {
+							System.err.println("Warning: JSON parsing error for demo file: " + demo);
+						} catch (final IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
 		}
-
 		//---------------------------------------------------------------------
 		// Developer Menu
-		
-		if 
-		(
-			app.settingsPlayer().devMode()
-			&& 
-			app.manager().settingsNetwork().getActiveGameId() == 0
-		)
-		{
-		
-			menu = new JMenu("Developer");
-			this.add(menu);
-	
-			menuItem = new JMenuItem("Compile Game (Debug)");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Recompile Current Game");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
 
-			menuItem = new JMenuItem("Expanded Description");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
+		if(!app.isClient) {
+			if
+			(
+					app.settingsPlayer().devMode()
+							&&
+							app.manager().settingsNetwork().getActiveGameId() == 0
+			) {
 
-			menuItem = new JMenuItem("Metadata Description");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-				
-			menuItem = new JMenuItem("Generate Symbols");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('G', ALT_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
+				menu = new JMenu("Developer");
+				this.add(menu);
 
-			menuItem = new JMenuItem("Show Call Tree");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Rules in English");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menuItem = new JMenuItem("Game Manual Generation (Beta)");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
+				menuItem = new JMenuItem("Compile Game (Debug)");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Recompile Current Game");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Expanded Description");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Metadata Description");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Generate Symbols");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('G', ALT_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Show Call Tree");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Rules in English");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Game Manual Generation (Beta)");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
 //			menu.addSeparator();
 //			
 //			menuItem = new JMenuItem("Advanced Distance Dialog");
 //			menuItem.addActionListener(al);
 //			menu.add(menuItem);
-			
-			menu.addSeparator();
-	
-			menuItem = new JMenuItem("Print Board Graph");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menuItem = new JMenuItem("Print Trajectories");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menu.addSeparator();
-	
-			menuItem = new JMenuItem("Jump to Move");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Serialise Game Object");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-			
-			cbMenuItem = new JCheckBoxMenuItem("Show dev tooltip");
-			cbMenuItem.setSelected(app.settingsPlayer().cursorTooltipDev());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			menu.addSeparator();
-			
-			cbMenuItem = new JCheckBoxMenuItem("Sandbox");
-			cbMenuItem.setSelected(app.settingsPlayer().sandboxMode());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			menuItem = new JMenuItem("Clear Board");
-			menuItem.setEnabled(app.settingsPlayer().sandboxMode());
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menu.addSeparator();
-			
-			if (DesktopApp.devJar)
-			{
-				menuItem = new JMenuItem("Export Thumbnails");
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Print Board Graph");
 				menuItem.addActionListener(al);
 				menu.add(menuItem);
-		
-				menuItem = new JMenuItem("Export All Thumbnails");
-				menuItem.addActionListener(al);
-				menu.add(menuItem);
-				
-				menuItem = new JMenuItem("Export Thumbnails (ruleset)");
-				menuItem.addActionListener(al);
-				menu.add(menuItem);
-				
-				menuItem = new JMenuItem("Export Thumbnails (complete rulesets)");
-				menuItem.addActionListener(al);
-				menu.add(menuItem);
-				
-				menuItem = new JMenuItem("Export All Thumbnails (rulesets)");
-				menuItem.addActionListener(al);
-				menu.add(menuItem);
-				
-				menuItem = new JMenuItem("Export Board Thumbnail");
-				menuItem.addActionListener(al);
-				menu.add(menuItem);
-		
-				menuItem = new JMenuItem("Export All Board Thumbnails");
+
+				menuItem = new JMenuItem("Print Trajectories");
 				menuItem.addActionListener(al);
 				menu.add(menuItem);
 
 				menu.addSeparator();
-			}
-			
-			app.settingsPlayer().setSwapRule(false);
-			if (app.contextSnapshot().getContext(app).game().metaRules().usesSwapRule())
-				app.settingsPlayer().setSwapRule(true);
-	
-			app.settingsPlayer().setNoRepetition(false);
-			if (app.contextSnapshot().getContext(app).game().metaRules().repetitionType() == RepetitionType.Positional)
-				app.settingsPlayer().setNoRepetition(true);
-			
-			app.settingsPlayer().setNoRepetitionWithinTurn(false);
-			if (app.contextSnapshot().getContext(app).game().metaRules().repetitionType() == RepetitionType.PositionalInTurn)
-				app.settingsPlayer().setNoRepetitionWithinTurn(true);
-	
-			if (app.manager().settingsNetwork().getActiveGameId() == 0)
-			{
-				cbMenuItem = new JCheckBoxMenuItem("Swap Rule");
-				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('J', InputEvent.SHIFT_DOWN_MASK));
-				cbMenuItem.setSelected(app.settingsPlayer().swapRule());
-				cbMenuItem.addItemListener(il);
-				menu.add(cbMenuItem);
-			}
-	
-			if (app.manager().settingsNetwork().getActiveGameId() == 0)
-			{
-				cbMenuItem = new JCheckBoxMenuItem("No Repetition Of Game State");
-				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.SHIFT_DOWN_MASK));
-				cbMenuItem.setSelected(app.settingsPlayer().noRepetition());
-				cbMenuItem.addItemListener(il);
-				menu.add(cbMenuItem);
-			}
-			
-			if (app.manager().settingsNetwork().getActiveGameId() == 0)
-			{
-				cbMenuItem = new JCheckBoxMenuItem("No Repetition Within A Turn");
-				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('W', InputEvent.SHIFT_DOWN_MASK));
-				cbMenuItem.setSelected(app.settingsPlayer().noRepetitionWithinTurn());
-				cbMenuItem.addItemListener(il);
-				menu.add(cbMenuItem);
-			}
-			
-			menu.addSeparator();
-			
-			cbMenuItem = new JCheckBoxMenuItem("Show Cell Indices");
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', ALT_DOWN_MASK));
-			cbMenuItem.setSelected(app.bridge().settingsVC().showCellIndices());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
 
-			cbMenuItem = new JCheckBoxMenuItem("Show Edge Indices");
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('E', ALT_DOWN_MASK));
-			cbMenuItem.setSelected(app.bridge().settingsVC().showEdgeIndices());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-
-			cbMenuItem = new JCheckBoxMenuItem("Show Vertex Indices");
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('F', ALT_DOWN_MASK));
-			cbMenuItem.setSelected(app.bridge().settingsVC().showVertexIndices());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			cbMenuItem = new JCheckBoxMenuItem("Show Container Indices");
-			cbMenuItem.setSelected(app.bridge().settingsVC().showContainerIndices());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-
-			menu.addSeparator();
-
-			cbMenuItem = new JCheckBoxMenuItem("Show Cell Coordinates");
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('C', ALT_DOWN_MASK));
-			cbMenuItem.setSelected(app.bridge().settingsVC().showCellCoordinates());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			cbMenuItem = new JCheckBoxMenuItem("Show Edge Coordinates");
-			cbMenuItem.setSelected(app.bridge().settingsVC().showEdgeCoordinates());
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('B', ALT_DOWN_MASK));
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			cbMenuItem = new JCheckBoxMenuItem("Show Vertex Coordinates");
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('W', ALT_DOWN_MASK));
-			cbMenuItem.setSelected(app.bridge().settingsVC().showVertexCoordinates());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Print Working Directory");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Evaluate Heuristic");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menuItem = new JMenuItem("Evaluate Features");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			cbMenuItem = new JCheckBoxMenuItem("Print Move Features");
-			cbMenuItem.setSelected(app.settingsPlayer().printMoveFeatures());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			cbMenuItem = new JCheckBoxMenuItem("Print Move Feature Instances");
-			cbMenuItem.setSelected(app.settingsPlayer().printMoveFeatureInstances());
-			cbMenuItem.addItemListener(il);
-			menu.add(cbMenuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Generate Random Game");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-									
-			menuItem = new JMenuItem("Generate 1000 Random Games");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-
-			if (DesktopApp.devJar)
-			{
-				menuItem = new JMenuItem("Generate 1 Game with Restrictions (dev)");
+				menuItem = new JMenuItem("Jump to Move");
 				menuItem.addActionListener(al);
 				menu.add(menuItem);
-				
-				menuItem = new JMenuItem("Contextual Distance");
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Serialise Game Object");
 				menuItem.addActionListener(al);
 				menu.add(menuItem);
-			}
 
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("Reconstruction Dialog");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			menu.addSeparator();
-			
-			menuItem = new JMenuItem("More Developer Options");
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-			
-			MenuScroller.setScrollerFor(menu, 30, 50, 0, 0);
+				menu.addSeparator();
+
+				cbMenuItem = new JCheckBoxMenuItem("Show dev tooltip");
+				cbMenuItem.setSelected(app.settingsPlayer().cursorTooltipDev());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				menu.addSeparator();
+
+				cbMenuItem = new JCheckBoxMenuItem("Sandbox");
+				cbMenuItem.setSelected(app.settingsPlayer().sandboxMode());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				menuItem = new JMenuItem("Clear Board");
+				menuItem.setEnabled(app.settingsPlayer().sandboxMode());
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				if (DesktopApp.devJar) {
+					menuItem = new JMenuItem("Export Thumbnails");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Export All Thumbnails");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Export Thumbnails (ruleset)");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Export Thumbnails (complete rulesets)");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Export All Thumbnails (rulesets)");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Export Board Thumbnail");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Export All Board Thumbnails");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menu.addSeparator();
+				}
+
+				app.settingsPlayer().setSwapRule(false);
+				if (app.contextSnapshot().getContext(app).game().metaRules().usesSwapRule())
+					app.settingsPlayer().setSwapRule(true);
+
+				app.settingsPlayer().setNoRepetition(false);
+				if (app.contextSnapshot().getContext(app).game().metaRules().repetitionType() == RepetitionType.Positional)
+					app.settingsPlayer().setNoRepetition(true);
+
+				app.settingsPlayer().setNoRepetitionWithinTurn(false);
+				if (app.contextSnapshot().getContext(app).game().metaRules().repetitionType() == RepetitionType.PositionalInTurn)
+					app.settingsPlayer().setNoRepetitionWithinTurn(true);
+
+				if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+					cbMenuItem = new JCheckBoxMenuItem("Swap Rule");
+					cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('J', InputEvent.SHIFT_DOWN_MASK));
+					cbMenuItem.setSelected(app.settingsPlayer().swapRule());
+					cbMenuItem.addItemListener(il);
+					menu.add(cbMenuItem);
+				}
+
+				if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+					cbMenuItem = new JCheckBoxMenuItem("No Repetition Of Game State");
+					cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.SHIFT_DOWN_MASK));
+					cbMenuItem.setSelected(app.settingsPlayer().noRepetition());
+					cbMenuItem.addItemListener(il);
+					menu.add(cbMenuItem);
+				}
+
+				if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+					cbMenuItem = new JCheckBoxMenuItem("No Repetition Within A Turn");
+					cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('W', InputEvent.SHIFT_DOWN_MASK));
+					cbMenuItem.setSelected(app.settingsPlayer().noRepetitionWithinTurn());
+					cbMenuItem.addItemListener(il);
+					menu.add(cbMenuItem);
+				}
+
+				menu.addSeparator();
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Cell Indices");
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', ALT_DOWN_MASK));
+				cbMenuItem.setSelected(app.bridge().settingsVC().showCellIndices());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Edge Indices");
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('E', ALT_DOWN_MASK));
+				cbMenuItem.setSelected(app.bridge().settingsVC().showEdgeIndices());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Vertex Indices");
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('F', ALT_DOWN_MASK));
+				cbMenuItem.setSelected(app.bridge().settingsVC().showVertexIndices());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Container Indices");
+				cbMenuItem.setSelected(app.bridge().settingsVC().showContainerIndices());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				menu.addSeparator();
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Cell Coordinates");
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('C', ALT_DOWN_MASK));
+				cbMenuItem.setSelected(app.bridge().settingsVC().showCellCoordinates());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Edge Coordinates");
+				cbMenuItem.setSelected(app.bridge().settingsVC().showEdgeCoordinates());
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('B', ALT_DOWN_MASK));
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				cbMenuItem = new JCheckBoxMenuItem("Show Vertex Coordinates");
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('W', ALT_DOWN_MASK));
+				cbMenuItem.setSelected(app.bridge().settingsVC().showVertexCoordinates());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Print Working Directory");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Evaluate Heuristic");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Evaluate Features");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				cbMenuItem = new JCheckBoxMenuItem("Print Move Features");
+				cbMenuItem.setSelected(app.settingsPlayer().printMoveFeatures());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				cbMenuItem = new JCheckBoxMenuItem("Print Move Feature Instances");
+				cbMenuItem.setSelected(app.settingsPlayer().printMoveFeatureInstances());
+				cbMenuItem.addItemListener(il);
+				menu.add(cbMenuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Generate Random Game");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Generate 1000 Random Games");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				if (DesktopApp.devJar) {
+					menuItem = new JMenuItem("Generate 1 Game with Restrictions (dev)");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+
+					menuItem = new JMenuItem("Contextual Distance");
+					menuItem.addActionListener(al);
+					menu.add(menuItem);
+				}
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("Reconstruction Dialog");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("More Developer Options");
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				MenuScroller.setScrollerFor(menu, 30, 50, 0, 0);
+			}
 		}
-		
 		//---------------------------------------------------------------------
 		// View Menu
 
-		menu = new JMenu("View");
-		this.add(menu);
-		
-		menuItem = new JMenuItem("Clear Status Panel");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-		
-		menu.addSeparator();
+		if(!app.isClient) {
+			menu = new JMenu("View");
+			this.add(menu);
 
-		cbMenuItem = new JCheckBoxMenuItem("Show Board");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('B', InputEvent.SHIFT_DOWN_MASK));
-		cbMenuItem.setSelected(app.settingsPlayer().showBoard());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
+			menuItem = new JMenuItem("Clear Status Panel");
+			menuItem.addActionListener(al);
+			menu.add(menuItem);
 
-		cbMenuItem = new JCheckBoxMenuItem("Show Pieces");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('P', InputEvent.SHIFT_DOWN_MASK));
-		cbMenuItem.setSelected(app.settingsPlayer().showPieces());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-
-		cbMenuItem = new JCheckBoxMenuItem("Show Graph");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('G', InputEvent.SHIFT_DOWN_MASK));
-		cbMenuItem.setSelected(app.settingsPlayer().showGraph());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-		
-		cbMenuItem = new JCheckBoxMenuItem("Show Cell Connections");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('D', InputEvent.SHIFT_DOWN_MASK));
-		cbMenuItem.setSelected(app.settingsPlayer().showConnections());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-
-		cbMenuItem = new JCheckBoxMenuItem("Show Axes");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.SHIFT_DOWN_MASK));
-		cbMenuItem.setSelected(app.settingsPlayer().showAxes());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-
-		menu.addSeparator();
-
-		cbMenuItem = new JCheckBoxMenuItem("Show Legal Moves");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('M', ALT_DOWN_MASK));
-		cbMenuItem.setSelected(app.bridge().settingsVC().showPossibleMoves());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-
-		cbMenuItem = new JCheckBoxMenuItem("Show Last Move");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('L', ALT_DOWN_MASK));
-		cbMenuItem.setSelected(app.settingsPlayer().showLastMove());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-		
-		cbMenuItem = new JCheckBoxMenuItem("Show Ending Moves");
-		cbMenuItem.setSelected(app.settingsPlayer().showEndingMove());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-		
-		cbMenuItem = new JCheckBoxMenuItem("Show Repetitions");
-		cbMenuItem.setSelected(app.manager().settingsManager().showRepetitions());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-
-		menu.addSeparator();
-
-		cbMenuItem = new JCheckBoxMenuItem("Show Indices");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', CTRL_DOWN_MASK));
-		cbMenuItem.setSelected(app.bridge().settingsVC().showIndices());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-		
-		cbMenuItem = new JCheckBoxMenuItem("Show Coordinates");
-		cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('C', CTRL_DOWN_MASK));
-		cbMenuItem.setSelected(app.bridge().settingsVC().showCoordinates());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-		
-		menu.addSeparator();
-
-		cbMenuItem = new JCheckBoxMenuItem("Show Magnifying Glass");
-		cbMenuItem.setSelected(app.settingsPlayer().showZoomBox());
-		cbMenuItem.addItemListener(il);
-		menu.add(cbMenuItem);
-
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
-		{
 			menu.addSeparator();
-			cbMenuItem = new JCheckBoxMenuItem("Show AI Distribution");
-			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('A', ALT_DOWN_MASK));
-			cbMenuItem.setSelected(app.settingsPlayer().showAIDistribution());
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Board");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('B', InputEvent.SHIFT_DOWN_MASK));
+			cbMenuItem.setSelected(app.settingsPlayer().showBoard());
 			cbMenuItem.addItemListener(il);
 			menu.add(cbMenuItem);
-		}
 
-		submenu = new JMenu("Pick Tracks to show");
+			cbMenuItem = new JCheckBoxMenuItem("Show Pieces");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('P', InputEvent.SHIFT_DOWN_MASK));
+			cbMenuItem.setSelected(app.settingsPlayer().showPieces());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
 
-		if (app.contextSnapshot().getContext(app).board().tracks().size() > 0)
-		{
+			cbMenuItem = new JCheckBoxMenuItem("Show Graph");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('G', InputEvent.SHIFT_DOWN_MASK));
+			cbMenuItem.setSelected(app.settingsPlayer().showGraph());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Cell Connections");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('D', InputEvent.SHIFT_DOWN_MASK));
+			cbMenuItem.setSelected(app.settingsPlayer().showConnections());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Axes");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.SHIFT_DOWN_MASK));
+			cbMenuItem.setSelected(app.settingsPlayer().showAxes());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
 			menu.addSeparator();
-			submenu = new JMenu("Show Tracks");
 
-			for (int trackNumber = 0; trackNumber < app.contextSnapshot().getContext(app).board().tracks().size(); trackNumber++)
-			{
-				final Track track = app.contextSnapshot().getContext(app).board().tracks().get(trackNumber);
-				
-				cbMenuItem = new JCheckBoxMenuItem("Show Track " + track.name());
+			cbMenuItem = new JCheckBoxMenuItem("Show Legal Moves");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('M', ALT_DOWN_MASK));
+			cbMenuItem.setSelected(app.bridge().settingsVC().showPossibleMoves());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
 
-				boolean trackFound = false;
-				for (int i = 0; i < app.bridge().settingsVC().trackNames().size(); i++)
-				{
-					if (cbMenuItem.getText().equals(app.bridge().settingsVC().trackNames().get(i)))
-					{
-						cbMenuItem.setSelected(app.bridge().settingsVC().trackShown().get(i).booleanValue());
-						trackFound = true;
-						break;
-					}
-				}
-				if (!trackFound)
-				{
-					app.bridge().settingsVC().trackNames().add(cbMenuItem.getText());
-					app.bridge().settingsVC().trackShown().add(Boolean.valueOf(false));
-				}
-				
-				// If our track number exceeds 9, we'd get weird keyboard shortcuts and maybe even duplicate ones
-				if (trackNumber < 10)
-					cbMenuItem.setAccelerator(KeyStroke.getKeyStroke((char)(trackNumber+'0'), InputEvent.SHIFT_DOWN_MASK));
-				
+			cbMenuItem = new JCheckBoxMenuItem("Show Last Move");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('L', ALT_DOWN_MASK));
+			cbMenuItem.setSelected(app.settingsPlayer().showLastMove());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Ending Moves");
+			cbMenuItem.setSelected(app.settingsPlayer().showEndingMove());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Repetitions");
+			cbMenuItem.setSelected(app.manager().settingsManager().showRepetitions());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			menu.addSeparator();
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Indices");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', CTRL_DOWN_MASK));
+			cbMenuItem.setSelected(app.bridge().settingsVC().showIndices());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Coordinates");
+			cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('C', CTRL_DOWN_MASK));
+			cbMenuItem.setSelected(app.bridge().settingsVC().showCoordinates());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			menu.addSeparator();
+
+			cbMenuItem = new JCheckBoxMenuItem("Show Magnifying Glass");
+			cbMenuItem.setSelected(app.settingsPlayer().showZoomBox());
+			cbMenuItem.addItemListener(il);
+			menu.add(cbMenuItem);
+
+			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+				menu.addSeparator();
+				cbMenuItem = new JCheckBoxMenuItem("Show AI Distribution");
+				cbMenuItem.setAccelerator(KeyStroke.getKeyStroke('A', ALT_DOWN_MASK));
+				cbMenuItem.setSelected(app.settingsPlayer().showAIDistribution());
 				cbMenuItem.addItemListener(il);
-				submenu.add(cbMenuItem);
+				menu.add(cbMenuItem);
 			}
-			menu.add(submenu);
-		}
 
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
-		{
+			submenu = new JMenu("Pick Tracks to show");
+
+			if (app.contextSnapshot().getContext(app).board().tracks().size() > 0) {
+				menu.addSeparator();
+				submenu = new JMenu("Show Tracks");
+
+				for (int trackNumber = 0; trackNumber < app.contextSnapshot().getContext(app).board().tracks().size(); trackNumber++) {
+					final Track track = app.contextSnapshot().getContext(app).board().tracks().get(trackNumber);
+
+					cbMenuItem = new JCheckBoxMenuItem("Show Track " + track.name());
+
+					boolean trackFound = false;
+					for (int i = 0; i < app.bridge().settingsVC().trackNames().size(); i++) {
+						if (cbMenuItem.getText().equals(app.bridge().settingsVC().trackNames().get(i))) {
+							cbMenuItem.setSelected(app.bridge().settingsVC().trackShown().get(i).booleanValue());
+							trackFound = true;
+							break;
+						}
+					}
+					if (!trackFound) {
+						app.bridge().settingsVC().trackNames().add(cbMenuItem.getText());
+						app.bridge().settingsVC().trackShown().add(Boolean.valueOf(false));
+					}
+
+					// If our track number exceeds 9, we'd get weird keyboard shortcuts and maybe even duplicate ones
+					if (trackNumber < 10)
+						cbMenuItem.setAccelerator(KeyStroke.getKeyStroke((char) (trackNumber + '0'), InputEvent.SHIFT_DOWN_MASK));
+
+					cbMenuItem.addItemListener(il);
+					submenu.add(cbMenuItem);
+				}
+				menu.add(submenu);
+			}
+
+			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
+				menu.addSeparator();
+
+				menuItem = new JMenuItem("View SVG");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('V', ALT_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+
+				menuItem = new JMenuItem("Load SVG");
+				menuItem.setAccelerator(KeyStroke.getKeyStroke('U', ALT_DOWN_MASK));
+				menuItem.addActionListener(al);
+				menu.add(menuItem);
+			}
+
 			menu.addSeparator();
-	
-			menuItem = new JMenuItem("View SVG");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('V', ALT_DOWN_MASK));
-			menuItem.addActionListener(al);
-			menu.add(menuItem);
-	
-			menuItem = new JMenuItem("Load SVG");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke('U', ALT_DOWN_MASK));
+
+			menuItem = new JMenuItem("Game Hashcode");
 			menuItem.addActionListener(al);
 			menu.add(menuItem);
 		}
-		
-		menu.addSeparator();
-		
-		menuItem = new JMenuItem("Game Hashcode");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-		
 		//---------------------------------------------------------------------
 		// Help menu
-		
-		menu = new JMenu("Help");
+
+		if(!app.isClient) {
+			menu = new JMenu("Help");
+			this.add(menu);
+
+			menuItem = new JMenuItem("About");
+			menuItem.setAccelerator(KeyStroke.getKeyStroke('H', CTRL_DOWN_MASK));
+			menuItem.addActionListener(al);
+			menu.add(menuItem);
+		}
+		// BOURRYTO: added a test menu, to test some connection ideas
+		//---------------------------------------------------------------------
+		menu = new JMenu("Bourryto");
 		this.add(menu);
-		
-		menuItem = new JMenuItem("About");
-		menuItem.setAccelerator(KeyStroke.getKeyStroke('H', CTRL_DOWN_MASK));
+
+		menuItem = new JMenuItem("Test Connection To Port");
 		menuItem.addActionListener(al);
 		menu.add(menuItem);
+
+		menuItem = new JMenuItem("Send Game Name");
+		menuItem.addActionListener(al);
+		menu.add(menuItem);
+
 	}
 
 	//-------------------------------------------------------------------------

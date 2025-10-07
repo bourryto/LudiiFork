@@ -30,6 +30,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import analysis.Complexity;
+import app.App;
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.util.DialogUtil;
@@ -71,7 +73,7 @@ public class EvaluationDialog extends JDialog
 		try
 		{
 			final EvaluationDialog dialog = new EvaluationDialog(app);
-			DialogUtil.initialiseSingletonDialog(dialog, "Game Evaluation", null);
+			DialogUtil.initialiseSingletonDialog(dialog, "Game Evaluation", null, app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{
@@ -91,7 +93,7 @@ public class EvaluationDialog extends JDialog
 		final ArrayList<Double> weights = new ArrayList<>();
 
 		final JButton okButton;
-		setBounds(100, 100, 780, DesktopApp.frame().getHeight());
+		setBounds(100, 100, 780, App.getFrameFromAppID(app.manager().getAppID()).getHeight());
 		getContentPane().setLayout(new BorderLayout());
 		
 		final JPanel panel = new JPanel();
@@ -233,7 +235,7 @@ public class EvaluationDialog extends JDialog
 		textFieldHardTimeLimit.setBounds(220, 536, 162, 19);
 		LeftPanel.add(textFieldHardTimeLimit);
 		
-		String tempFilePath = DesktopApp.lastSelectedJsonPath();
+		String tempFilePath = Apps.getFromID(app.manager().getAppID()).lastSelectedJsonPath();
 		if (tempFilePath == null)
 			tempFilePath = System.getProperty("user.dir");
 		final String defaultFilePath = tempFilePath;
@@ -255,7 +257,7 @@ public class EvaluationDialog extends JDialog
 				final JFileChooser fileChooser = FileLoading.createFileChooser(defaultFilePath, ".txt", "TXT files (.txt)");
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				fileChooser.setDialogTitle("Select output directory.");
-				final int jsonReturnVal = fileChooser.showOpenDialog(DesktopApp.frame());
+				final int jsonReturnVal = fileChooser.showOpenDialog(App.getFrameFromAppID(app.manager().getAppID()));
 				final File directory;
 
 				if (jsonReturnVal == JFileChooser.APPROVE_OPTION)
@@ -466,7 +468,7 @@ public class EvaluationDialog extends JDialog
 					weightsCopy.add(new Double(d.doubleValue()));
 				
 				AIPlayer.AIEvalution(app, report, numberIterations, maxTurns, thinkTime, AIName, metrics, weightsCopy, useDatabaseTrialsCheckBox.isSelected());
-				DesktopApp.view().tabPanel().select(TabView.PanelAnalysis);
+				Apps.getFromID(app.manager().getAppID()).view().tabPanel().select(TabView.PanelAnalysis);
 			}
 		});
 		

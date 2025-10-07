@@ -71,7 +71,7 @@ public class DeveloperDialog extends JDialog
 		try
 		{
 			final DeveloperDialog dialog = new DeveloperDialog(app);
-			DialogUtil.initialiseSingletonDialog(dialog, "Developer Settings", null);
+			DialogUtil.initialiseSingletonDialog(dialog, "Developer Settings", null, app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{

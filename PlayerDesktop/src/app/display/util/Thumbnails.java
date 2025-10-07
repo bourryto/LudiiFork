@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.imageio.ImageIO;
 
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.utils.BufferedImageUtil;
@@ -38,7 +39,7 @@ public class Thumbnails
 	 */
 	public static void generateThumbnails(final PlayerApp app, final boolean includeRulesetName)
 	{
-		final int imageSize = DesktopApp.view().getBoardPanel().boardSize();
+		final int imageSize = Apps.getFromID(app.manager().getAppID()).view().getBoardPanel().boardSize();
 		final Board board = app.manager().ref().context().board();
 		final Context context = app.manager().ref().context();
 
@@ -268,7 +269,7 @@ public class Thumbnails
 	 */
 	public static void generateBoardThumbnail(final PlayerApp app)
 	{
-		final int imageSize = DesktopApp.view().getBoardPanel().boardSize();
+		final int imageSize = Apps.getFromID(app.manager().getAppID()).view().getBoardPanel().boardSize();
 
 		final Board board = app.manager().ref().context().board();
 

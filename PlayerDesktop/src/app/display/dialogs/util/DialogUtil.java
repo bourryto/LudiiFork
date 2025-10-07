@@ -14,6 +14,7 @@ import javax.swing.AbstractButton;
 import javax.swing.JDialog;
 import javax.swing.WindowConstants;
 
+import app.Apps;
 import app.DesktopApp;
 import app.util.SettingsDesktop;
 
@@ -25,9 +26,9 @@ public class DialogUtil
 	 * @param dialog
 	 * @param title
 	 */
-	public static void initialiseDialog(final JDialog dialog, final String title, final Rectangle bounds)
+	public static void initialiseDialog(final JDialog dialog, final String title, final Rectangle bounds, Integer appID)
 	{
-		sharedInitialisation(dialog, title, bounds);
+		sharedInitialisation(dialog, title, bounds, appID);
 	}
 	
 	//-------------------------------------------------------------------------
@@ -37,10 +38,10 @@ public class DialogUtil
 	 * @param dialog
 	 * @param title
 	 */
-	public static void initialiseForcedDialog(final JDialog dialog, final String title, final Rectangle bounds)
+	public static void initialiseForcedDialog(final JDialog dialog, final String title, final Rectangle bounds, Integer appID)
 	{
 		dialog.setModal(true);
-		sharedInitialisation(dialog, title, bounds);
+		sharedInitialisation(dialog, title, bounds, appID);
 	}
 	
 	//-------------------------------------------------------------------------
@@ -50,7 +51,7 @@ public class DialogUtil
 	 * @param dialog
 	 * @param title
 	 */
-	public static void initialiseSingletonDialog(final JDialog dialog, final String title, final Rectangle bounds)
+	public static void initialiseSingletonDialog(final JDialog dialog, final String title, final Rectangle bounds, Integer appID)
 	{
 		if (SettingsDesktop.openDialog != null)
 		{
@@ -58,7 +59,7 @@ public class DialogUtil
 			SettingsDesktop.openDialog.dispose();
 		}
 		SettingsDesktop.openDialog = dialog;
-		sharedInitialisation(dialog, title, bounds);
+		sharedInitialisation(dialog, title, bounds, appID);
 	}
 	
 	//-------------------------------------------------------------------------
@@ -68,12 +69,12 @@ public class DialogUtil
 	 * @param dialog
 	 * @param title
 	 */
-	private static void sharedInitialisation(final JDialog dialog, final String title, final Rectangle bounds)
+	private static void sharedInitialisation(final JDialog dialog, final String title, final Rectangle bounds, Integer appID)
 	{
 		// Logo and title
 		try
 		{
-			final URL resource = DesktopApp.frame().getClass().getResource("/ludii-logo-100x100.png");
+			final URL resource = Apps.getFromID(appID).frame().getClass().getResource("/ludii-logo-100x100.png");
 			final BufferedImage image = ImageIO.read(resource);
 			dialog.setIconImage(image);
 			dialog.setTitle(title);
@@ -85,7 +86,7 @@ public class DialogUtil
 
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		if (bounds == null)
-			dialog.setLocationRelativeTo(DesktopApp.frame());
+			dialog.setLocationRelativeTo(Apps.getFromID(appID).frame());
 		else
 		{
 			dialog.setLocation(bounds.getLocation());

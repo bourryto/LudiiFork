@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.swing.JFileChooser;
 
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.MainWindowDesktop;
@@ -30,11 +31,11 @@ public class TrialLoading
 	 */
 	public static void saveTrial(final PlayerApp app)
 	{
-		final int fcReturnVal = DesktopApp.saveGameFileChooser().showSaveDialog(DesktopApp.frame());
+		final int fcReturnVal = Apps.getFromID(app.manager().getAppID()).saveGameFileChooser().showSaveDialog(Apps.getFromID(app.manager().getAppID()).frame());
 
 		if (fcReturnVal == JFileChooser.APPROVE_OPTION)
 		{
-			File file = DesktopApp.saveGameFileChooser().getSelectedFile();
+			File file = Apps.getFromID(app.manager().getAppID()).saveGameFileChooser().getSelectedFile();
 			String filePath = file.getAbsolutePath();
 			if (!filePath.endsWith(".trl"))
 			{
@@ -94,11 +95,11 @@ public class TrialLoading
 	 */
 	public static void loadTrial(final PlayerApp app, final boolean debug)
 	{
-		final int fcReturnVal = DesktopApp.loadTrialFileChooser().showOpenDialog(DesktopApp.frame());
+		final int fcReturnVal = Apps.getFromID(app.manager().getAppID()).loadTrialFileChooser().showOpenDialog(Apps.getFromID(app.manager().getAppID()).frame());
 		if (fcReturnVal == JFileChooser.APPROVE_OPTION)
 		{
 			app.manager().ref().interruptAI(app.manager());
-			final File file = DesktopApp.loadTrialFileChooser().getSelectedFile();
+			final File file = Apps.getFromID(app.manager().getAppID()).loadTrialFileChooser().getSelectedFile();
 			loadTrial(app, file, debug);
 		}
 	}
@@ -138,7 +139,7 @@ public class TrialLoading
 					if (nextLine.startsWith("LUDII_VERSION") && !nextLine.substring(14).equals(Constants.LUDEME_VERSION))
 					{
 						System.out.println("Warning! Trial is of version " + nextLine.substring(14));
-						MainWindowDesktop.setVolatileMessage(app, "Warning! Trial is of version " + nextLine.substring(14));
+						Apps.getFromID(app.manager().getAppID()).view().setVolatileMessage(app, "Warning! Trial is of version " + nextLine.substring(14));
 					}
 					nextLine = reader.readLine();
 				}
@@ -191,7 +192,7 @@ public class TrialLoading
 					e.printStackTrace();
 				}
 			}
-			else if (DesktopApp.shouldLoadTrial())
+			else if (Apps.getFromID(app.manager().getAppID()).shouldLoadTrial())
 			{
 				TrialLoading.loadTrial(app, file, false);
 			}

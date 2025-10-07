@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 
+import app.App;
 import app.DesktopApp;
 
 public class ScreenCapture
@@ -36,7 +37,7 @@ public class ScreenCapture
 	/**
 	 * Save a screenshot of the current game board state.
 	 */
-	public static void gameScreenshot(final String savedName)
+	public static void gameScreenshot(final String savedName, App app)
 	{			
 		screenshotComplete = false;
 		
@@ -51,7 +52,7 @@ public class ScreenCapture
 			{
 				e.printStackTrace();
 			}
-			final java.awt.Container panel = DesktopApp.frame().getContentPane();
+			final java.awt.Container panel = app.frame().getContentPane();
 			final Point pos = panel.getLocationOnScreen();
 			final Rectangle bounds = panel.getBounds();
 			bounds.x = pos.x;
@@ -89,7 +90,7 @@ public class ScreenCapture
 	/**
 	 * Save a gif animation of the current game board state.
 	 */
-	public static void gameGif(final String savedName, final int numberPictures)
+	public static void gameGif(final String savedName, final int numberPictures, App app)
 	{				
 		gifCombineImageTimerComplete = false;
 		gifSaveImageTimerComplete = false;
@@ -111,7 +112,7 @@ public class ScreenCapture
 			}
 			final Robot robot = robotTemp;
 			
-			final java.awt.Container panel = DesktopApp.frame().getContentPane();
+			final java.awt.Container panel = app.frame().getContentPane();
 			final Point pos = panel.getLocationOnScreen();
 			final Rectangle bounds = panel.getBounds();
 			bounds.x = pos.x;

@@ -13,7 +13,9 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import app.App;
 import app.DesktopApp;
+import app.display.MainWindow;
 import app.display.MainWindowDesktop;
 import app.util.SettingsDesktop;
 
@@ -32,7 +34,7 @@ public class FileLoading
 	 * @return Filepath of selected file.
 	 */
 	public static final String selectFile(final JFrame parent, final boolean isOpen, final String relativePath,
-			final String description, final MainWindowDesktop view, final String... extensions)
+										  final String description, final MainWindow view, final String... extensions)
 	{
 		final String baseFolder = System.getProperty("user.dir");
 
@@ -59,28 +61,28 @@ public class FileLoading
 
 		return null;
 	}
-	
+
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Instantiates a few File Chooser objects
 	 */
-	public static void createFileChoosers()
+	public static void createFileChoosers(App app)
 	{
-		DesktopApp.setJsonFileChooser(createFileChooser(DesktopApp.lastSelectedJsonPath(), ".json", "JSON files (.json)"));
-		DesktopApp.setJarFileChooser(createFileChooser(DesktopApp.lastSelectedJarPath(), ".jar", "JAR files (.jar)"));
-		DesktopApp.setGameFileChooser(createFileChooser(DesktopApp.lastSelectedGamePath(), ".lud", "LUD files (.lud)"));
-		DesktopApp.setAiDefFileChooser(createFileChooser(DesktopApp.lastSelectedAiDefPath(), "ai.def", "AI.DEF files (ai.def)"));
+		app.setJsonFileChooser(FileLoading.createFileChooser(app.lastSelectedJsonPath(), ".json", "JSON files (.json)"));
+		app.setJarFileChooser(FileLoading.createFileChooser(app.lastSelectedJarPath(), ".jar", "JAR files (.jar)"));
+		app.setGameFileChooser(FileLoading.createFileChooser(app.lastSelectedGamePath(), ".lud", "LUD files (.lud)"));
+		app.setAiDefFileChooser(FileLoading.createFileChooser(app.lastSelectedAiDefPath(), "ai.def", "AI.DEF files (ai.def)"));
 
 		// Also create file chooser for saving played games
-		DesktopApp.setSaveGameFileChooser(new JFileChooser(DesktopApp.lastSelectedSaveGamePath()));
-		DesktopApp.saveGameFileChooser().setPreferredSize(new Dimension(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight));
+		app.setSaveGameFileChooser(new JFileChooser(app.lastSelectedSaveGamePath()));
+		app.saveGameFileChooser().setPreferredSize(new Dimension(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight));
 
-		DesktopApp.setLoadTrialFileChooser(new JFileChooser(DesktopApp.lastSelectedLoadTrialPath()));
-		DesktopApp.loadTrialFileChooser().setPreferredSize(new Dimension(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight));
+		app.setLoadTrialFileChooser(new JFileChooser(app.lastSelectedLoadTrialPath()));
+		app.loadTrialFileChooser().setPreferredSize(new Dimension(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight));
 
-		DesktopApp.setLoadTournamentFileChooser(new JFileChooser(DesktopApp.lastSelectedLoadTournamentPath()));
-		DesktopApp.loadTournamentFileChooser().setPreferredSize(new Dimension(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight));
+		app.setLoadTournamentFileChooser(new JFileChooser(app.lastSelectedLoadTournamentPath()));
+		app.loadTournamentFileChooser().setPreferredSize(new Dimension(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight));
 	}
 	
 	//-------------------------------------------------------------------------
@@ -134,8 +136,9 @@ public class FileLoading
 	/** 
 	 * Writes specified text to a specified file, at the root directory. 
 	 */
-	public static void writeTextToFile(final String fileName, final String text)
+	public static boolean writeTextToFile(final String fileName, final String text)
 	{
+		boolean success = false;
 		final File file = new File("." + File.separator + fileName);
 		if (!file.exists())
 		{
@@ -153,12 +156,13 @@ public class FileLoading
 		{
 			writer.write(text + "\n");
 			writer.close();
-			DesktopApp.view().setTemporaryMessage("Log file created.");
+			success = true;
 		}
 		catch (final Exception e1)
 		{
 			e1.printStackTrace();
 		}
+		return success;
 	}
 	
 	//-------------------------------------------------------------------------
@@ -166,8 +170,9 @@ public class FileLoading
 	/** 
 	 * Writes specified exception message to a specified file, at the root directory. 
 	 */
-	public static void writeErrorFile(final String fileName, final Exception e)
+	public static boolean writeErrorFile(final String fileName, final Exception e)
 	{
+		boolean success = false;
 		final File file = new File("." + File.separator + fileName);
 		if (!file.exists())
 		{
@@ -187,12 +192,13 @@ public class FileLoading
 			e.printStackTrace(new PrintWriter(errors));
 			writer.println(errors.toString() + "\n");
 			writer.close();
-			DesktopApp.view().setTemporaryMessage("Error report file created.");
+			success = true;
 		}
 		catch (final Exception e1)
 		{
 			e1.printStackTrace();
 		}
+		return success;
 	}
 	
 	//-------------------------------------------------------------------------

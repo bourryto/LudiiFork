@@ -16,6 +16,9 @@ import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
+import app.App;
+import app.Apps;
+import app.display.MainWindow;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,12 +47,12 @@ public class MiscLoading
 	/**
 	 * Load and view an external .svg file.
 	 */
-	public static void loadSVG(final PlayerApp app, final MainWindowDesktop view)
+	public static void loadSVG(final PlayerApp app, final MainWindow view)
 	{
 		JFrame svgFrame = null;
 		SVGWindow svgView = null;
 		
-		final String fileName = FileLoading.selectFile(DesktopApp.frame(), true, "/../Common/img/svg/", "SVG files (*.svg)", view, "svg");
+		final String fileName = FileLoading.selectFile(Apps.getFromID(app.manager().getAppID()).frame(), true, "/../Common/img/svg/", "SVG files (*.svg)", view, "svg");
 		if (fileName == null)
 			return;
 
@@ -57,9 +60,9 @@ public class MiscLoading
 		svgFrame = new JFrame("SVG Viewer");
 		svgFrame.add(svgView);
 		
-		final int sz = (Math.min(DesktopApp.frame().getWidth()/2, DesktopApp.frame().getHeight()-40)) - 20;
+		final int sz = (Math.min(Apps.getFromID(app.manager().getAppID()).frame().getWidth()/2, Apps.getFromID(app.manager().getAppID()).frame().getHeight()-40)) - 20;
 		svgFrame.setSize((sz + 20) * 2, sz + 60);
-		svgFrame.setLocationRelativeTo(DesktopApp.frame());
+		svgFrame.setLocationRelativeTo(Apps.getFromID(app.manager().getAppID()).frame());
 
 		final Context context = app.contextSnapshot().getContext(app);
 		final SVGGraphics2D image1 = renderImageSVG(sz, fileName, app.bridge().settingsColour().playerColour(context, 1));
@@ -167,10 +170,10 @@ public class MiscLoading
 	public static void loadTournamentFile(final PlayerApp app)
 	{
 		GameUtil.resetGame(app, false);
-		final int fcReturnVal = DesktopApp.loadTournamentFileChooser().showOpenDialog(DesktopApp.frame());
+		final int fcReturnVal = Apps.getFromID(app.manager().getAppID()).loadTournamentFileChooser().showOpenDialog(Apps.getFromID(app.manager().getAppID()).frame());
 		if (fcReturnVal == JFileChooser.APPROVE_OPTION)
 		{
-			final File file = DesktopApp.loadTournamentFileChooser().getSelectedFile();
+			final File file = Apps.getFromID(app.manager().getAppID()).loadTournamentFileChooser().getSelectedFile();
 
 			try (final InputStream inputStream = new FileInputStream(file))
 			{

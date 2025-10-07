@@ -25,6 +25,8 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import app.App;
+import app.Apps;
 import org.json.JSONObject;
 
 import app.DesktopApp;
@@ -79,7 +81,7 @@ public class SettingsDialog extends JDialog
 		try
 		{
 			dialog = new SettingsDialog(app);
-			DialogUtil.initialiseSingletonDialog(dialog, "Preferences", new Rectangle(DesktopApp.frame().getX() + DesktopApp.frame().getWidth()/2 - 240, DesktopApp.frame().getY(), 500, DesktopApp.frame().getHeight()));
+			DialogUtil.initialiseSingletonDialog(dialog, "Preferences", new Rectangle(App.getFrameFromAppID(app.manager().getAppID()).getX() + App.getFrameFromAppID(app.manager().getAppID()).getWidth()/2 - 240, App.getFrameFromAppID(app.manager().getAppID()).getY(), 500, App.getFrameFromAppID(app.manager().getAppID()).getHeight()), app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{
@@ -270,7 +272,7 @@ public class SettingsDialog extends JDialog
 				}
 				
 				app.settingsPlayer().setTabFontSize(tabFontSize);
-				DesktopApp.view().getPanels().clear();
+				Apps.getFromID(app.manager().getAppID()).view().getPanels().clear();
 				app.repaint();
 			}
 		};
@@ -308,7 +310,7 @@ public class SettingsDialog extends JDialog
 				}
 				
 				app.settingsPlayer().setEditorFontSize(editorFontSize);
-				//DesktopApp.view().getPanels().clear();
+				//app.view().getPanels().clear();
 				//app.repaint();
 			}
 		};
@@ -372,7 +374,7 @@ public class SettingsDialog extends JDialog
 					@Override
 					public void run()
 					{
-						DesktopApp.view().createPanels();
+						Apps.getFromID(app.manager().getAppID()).view().createPanels();
 					}
 				});
 				dispose();
@@ -611,7 +613,7 @@ public class SettingsDialog extends JDialog
 			public void actionPerformed(final ActionEvent e)
 			{
 				app.settingsPlayer().setMoveFormat(MoveFormat.valueOf(comboBoxFormat.getSelectedItem().toString()));
-				DesktopApp.view().tabPanel().page(TabView.PanelMoves).updatePage(context);
+				Apps.getFromID(app.manager().getAppID()).view().tabPanel().page(TabView.PanelMoves).updatePage(context);
 			}
 		});
 
@@ -762,7 +764,7 @@ public class SettingsDialog extends JDialog
 			public void actionPerformed(final ActionEvent e)
 			{
 				app.bridge().settingsVC().setFlatBoard(checkBoxFlatBoard.isSelected());
-				DesktopApp.view().createPanels();
+				Apps.getFromID(app.manager().getAppID()).view().createPanels();
 				app.repaint();
 			}
 		});

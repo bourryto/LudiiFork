@@ -7,6 +7,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.Apps;
+import app.ClientApp;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.views.tabs.pages.AnalysisPage;
@@ -18,6 +20,7 @@ import app.display.views.tabs.pages.StatusPage;
 import app.display.views.tabs.pages.TurnsPage;
 import app.utils.SettingsExhibition;
 import app.views.View;
+import com.sun.security.ntlm.Client;
 import other.context.Context;
 
 //-----------------------------------------------------------------------------
@@ -62,15 +65,24 @@ public class TabView extends View
 		super(app);
 		
 		pages.clear();
-		
-		final int toolHeight = DesktopApp.view().toolPanel().placement().height;
-		int boardSize = DesktopApp.view().getBoardPanel().placement().width;
-		
-		int startX = boardSize;
-		int startY = DesktopApp.view().getPlayerPanel().placement().height;
-		int width  = DesktopApp.view().getWidth() - boardSize;
-		int height = DesktopApp.view().getHeight() - DesktopApp.view().getPlayerPanel().placement().height - toolHeight;
-		
+
+		final int toolHeight;
+		int boardSize;
+		int startX;
+		int startY;
+		int width;
+		int height;
+		int placementHeight;
+
+		toolHeight = Apps.getFromID(app.manager().getAppID()).view().toolPanel().placement().height;
+		boardSize = Apps.getFromID(app.manager().getAppID()).view().getBoardPanel().placement().width;
+
+		startX = boardSize;
+		startY = Apps.getFromID(app.manager().getAppID()).view().getPlayerPanel().placement().height;
+		width = Apps.getFromID(app.manager().getAppID()).view().getWidth() - boardSize;
+		placementHeight = Apps.getFromID(app.manager().getAppID()).view().getPlayerPanel().placement.height;
+		height = Apps.getFromID(app.manager().getAppID()).view().getHeight() - placementHeight - toolHeight;
+
 		if (SettingsExhibition.exhibitionVersion)
 		{
 			height -= 100;
@@ -82,9 +94,10 @@ public class TabView extends View
 		{
 			boardSize = app.width();
 			startX = 8;
-			startY = boardSize + DesktopApp.view().getPlayerPanel().placement().height + 40;	// +40 for the height of the toolView
+
+			startY = boardSize + placementHeight + 40;	// +40 for the height of the toolView
 			width = boardSize - 16;
-			height = app.height() - boardSize - DesktopApp.view().getPlayerPanel().placement().height - 40;
+			height = app.height() - boardSize - placementHeight - 40;
 		}
 		
 		placement.setBounds(startX, startY, width, height);
@@ -114,7 +127,7 @@ public class TabView extends View
 			select(5);
 		
 		for (final View view : pages)
-			DesktopApp.view().getPanels().add(view);
+			Apps.getFromID(app.manager().getAppID()).view().getPanels().add(view);
 	}
 
 	//-------------------------------------------------------------------------

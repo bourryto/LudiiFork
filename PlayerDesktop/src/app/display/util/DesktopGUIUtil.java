@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.views.players.PlayerViewUser;
@@ -69,16 +70,16 @@ public class DesktopGUIUtil
 		{
 			if (app.contextSnapshot().getContext(app).game().hasLargePiece())
 			{
-				DesktopApp.view().repaint();
+				Apps.getFromID(app.manager().getAppID()).view().repaint();
 				return;
 			}
 			
 			// If any of the player panels have been moved due to metadata, repaint the whole board.
-			for (final PlayerViewUser panel : DesktopApp.view().getPlayerPanel().playerSections)
+			for (final PlayerViewUser panel : Apps.getFromID(app.manager().getAppID()).view().getPlayerPanel().playerSections)
 			{
 				if (context.game().metadata().graphics().handPlacement(context, panel.playerId()) != null)
 				{
-					DesktopApp.view().repaint();
+					Apps.getFromID(app.manager().getAppID()).view().repaint();
 					return;
 				}
 			}
@@ -111,23 +112,23 @@ public class DesktopGUIUtil
 			int midY = (newPoint.y + oldPoint.y) / 2;
 			int width = ((Math.abs(newPoint.x - oldPoint.x) + maxComponentSize + cellSize));
 			int height = ((Math.abs(newPoint.y - oldPoint.y) + maxComponentSize + cellSize));
-			
+
 			// If the component is stacked in a vertical manner, need to repaint the whole column.
 			if (componentStackType.verticalStack())
 			{
-				height = DesktopApp.frame().getHeight();
+				height = Apps.getFromID(app.manager().getAppID()).frame().getHeight();
 				midY = height/2;
 			}
 			
 			// If the component is stacked in a horizontal manner, need to repaint the whole row.
 			if (componentStackType.horizontalStack())
 			{
-				width = DesktopApp.frame().getWidth();
+				width = Apps.getFromID(app.manager().getAppID()).frame().getWidth();
 				midX = width/2;
 			}
 
 			final Rectangle repaintArea = new Rectangle(midX - width/2, midY - height/2, width, height);
-			DesktopApp.view().repaint(repaintArea);
+			Apps.getFromID(app.manager().getAppID()).view().repaint(repaintArea);
 		}
 		catch (final Exception e)
 		{

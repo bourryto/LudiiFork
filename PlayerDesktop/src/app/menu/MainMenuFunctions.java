@@ -35,6 +35,7 @@ import agentPrediction.external.AgentPredictionExternal;
 import agentPrediction.external.MetricPredictionExternal;
 import agentPrediction.internal.AgentPredictionInternal;
 import agentPrediction.internal.models.LinearRegression;
+import app.App;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.AboutDialog;
@@ -130,7 +131,7 @@ public class MainMenuFunctions extends JMenuBar
 
 	//-------------------------------------------------------------------------
 	
-	public static void checkActionsPerformed(final DesktopApp app, final ActionEvent e)
+	public static void checkActionsPerformed(final App app, final ActionEvent e)
 	{
 		app.bridge().settingsVC().setSelectedFromLocation(new FullLocation(Constants.UNDEFINED));
 		final JMenuItem source = (JMenuItem) (e.getSource());
@@ -243,7 +244,7 @@ public class MainMenuFunctions extends JMenuBar
 		else if (source.getText().equals("Export Thumbnails"))
 		{
 			// DesktopApp.frame().setSize(462, 462); Eric Resolution
-			DesktopApp.frame().setSize(464, 464);
+			app.frame().setSize(464, 464);
 			EventQueue.invokeLater(() -> 
 	    	{
 		    	Thumbnails.generateThumbnails(app, false);
@@ -252,7 +253,7 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().equals("Export Thumbnails (ruleset)"))
 		{
-			DesktopApp.frame().setSize(464, 464);
+			app.frame().setSize(464, 464);
 			EventQueue.invokeLater(() -> 
 	    	{
 		    	Thumbnails.generateThumbnails(app, true);
@@ -260,7 +261,7 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().equals("Export Thumbnails (complete rulesets)"))
 		{
-			DesktopApp.frame().setSize(464, 464);
+			app.frame().setSize(464, 464);
 			final ArrayList<List<String>> gameOptions = new ArrayList<>();
 			System.out.println("Getting rulesets from game:");
 			final List<Ruleset> rulesets = game.description().rulesets();
@@ -303,8 +304,8 @@ public class MainMenuFunctions extends JMenuBar
 			}, 24000,50000);
 		}
 		else if (source.getText().equals("Export All Thumbnails"))
-		{			
-			DesktopApp.frame().setSize(464, 464);
+		{
+			app.frame().setSize(464, 464);
 			final String[] choices = FileHandling.listGames();
 			final ArrayList<String> validChoices = new ArrayList<>();
 			for (final String s : choices)
@@ -348,8 +349,8 @@ public class MainMenuFunctions extends JMenuBar
 			}, 24000,50000);
 		}
 		else if (source.getText().equals("Export All Thumbnails (rulesets)"))
-		{			
-			DesktopApp.frame().setSize(464, 464);
+		{
+			app.frame().setSize(464, 464);
 			final String[] choices = FileHandling.listGames();
 			final ArrayList<String> validChoices = new ArrayList<>();
 			final ArrayList<List<String>> gameOptions = new ArrayList<>();
@@ -495,7 +496,7 @@ public class MainMenuFunctions extends JMenuBar
 							EventQueue.invokeLater(() ->
 							{
 								app.manager().ref().interruptAI(app.manager());
-								DesktopApp.frame().setContentPane(DesktopApp.view());
+								app.frame().setContentPane(app.view());
 								final double rate = app.manager().ref().timeRandomPlayouts();
 								app.addTextToStatusPanel("" + String.format(Locale.US, "%.2f", Double.valueOf(rate)) + " random playouts/s.\n");
 								app.setTemporaryMessage("");
@@ -667,7 +668,7 @@ public class MainMenuFunctions extends JMenuBar
 				{
 					//couldn't read logo
 				}
-				final int dialogResult = JOptionPane.showConfirmDialog (DesktopApp.frame(), "Do you really want to resign this game?\nIf the game has already started then this will be considered a loss.", "Last Chance!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(image));
+				final int dialogResult = JOptionPane.showConfirmDialog (app.frame(), "Do you really want to resign this game?\nIf the game has already started then this will be considered a loss.", "Last Chance!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(image));
 				if(dialogResult == JOptionPane.YES_OPTION)
 				{
 					app.manager().databaseFunctionsPublic().sendForfeitToDatabase(app.manager());
@@ -696,7 +697,7 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().equals("Game Screenshot"))
 		{
-			ScreenCapture.gameScreenshot("Image " + new Date().getTime());
+			ScreenCapture.gameScreenshot("Image " + new Date().getTime(), app);
 		}
 		else if (source.getText().equals("Game Gif"))
 		{
@@ -720,7 +721,7 @@ public class MainMenuFunctions extends JMenuBar
 		            @Override
 		            public void run() 
 		            {	            	
-		            	ScreenCapture.gameGif("Image " + new Date().getTime(), finalNumFrames);
+		            	ScreenCapture.gameGif("Image " + new Date().getTime(), finalNumFrames, app);
 		            }
 		        }, 
 		        500 
@@ -732,27 +733,27 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().equals("Play/Pause"))
 		{
-			DesktopApp.view().toolPanel().buttons.get(ToolView.PLAY_BUTTON_INDEX).press();
+			app.view().toolPanel().buttons.get(ToolView.PLAY_BUTTON_INDEX).press();
 		}
 		else if (source.getText().equals("Previous Move"))
 		{
-			DesktopApp.view().toolPanel().buttons.get(ToolView.BACK_BUTTON_INDEX).press();
+			app.view().toolPanel().buttons.get(ToolView.BACK_BUTTON_INDEX).press();
 		}
 		else if (source.getText().equals("Next Move"))
 		{
-			DesktopApp.view().toolPanel().buttons.get(ToolView.FORWARD_BUTTON_INDEX).press();
+			app.view().toolPanel().buttons.get(ToolView.FORWARD_BUTTON_INDEX).press();
 		}
 		else if (source.getText().equals("Go To Start"))
 		{
-			DesktopApp.view().toolPanel().buttons.get(ToolView.START_BUTTON_INDEX).press();
+			app.view().toolPanel().buttons.get(ToolView.START_BUTTON_INDEX).press();
 		}
 		else if (source.getText().equals("Go To End"))
 		{
-			DesktopApp.view().toolPanel().buttons.get(ToolView.END_BUTTON_INDEX).press();
+			app.view().toolPanel().buttons.get(ToolView.END_BUTTON_INDEX).press();
 		}
 		else if (source.getText().equals("Pass"))
 		{
-			DesktopApp.view().toolPanel().buttons.get(ToolView.PASS_BUTTON_INDEX).press();
+			app.view().toolPanel().buttons.get(ToolView.PASS_BUTTON_INDEX).press();
 		}
 		else if (source.getText().equals("Random Playout Instance"))
 		{
@@ -917,7 +918,7 @@ public class MainMenuFunctions extends JMenuBar
 		{
 			if (!app.manager().settingsManager().agentsPaused())
 			{
-				DesktopApp.view().tabPanel().page(TabView.PanelAnalysis).addText("Cannot start evaluation of AIs when agents are not paused!");
+				app.view().tabPanel().page(TabView.PanelAnalysis).addText("Cannot start evaluation of AIs when agents are not paused!");
 				return;
 			}
 
@@ -933,7 +934,7 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().equals("Clear Status Panel"))
 		{
-			DesktopApp.view().tabPanel().page(TabView.PanelStatus).clear();
+			app.view().tabPanel().page(TabView.PanelStatus).clear();
 		}
 		else if (source.getText().startsWith("Compile Game (Debug)"))
 		{
@@ -967,7 +968,7 @@ public class MainMenuFunctions extends JMenuBar
 					break;
 				}
 			}
-			final String choice = GameLoaderDialog.showDialog(DesktopApp.frame(), choices, initialChoice);
+			final String choice = GameLoaderDialog.showDialog(App.getFrameFromAppID(app.manager().getAppID()), choices, initialChoice);
 			if (choice == null)
 				return;
 
@@ -1017,7 +1018,7 @@ public class MainMenuFunctions extends JMenuBar
 					break;
 				}
 
-			final String choice = GameLoaderDialog.showDialog(DesktopApp.frame(), choices, initialChoice);
+			final String choice = GameLoaderDialog.showDialog(app.frame(), choices, initialChoice);
 			if (choice == null)
 				return;
 
@@ -1056,7 +1057,7 @@ public class MainMenuFunctions extends JMenuBar
 		{
 			try
 			{
-				final int moveToJumpTo = Integer.parseInt(JOptionPane.showInputDialog(DesktopApp.frame(), "Which move to jump to?"));
+				final int moveToJumpTo = Integer.parseInt(JOptionPane.showInputDialog(app.frame(), "Which move to jump to?"));
 				if (app.manager().settingsNetwork().getActiveGameId() == 0)
 					ToolView.jumpToMove(app, moveToJumpTo + app.contextSnapshot().getContext(app).trial().numInitialPlacementMoves());
 			}
@@ -1122,7 +1123,7 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().startsWith("Evaluate Heuristic"))
 		{
-			final String heuristicStr = JOptionPane.showInputDialog(DesktopApp.frame(), "Enter heuristic.");
+			final String heuristicStr = JOptionPane.showInputDialog(app.frame(), "Enter heuristic.");
 			
 			if (app.manager().settingsNetwork().getActiveGameId() == 0)
 			{
@@ -1143,7 +1144,7 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().startsWith("Evaluate Features"))
 		{
-			final String featuresStr = JOptionPane.showInputDialog(DesktopApp.frame(), "Enter features.");
+			final String featuresStr = JOptionPane.showInputDialog(app.frame(), "Enter features.");
 			
 			if (app.manager().settingsNetwork().getActiveGameId() == 0)
 			{
@@ -1235,11 +1236,11 @@ public class MainMenuFunctions extends JMenuBar
 		}
 		else if (source.getText().equals("Load SVG"))
 		{
-			MiscLoading.loadSVG(app, DesktopApp.view());
+			MiscLoading.loadSVG(app, app.view());
 		}
 		else if (source.getText().equals("View SVG"))
 		{
-			SVGViewerDialog.showDialog(app, DesktopApp.frame(), SVGLoader.listSVGs());
+			SVGViewerDialog.showDialog(app, app.frame(), SVGLoader.listSVGs());
 		}
 		else if (source.getText().equals("Remote Play"))
 		{
@@ -1516,6 +1517,43 @@ public class MainMenuFunctions extends JMenuBar
 			System.out.println("Predicting...\n");
 			final Map<String, Double> heuristicPredictions = AgentPredictionExternal.predictBestAgent(game, modelFilePath, useClassifier, useHeuristics, useCompilationOnly);
 			displayPredictionResults(app, heuristicPredictions, useClassifier, true);
+		}
+		// BOURRYTO: added a test menu and here its functions, to test some connection ideas
+		else if (source.getText().equals("Test Connection To Port"))
+		{
+			final String port = JOptionPane.showInputDialog("Port Number (4 digits)");
+			int portNumber = 0;
+			try
+			{
+				if (port.length() != 4)
+					throw new Exception("Port number must be four digits long.");
+				portNumber = Integer.parseInt(port);
+			}
+			catch (final Exception E)
+			{
+				app.addTextToStatusPanel("Please enter a valid four digit port number.\n");
+				return;
+			}
+			final String message = String.format("%d ping", app.port);
+			LocalFunctions.initialiseClientSocket(portNumber, message);
+		}
+		else if (source.getText().equals("Send Game Name"))
+		{
+			final String port = JOptionPane.showInputDialog("Port Number (4 digits)");
+			int portNumber = 0;
+			try
+			{
+				if (port.length() != 4)
+					throw new Exception("Port number must be four digits long.");
+				portNumber = Integer.parseInt(port);
+			}
+			catch (final Exception E)
+			{
+				app.addTextToStatusPanel("Please enter a valid four digit port number.\n");
+				return;
+			}
+			final String message = String.format("%d sending game_name %s", app.port, app.manager().ref().context().game().name());
+			LocalFunctions.initialiseClientSocket(portNumber, message);
 		}
 		
 		EventQueue.invokeLater(() ->

@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.util.DialogUtil;
@@ -53,13 +54,13 @@ public class SandboxDialog extends MoveDialog
 			final Context context = app.manager().ref().context();
 			if (context.components().length == 1)
 			{
-				DesktopApp.view().setTemporaryMessage("No valid components.");
+				Apps.getFromID(app.manager().getAppID()).view().setTemporaryMessage("No valid components.");
 				return;
 			}
 			
 			final SandboxDialog dialog = new SandboxDialog(app, context, location, sandboxValueType);
 			final Point drawPosn = new Point(MouseInfo.getPointerInfo().getLocation().x - dialog.getWidth() / 2, MouseInfo.getPointerInfo().getLocation().y - dialog.getHeight() / 2);
-			DialogUtil.initialiseForcedDialog(dialog, "Sandbox (" + sandboxValueType.name() + ")", new Rectangle(drawPosn));
+			DialogUtil.initialiseForcedDialog(dialog, "Sandbox (" + sandboxValueType.name() + ")", new Rectangle(drawPosn), app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{

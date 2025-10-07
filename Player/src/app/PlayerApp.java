@@ -63,6 +63,9 @@ import util.StringUtil;
  */
 public abstract class PlayerApp implements PlayerInterface, ActionListener, ItemListener, PlatformGraphics
 {
+	/** Client Option for light weight client if used with controller*/
+	public boolean isClient;
+
 	private final Manager manager = new Manager(this);
 	private final Bridge bridge = new Bridge();
 	private final ContextSnapshot contextSnapshot = new ContextSnapshot();

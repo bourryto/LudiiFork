@@ -46,6 +46,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import app.App;
 import app.DesktopApp;
 import main.AliasesData;
 import main.FileHandling;
@@ -89,7 +90,7 @@ public class GameLoaderDialog
 		
 		for (final String choice : choices)
 		{
-			if (!DesktopApp.devJar && FileHandling.shouldIgnoreLudRelease(choice))
+			if (!App.devJar && FileHandling.shouldIgnoreLudRelease(choice))
 				continue;
 			
 			String str = choice.replaceAll(Pattern.quote("\\"), "/");
@@ -306,7 +307,7 @@ public class GameLoaderDialog
 					if (!dialog.isResizable()) 
 						dialog.setResizable(true);
 					
-					dialog.setLocationRelativeTo(DesktopApp.frame());
+					dialog.setLocationRelativeTo(frame);
 					
 					tree.requestFocus();
 				}

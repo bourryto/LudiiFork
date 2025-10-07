@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import app.App;
 import org.apache.commons.rng.core.RandomProviderDefaultState;
 
 import app.DesktopApp;
@@ -51,7 +52,7 @@ public class ManualGeneration
 	/** 
 	 * Main entry point for running the manual generation. 
 	 */
-	public static void manualGeneration(final DesktopApp app)
+	public static void manualGeneration(final App app)
 	{
 		setupImageTimerComplete = false;
 		generateMoveImagesTimerComplete = false;
@@ -79,9 +80,9 @@ public class ManualGeneration
 		
 		// Determine how wide to make the frame, based on what needs to be displayed.
 		if (includeHandMoves && app.manager().ref().context().game().requiresHand())
-			DesktopApp.frame().setSize(800, 465);
+			app.frame().setSize(800, 465);
 		else
-			DesktopApp.frame().setSize(410, 465);
+			app.frame().setSize(410, 465);
 
 		// Generate all trials that will be used.
 		final List<Trial> generatedTrials = new ArrayList<>();
@@ -109,7 +110,7 @@ public class ManualGeneration
 	/**
 	 * Take a screenshot of the game before it begins.
 	 */
-	private final static void generateSetupImage(final DesktopApp app)
+	private final static void generateSetupImage(final App app)
 	{
 		GameUtil.resetGame(app, true);
 		app.repaint();
@@ -120,11 +121,11 @@ public class ManualGeneration
 		    @Override
 		    public void run()
 		    {
-		    	if (ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete() && !DesktopApp.view().isPainting)
+		    	if (ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete() && !app.view().isPainting)
 		    	{
 		    		ScreenCapture.resetScreenshotVariables();
 		    		final String filePath = "screenshot/Game_Setup";
-	            	ScreenCapture.gameScreenshot(rootPath + filePath);
+	            	ScreenCapture.gameScreenshot(rootPath + filePath, app);
 			    	setupImageTimerComplete = true;
 			    	setupScreenshotTimer.cancel();
 			    	setupScreenshotTimer.purge();
@@ -138,7 +139,7 @@ public class ManualGeneration
 	/**
 	 * Take a screenshot/video of every move in the condensed list.
 	 */
-	private final static void generateMoveImages(final DesktopApp app, final List<MoveCompleteInformation> condensedMoveList)
+	private final static void generateMoveImages(final App app, final List<MoveCompleteInformation> condensedMoveList)
 	{
 		final Timer moveScreenshotTimer = new Timer();
 		moveScreenshotTimer.scheduleAtFixedRate(new TimerTask()
@@ -148,7 +149,7 @@ public class ManualGeneration
 		    @Override
 		    public void run()
 		    {
-		    	if (setupImageTimerComplete && ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete() && !DesktopApp.view().isPainting)
+		    	if (setupImageTimerComplete && ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete() && !app.view().isPainting)
 		    	{
 	    			condensedMoveIndex++;
 	    			
@@ -177,7 +178,7 @@ public class ManualGeneration
 	/**
 	 * Take a screenshot/video of every move in the ending move list.
 	 */
-	private final static void generateEndImages(final DesktopApp app, final List<MoveCompleteInformation> endingMoveList)
+	private final static void generateEndImages(final App app, final List<MoveCompleteInformation> endingMoveList)
 	{
 		final Timer endScreenshotTimer = new Timer();
 		endScreenshotTimer.scheduleAtFixedRate(new TimerTask()
@@ -187,7 +188,7 @@ public class ManualGeneration
 		    @Override
 		    public void run()
 		    {	
-		    	if (generateMoveImagesTimerComplete && ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete() && !DesktopApp.view().isPainting)
+		    	if (generateMoveImagesTimerComplete && ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete() && !app.view().isPainting)
 		    	{
 		    		app.settingsPlayer().setShowEndingMove(true);
 
@@ -219,7 +220,7 @@ public class ManualGeneration
 	/**
 	 * Once the process is complete, combine all the stored images into a complete document.
 	 */
-	private final static void generateWebsite(final DesktopApp app, final List<String> rankingStrings, final List<MoveCompleteInformation> condensedMoveList, final List<MoveCompleteInformation> endingMoveList)
+	private final static void generateWebsite(final App app, final List<String> rankingStrings, final List<MoveCompleteInformation> condensedMoveList, final List<MoveCompleteInformation> endingMoveList)
 	{
 		final Referee ref = app.manager().ref();
 		
@@ -229,7 +230,7 @@ public class ManualGeneration
 		    @Override
 		    public void run()
 		    {	
-		    	if (generateEndImagesTimerComplete && !DesktopApp.view().isPainting && ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete())
+		    	if (generateEndImagesTimerComplete && !app.view().isPainting && ScreenCapture.screenshotComplete() && ScreenCapture.gifAnimationComplete())
 		    	{
 		    		System.out.println("------------------------");
 		    		System.out.println("Generating html file.");
@@ -283,7 +284,7 @@ public class ManualGeneration
 	/** 
 	 * Takes a pair of screenshots and gif animation of the provided move. 
 	 */
-	protected final static void takeMoveImage(final DesktopApp app, final MoveCompleteInformation moveInformation, final boolean endingMove)
+	protected final static void takeMoveImage(final App app, final MoveCompleteInformation moveInformation, final boolean endingMove)
 	{
 		ScreenCapture.resetGifAnimationVariables();
 		ScreenCapture.resetScreenshotVariables();
@@ -334,12 +335,12 @@ public class ManualGeneration
 		    @Override
 		    public void run()
 		    {
-		    	if (!DesktopApp.view().isPainting)
+		    	if (!app.view().isPainting)
 		    	{
 		    		ScreenCapture.resetScreenshotVariables();
 	            	System.out.println("Taking Before Screenshot");
 	            	final String filePath = "screenshot/" + imageLabel + "A_" + moveInformation.toString().hashCode();
-	            	ScreenCapture.gameScreenshot(rootPath + filePath);
+	            	ScreenCapture.gameScreenshot(rootPath + filePath, app);
 	            	moveInformation.setScreenshotA(filePath + ".png");
 	            	app.settingsPlayer().setTutorialVisualisationMoves(new ArrayList<>());
 	            	app.repaint();
@@ -356,13 +357,13 @@ public class ManualGeneration
 		    @Override
 		    public void run()
 		    {
-		    	if (!DesktopApp.view().isPainting && ScreenCapture.screenshotComplete())
+		    	if (!app.view().isPainting && ScreenCapture.screenshotComplete())
 		    	{
 		    		ScreenCapture.resetGifAnimationVariables();
 	        		ScreenCapture.resetScreenshotVariables();
 	            	System.out.println("Taking Gif Animation");
 	            	final String filePath = "gif/" + imageLabel + moveInformation.toString().hashCode();
-	            	ScreenCapture.gameGif(rootPath + filePath, 10);
+	            	ScreenCapture.gameGif(rootPath + filePath, 10, app);
 	            	moveInformation.setGifLocation(filePath + ".gif");
 	    			ref.applyHumanMoveToGame(app.manager(), moveInformation.move());
 	            	gifAnimationTimer.cancel();
@@ -378,12 +379,12 @@ public class ManualGeneration
 		    @Override
 		    public void run()
 		    {
-		    	if (!DesktopApp.view().isPainting && ScreenCapture.gifAnimationComplete())
+		    	if (!app.view().isPainting && ScreenCapture.gifAnimationComplete())
 		    	{
 		    		ScreenCapture.resetScreenshotVariables();
 	            	System.out.println("Taking After Screenshot");
 	            	final String filePath = "screenshot/" + imageLabel + "B_" + moveInformation.toString().hashCode();
-	            	ScreenCapture.gameScreenshot(rootPath + filePath);
+	            	ScreenCapture.gameScreenshot(rootPath + filePath, app);
 	            	moveInformation.setScreenshotB(filePath + ".png");
 	            	afterScreenShotTimer.cancel();
 	            	afterScreenShotTimer.purge();

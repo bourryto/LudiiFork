@@ -22,6 +22,8 @@ import tournament.Tournament;
  */
 public final class Manager 
 {
+	Integer appID;
+
 	private PlayerInterface playerInterface;
 	
 	private final DatabaseFunctionsPublic databaseFunctionsPublic = DatabaseFunctionsPublic.construct();
@@ -209,4 +211,10 @@ public final class Manager
 	
 	//-------------------------------------------------------------------------
 
+	public void setAppID(Integer appID){
+		this.appID = appID;
+	}
+	public Integer getAppID(){
+		return this.appID;
+	}
 }

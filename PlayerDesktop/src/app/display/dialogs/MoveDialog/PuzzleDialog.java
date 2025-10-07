@@ -53,7 +53,7 @@ public class PuzzleDialog extends JDialog
 		{
 			final PuzzleDialog dialog = new PuzzleDialog(app, context, site);
 			final Point drawPosn = new Point(MouseInfo.getPointerInfo().getLocation().x - dialog.getWidth() / 2, MouseInfo.getPointerInfo().getLocation().y - dialog.getHeight() / 2);
-			DialogUtil.initialiseForcedDialog(dialog, "Puzzle Values", new Rectangle(drawPosn));
+			DialogUtil.initialiseForcedDialog(dialog, "Puzzle Values", new Rectangle(drawPosn), app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{

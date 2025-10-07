@@ -1,5 +1,6 @@
 package app.display.dialogs.visual_editor.handler;
 
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.visual_editor.StartVisualEditor;
@@ -1045,7 +1046,7 @@ public class Handler
         app.manager().ref().setGame(app.manager(), game);
         GameUtil.startGame(app);
         app.restartGame();
-        DesktopApp.frame().requestFocus();
+        Apps.getFromID(app.manager().getAppID()).frame().requestFocus();
     }
 
     /**

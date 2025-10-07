@@ -56,6 +56,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import app.App;
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.util.DialogUtil;
@@ -110,15 +112,15 @@ public class EditorDialog extends JDialog
 		try
 		{			
 			dialog = new EditorDialog(app, longDescription, textColoured, shortcutsActive);
-			DialogUtil.initialiseSingletonDialog(dialog, "Editor", null);
+			DialogUtil.initialiseSingletonDialog(dialog, "Editor", null, app.manager().getAppID());
 
 			dialog.addWindowListener(new WindowAdapter()
 			{
 				@Override
 				public void windowClosed(final WindowEvent e)
 				{
-					DesktopApp.frame().setContentPane(DesktopApp.view());
-					DesktopApp.view().invalidate();								// WAS: setSize(DesktopApp.view().getSize()); let's see if anybody screams!
+					Apps.getFromID(app.manager().getAppID()).frame().setContentPane(Apps.getFromID(app.manager().getAppID()).view());
+					Apps.getFromID(app.manager().getAppID()).view().invalidate();								// WAS: setSize(DesktopApp.view().getSize()); let's see if anybody screams!
 					app.repaint();
 					app.bridge().settingsVC().setSelectedFromLocation(new FullLocation(Constants.UNDEFINED));
 				}
@@ -769,11 +771,12 @@ public class EditorDialog extends JDialog
 			@Override
 			public void actionPerformed(final ActionEvent e)
 			{
-				final int fcReturnVal = DesktopApp.gameFileChooser().showOpenDialog(DesktopApp.frame());
+				App aapp = Apps.getFromID(app.manager().getAppID());
+				final int fcReturnVal = aapp.gameFileChooser().showOpenDialog(Apps.getFromID(app.manager().getAppID()).frame());
 				if (fcReturnVal == JFileChooser.APPROVE_OPTION)
 				{
 					app.manager().ref().interruptAI(app.manager());
-					final File file = DesktopApp.gameFileChooser().getSelectedFile();
+					final File file = aapp.gameFileChooser().getSelectedFile();
 					try
 					{
 						setText(app, String.join("\n", Files.readAllLines(file.toPath())));
@@ -949,11 +952,12 @@ public class EditorDialog extends JDialog
 
 	public static String saveGameDescription (final PlayerApp app, final String desc)
 	{
-		final int fcReturnVal = DesktopApp.saveGameFileChooser().showSaveDialog(DesktopApp.frame());
+		App aapp = Apps.getFromID(app.manager().getAppID());
+		final int fcReturnVal = aapp.saveGameFileChooser().showSaveDialog(Apps.getFromID(app.manager().getAppID()).frame());
 
 		if (fcReturnVal == JFileChooser.APPROVE_OPTION)
 		{
-			File file = DesktopApp.saveGameFileChooser().getSelectedFile();
+			File file = aapp.saveGameFileChooser().getSelectedFile();
 			final String filePath = file.getAbsolutePath();
 			if (!filePath.endsWith(".lud"))
 			{

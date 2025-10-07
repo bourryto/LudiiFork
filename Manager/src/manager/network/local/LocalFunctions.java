@@ -60,19 +60,24 @@ public class LocalFunctions
 						
 						// Reply string to respond to incoming messages.
 						String reply = "";
-						
+
+						if (message.length() >= 9 && message.substring(5,9).equals("ping")){
+							reply = "pong";
+							manager.getPlayerInterface().addTextToStatusPanel(String.format("Communication with Port %s: message= %s | reply= %s", message.substring(0,4), message.substring(5,9), reply));
+							initialiseClientSocket(Integer.parseInt(message.substring(0,4)), reply);
+						}
 						// Request about a move made.
-						if (message.length() >= 9 && message.substring(5, 9).equals("move"))
+						else if (message.length() >= 9 && message.substring(5, 9).equals("move"))
 						{
 							reply = "move failure";
-							final Context context = manager.ref().context();
-							final Moves legal = context.game().moves(context);
-							for (int i = 0; i < legal.moves().size(); i++)
-							{
-								if (i == Integer.parseInt(message.substring(10).trim()))
-								{
-									manager.ref().applyHumanMoveToGame(manager, context.game().moves(context).moves().get(i));
-									reply = "move success";
+							if (message.length() > 9) {
+								final Context context = manager.ref().context();
+								final Moves legal = context.game().moves(context);
+								for (int i = 0; i < legal.moves().size(); i++) {
+									if (i == Integer.parseInt(message.substring(10).trim())) {
+										manager.ref().applyHumanMoveToGame(manager, context.game().moves(context).moves().get(i));
+										reply = "move success";
+									}
 								}
 							}
 							initialiseClientSocket(Integer.parseInt(message.substring(0,4)), reply);
@@ -120,6 +125,36 @@ public class LocalFunctions
 	}
 
 	// Me - start
+	private static String respondToSending(String message, final Manager manager){
+		// message = "<portnumber with length 4> sending EXTRA ..."
+		// where EXTRA is the keyword I want to react to
+
+		String[] args = message.split(" ");
+		//int port = Integer.parseInt(args[0]);
+		//String command = args[1]; // should be 'sending'
+		String reply;
+
+		if (args.length <= 2){return "No command after 'sending' was received.";}
+		switch (args[2]){
+			case "game_name":
+				if(args.length <= 3){reply = "No Game_Name was received.";}
+				String game_name = args[3];
+				reply = "Game_Name '" + game_name +"' was received.";
+				// Format of the game name is /lud/subfolder/subsubfolder/.../gamename.lud
+				// ME TODO: GameLoading has a function loadGameFromName(), which does all the work of finding the game path from the game name
+				//			BUT It requires the Desktop app as an argument, and i cant find a way to load a game using only the manager.
+				//			Passing the App creates loop issues, so preferable a better way, i am considering a shared queue?
+				//				Combined with a listener thread in the Desktop app  class after iniitializing the socket
+				//manager.setSavedLudName(game_name);
+				//manager.ref().setGame(manager, );
+				break;
+			default:
+				reply = "unsupported command";
+				break;
+		}
+		return reply;
+	}
+
 	private static String getInfo(String message, final Manager manager){
 		// message = "<portnumber with length 4> info EXTRA"
 		// where EXTRA is the info I want

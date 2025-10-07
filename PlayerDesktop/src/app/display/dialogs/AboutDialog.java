@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import app.App;
 import app.DesktopApp;
 import app.PlayerApp;
 import game.equipment.component.Component;
@@ -100,7 +101,7 @@ public class AboutDialog
 				
 		JOptionPane.showMessageDialog
 		(
-			DesktopApp.frame(),
+				App.getFrameFromAppID(app.manager().getAppID()),
 			sbDescription.toString() + sbVersion.toString() + sbLegal.toString() + sbTeam.toString()
 				+ sbAdmin.toString() + sbURLs.toString() + sbCredits.toString(),
 			DesktopApp.AppName, 

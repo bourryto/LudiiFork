@@ -26,6 +26,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import app.Apps;
+import app.ClientApp;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.views.tabs.pages.InfoPage;
@@ -156,8 +158,8 @@ public abstract class TabPage extends View
 		textArea.setVisible(false);
 		textArea.setText(text);
 		
-		DesktopApp.view().setLayout(null);
-		DesktopApp.view().add(scrollPane());
+        Apps.getFromID(app.manager().getAppID()).view().setLayout(null);
+        Apps.getFromID(app.manager().getAppID()).view().add(scrollPane());
 		
 		textArea.addHyperlinkListener(new HyperlinkListener()
 	    {
@@ -166,7 +168,7 @@ public abstract class TabPage extends View
 	        {
 	            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) 
 	            {
-	                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) 
+	                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 	                {
 	                    try
 						{
@@ -391,7 +393,7 @@ public abstract class TabPage extends View
 			if (!mouseOverTitle)
 			{
 				mouseOverTitle = true;
-				DesktopApp.view().repaint(titleRect);
+				Apps.getFromID(app.manager().getAppID()).view().repaint(titleRect);
 			}
 		}
 		else
@@ -399,7 +401,7 @@ public abstract class TabPage extends View
 			if (mouseOverTitle)
 			{
 				mouseOverTitle = false;
-				DesktopApp.view().repaint(titleRect);
+				Apps.getFromID(app.manager().getAppID()).view().repaint(titleRect);
 			}
 		}
 	}

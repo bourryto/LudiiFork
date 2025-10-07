@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
 
+import app.Apps;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 import app.DesktopApp;
@@ -69,10 +70,10 @@ public class PossibleMovesDialog extends MoveDialog
 			Point drawPosn = new Point(MouseInfo.getPointerInfo().getLocation().x - dialog.getWidth() / 2, MouseInfo.getPointerInfo().getLocation().y - dialog.getHeight() / 2);
 			if (centerOnBoard)
 				drawPosn = new Point(
-						(int)(DesktopApp.frame().getX() + DesktopApp.view().getBoardPanel().placement().getCenterX() - dialog.getWidth() / 2), 
-						(int)(DesktopApp.frame().getY() + DesktopApp.view().getBoardPanel().placement().getCenterY() - dialog.getHeight() / 2) + menuBarHeight);
+						(int)(Apps.getFromID(app.manager().getAppID()).frame().getX() + Apps.getFromID(app.manager().getAppID()).view().getBoardPanel().placement().getCenterX() - dialog.getWidth() / 2),
+						(int)(Apps.getFromID(app.manager().getAppID()).frame().getY() + Apps.getFromID(app.manager().getAppID()).view().getBoardPanel().placement().getCenterY() - dialog.getHeight() / 2) + menuBarHeight);
 			
-			DialogUtil.initialiseForcedDialog(dialog, "Possible Moves", new Rectangle(drawPosn));
+			DialogUtil.initialiseForcedDialog(dialog, "Possible Moves", new Rectangle(drawPosn), app.manager().getAppID());
 		}
 		catch (final Exception e)
 		{

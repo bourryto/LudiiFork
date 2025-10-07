@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 
+import app.App;
+import app.Apps;
 import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.GameLoaderDialog;
@@ -33,11 +35,11 @@ public class GameLoading
 	 */
 	public static void loadGameFromFile(final PlayerApp app)
 	{
-		final int fcReturnVal = DesktopApp.gameFileChooser().showOpenDialog(DesktopApp.frame());
+		final int fcReturnVal = Apps.getFromID(app.manager().getAppID()).gameFileChooser().showOpenDialog(Apps.getFromID(app.manager().getAppID()).frame());
 
 		if (fcReturnVal == JFileChooser.APPROVE_OPTION)
 		{
-			File file = DesktopApp.gameFileChooser().getSelectedFile();
+			File file = Apps.getFromID(app.manager().getAppID()).gameFileChooser().getSelectedFile();
 			String filePath = file.getAbsolutePath();
 			if (!filePath.endsWith(".lud"))
 			{
@@ -104,7 +106,7 @@ public class GameLoading
 				break;
 			}
 		}
-		final String choice = GameLoaderDialog.showDialog(DesktopApp.frame(), choices, initialChoice);
+		final String choice = GameLoaderDialog.showDialog(App.getFrameFromAppID(app.manager().getAppID()), choices, initialChoice);
 
 		if (choice != null)
 		{
