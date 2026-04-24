@@ -32,4 +32,6 @@ public interface PlayerInterface
 	void setTemporaryMessage(final String text);
 	void refreshNetworkDialog();
 	void postMoveUpdates(Move move, boolean noAnimation);
+	void addIncomingMessage(final String text);
+	String incomingMessage(final String text);
 }

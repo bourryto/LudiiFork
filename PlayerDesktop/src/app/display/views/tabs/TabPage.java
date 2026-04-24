@@ -77,9 +77,9 @@ public abstract class TabPage extends View
 
 	/** Whether or not a mouse is over the title. */
 	protected boolean mouseOverTitle = false;
-	
+
 	/** Tab page index. */
-	public final int pageIndex;
+	public final int pageId;
 
 	/** Tab view that holds all tab pages. */
 	private final TabView parent;
@@ -95,7 +95,7 @@ public abstract class TabPage extends View
 	 */
 	public TabPage
 	(
-		final PlayerApp app, final Rectangle rect, final String title, final String text, final int pageIndex, final TabView parent
+		final PlayerApp app, final Rectangle rect, final String title, final String text, final int pageId, final TabView parent
 	)
 	{
 		super(app);
@@ -104,7 +104,7 @@ public abstract class TabPage extends View
 		placement = rect;
 		
 		this.title = new String(title);
-		this.pageIndex = pageIndex;
+		this.pageId = pageId;
 
 		final int charWidth = 9;  // approximate char width for spacing tab page headers
 		final int wd = charWidth * this.title.length();
@@ -365,7 +365,7 @@ public abstract class TabPage extends View
 		final Color light = new Color(255, 255, 255);
 		final Color mouseOver = new Color(150,150,150);
 
-		if (pageIndex == app.settingsPlayer().tabSelected())
+		if (pageId == app.settingsPlayer().tabSelected())
 			g2d.setColor(dark);
 		else if (mouseOverTitle)
 			g2d.setColor(mouseOver);

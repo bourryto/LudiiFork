@@ -17,9 +17,9 @@ public class AnalysisPage extends TabPage
 
 	//-------------------------------------------------------------------------
 	
-	public AnalysisPage(final PlayerApp app, final Rectangle rect, final String title, final String text, final int pageIndex, final TabView parent)
+	public AnalysisPage(final PlayerApp app, final Rectangle rect, final String title, final String text, final int pageId, final TabView parent)
 	{
-		super(app, rect, title, text, pageIndex, parent);
+		super(app, rect, title, text, pageId, parent);
 	}
 	
 	//-------------------------------------------------------------------------

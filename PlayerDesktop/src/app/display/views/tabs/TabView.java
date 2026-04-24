@@ -4,23 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import app.Apps;
-import app.ClientApp;
-import app.DesktopApp;
 import app.PlayerApp;
-import app.display.views.tabs.pages.AnalysisPage;
-import app.display.views.tabs.pages.InfoPage;
-import app.display.views.tabs.pages.LudemePage;
-import app.display.views.tabs.pages.MovesPage;
-import app.display.views.tabs.pages.RulesPage;
-import app.display.views.tabs.pages.StatusPage;
-import app.display.views.tabs.pages.TurnsPage;
+import app.display.views.tabs.pages.*;
 import app.utils.SettingsExhibition;
 import app.views.View;
-import com.sun.security.ntlm.Client;
 import other.context.Context;
 
 //-----------------------------------------------------------------------------
@@ -40,12 +30,16 @@ public class TabView extends View
 	
 	/** Tab Page values. */
 	public static final int PanelStatus = 0;
-	public static final int PanelMoves = 1;
-	public static final int PanelTurns = 2;
-	public static final int PanelAnalysis = 3;
-	public static final int PanelLudeme = 4;
-	public static final int PanelRules = 5;
-	public static final int PanelInfo = 6;
+    public static final int PanelMessages = 1;
+    public static final int PanelAppInfo = 2;
+	public static final int PanelMoves = 3;
+	public static final int PanelTurns = 4;
+    public static final int PanelJSON = 5;
+	public static final int PanelLudeme = 6;
+	public static final int PanelRules = 7;
+	public static final int PanelInfo = 8;
+	public static final int PanelAnalysis = 9;
+
 	
 	//-------------------------------------------------------------------------
 
@@ -53,17 +47,20 @@ public class TabView extends View
 	private boolean titlesSet = false;
 	
 	/** Tab panels. */
-	private final List<TabPage> pages = new ArrayList<>();
+	private final Map<Integer, TabPage> pages = new HashMap<>();
 	
 	//-------------------------------------------------------------------------
 
 	/**
 	 * Constructor.
 	 */
-	public TabView(final PlayerApp app, final boolean portraitMode)
+    public TabView(final PlayerApp app, final boolean portraitMode){
+        this(app, portraitMode, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8}, 5);
+    }
+	public TabView(final PlayerApp app, final boolean portraitMode, Integer[] pagesToAdd, Integer selectedPage)
 	{
 		super(app);
-		
+
 		pages.clear();
 
 		final int toolHeight;
@@ -101,34 +98,51 @@ public class TabView extends View
 		}
 		
 		placement.setBounds(startX, startY, width, height);
-		
+
+        // BOURRYTO - TODO: intial game compilation message only gets added to one window status page,
+        //                  das muss ich irgendwie auseinander frickelen
 		// Add tab pages
 		final Rectangle tabPagePlacement = new Rectangle(placement.x + 10, placement.y + TabView.fontSize + 6, placement.width - 16, placement.height - TabView.fontSize - 20);
-		final TabPage statusPage   = new StatusPage(app, tabPagePlacement, " Status ",   "", PanelStatus, this);
-		final TabPage movesPage    = new MovesPage(app, tabPagePlacement, " Moves ",    "", PanelMoves, this);
-		final TabPage turnsPage    = new TurnsPage(app, tabPagePlacement, " Turns",     "", PanelTurns, this);
-		final TabPage analysisPage = new AnalysisPage(app, tabPagePlacement, " Analysis ", "", PanelAnalysis, this);
-		final TabPage ludemePage   = new LudemePage(app, tabPagePlacement, " Ludeme  ",  "", PanelLudeme, this);
-		final TabPage rulesPage    = new RulesPage(app, tabPagePlacement, " Rules ",    "", PanelRules, this);
-		final TabPage infoPage     = new InfoPage(app, tabPagePlacement, " Info  ",    "", PanelInfo, this);
-		pages.add(statusPage);
-		pages.add(movesPage);
-		pages.add(turnsPage);
-		pages.add(analysisPage);
-		pages.add(ludemePage);
-		pages.add(rulesPage);
-		pages.add(infoPage);	
-		
+		for (Integer pageId : pagesToAdd){
+            pages.put(pageId, getNewTabPage(pageId, tabPagePlacement));
+        }
+
 		resetTabs();
 		
 		select(app.settingsPlayer().tabSelected());
 		
 		if (SettingsExhibition.exhibitionVersion)
 			select(5);
-		
-		for (final View view : pages)
+		else{select(selectedPage);}
+		for (final View view : pages.values())
 			Apps.getFromID(app.manager().getAppID()).view().getPanels().add(view);
 	}
+
+    private TabPage getNewTabPage(int pageId, Rectangle tabPagePlacement)
+    {
+        switch (pageId) {
+            case PanelStatus:
+                return new StatusPage(app, tabPagePlacement, " Status   ", "", PanelStatus, this);
+            case PanelMessages:
+                return new MessagingPage(app, tabPagePlacement, " Messages ", "", PanelMessages, this);
+            case PanelAppInfo:
+                return new AppInfoPage(app, tabPagePlacement, " AppInfo  ", "", PanelAppInfo, this);
+            case PanelMoves:
+                return new MovesPage(app, tabPagePlacement, " Moves    ", "", PanelMoves, this);
+            case PanelTurns:
+                return new TurnsPage(app, tabPagePlacement, " Turns    ", "", PanelTurns, this);
+            case PanelAnalysis:
+                return new AnalysisPage(app, tabPagePlacement, " Analysis ", "", PanelAnalysis, this);
+            case PanelLudeme:
+                return new LudemePage(app, tabPagePlacement, " Ludeme   ", "", PanelLudeme, this);
+            case PanelRules:
+                return new RulesPage(app, tabPagePlacement, " Rules    ", "", PanelRules, this);
+            case PanelInfo:
+                return new InfoPage(app, tabPagePlacement, " Info     ", "", PanelInfo, this);
+            default:
+                return new JSONPage(app, tabPagePlacement, " JSON ", "", PanelJSON, this);
+        }
+    }
 
 	//-------------------------------------------------------------------------
 	
@@ -168,7 +182,7 @@ public class TabView extends View
 		g2d.setColor(new Color(200, 200, 200));
 		g2d.fillRect(tx0, ty0, tsx, tsy);
 		
-		for (final TabPage page : pages)
+		for (final TabPage page : pages.values())
 			page.paint(g2d);
 		
 		paintDebug(g2d, Color.GREEN);
@@ -184,7 +198,7 @@ public class TabView extends View
 		int x = placement.x;
 		final int y = placement.y;
 		
-		for (final TabPage page : pages)
+		for (final TabPage page : pages.values())
 		{
 			final int wd = (int)page.titleRect().getWidth();
 			final int ht = fontSize + 6;
@@ -202,7 +216,7 @@ public class TabView extends View
 	 */
 	public void select(final int pid)
 	{
-		for (final TabPage p : pages)
+		for (final TabPage p : pages.values())
 			p.show(false);
 		
 		pages.get(pid).show(true);
@@ -218,10 +232,10 @@ public class TabView extends View
 	 */
 	public void clickAt(final Point pixel)
 	{
-		for (final TabPage p : pages)
+		for (final TabPage p : pages.values())
 			if (p.titleRect.contains(pixel.x, pixel.y))
 			{
-				select(p.pageIndex);
+				select(p.pageId);
 				return;
 			}
 	}
@@ -230,16 +244,18 @@ public class TabView extends View
 	
 	public void updateTabs(final Context context)
 	{
-		for(int i = 0; i < pages.size(); i++)
-			pages.get(i).updatePage(context);
+        for (TabPage page : pages.values()){
+            page.updatePage(context);
+        }
 	}
 	
 	//-------------------------------------------------------------------------
 	
 	public void resetTabs()
 	{
-		for(int i = 0; i < pages.size(); i++)
-			pages.get(i).reset();
+        for (TabPage page : pages.values()){
+            page.reset();
+        }
 	}
 	
 	//-------------------------------------------------------------------------
@@ -249,11 +265,32 @@ public class TabView extends View
 		return pages.get(i);
 	}
 	
-	public List<TabPage> pages()
+	public Collection<TabPage> pages()
 	{
-		return pages;
+		return pages.values();
 	}
 	
 	//-------------------------------------------------------------------------
-	
+	public void addMessage(final String text)
+	{
+        TabPage messagingPage = this.page(PanelMessages);
+        if(messagingPage instanceof MessagingPage) {
+            messagingPage.addText(text + "\n");
+        } else {
+            System.out.println("wrong instance");
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    public static TabView getClientTabView(final PlayerApp app, final boolean portraitMode){
+            return new TabView(app, portraitMode, new Integer[]{TabView.PanelStatus,
+                                                                TabView.PanelMessages,
+                                                                TabView.PanelAppInfo,
+                                                                TabView.PanelMoves,
+                                                                TabView.PanelTurns,
+                                                                TabView.PanelRules,
+                                                                TabView.PanelInfo,
+                                                                TabView.PanelJSON},
+                    TabView.PanelAppInfo);
+    }
 }
