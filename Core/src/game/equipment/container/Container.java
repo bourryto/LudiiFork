@@ -15,6 +15,8 @@ import game.types.board.SiteType;
 import game.types.play.RoleType;
 import metadata.graphics.util.ContainerStyleType;
 import metadata.graphics.util.ControllerType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import other.ItemType;
 import other.concept.Concept;
 import other.state.symmetry.SymmetryUtils;
@@ -538,4 +540,17 @@ public abstract class Container extends Item implements Serializable, Cloneable
 		}
 		return refs;
 	}
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("name", name());
+        obj.put("topology", topology);
+        obj.put("numSites", numSites);
+        if (tracks != null){obj.put("tracks", new JSONArray(tracks));}
+        if (ownedTracks != null){obj.put("ownedTracks", new JSONArray(ownedTracks));}
+        obj.put("style", style);
+        obj.put("controller", controller);
+        obj.put("defaultSite", defaultSite);
+        return obj;
+    }
 }

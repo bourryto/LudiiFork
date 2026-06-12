@@ -104,7 +104,7 @@ public class AboutDialog
 				App.getFrameFromAppID(app.manager().getAppID()),
 			sbDescription.toString() + sbVersion.toString() + sbLegal.toString() + sbTeam.toString()
 				+ sbAdmin.toString() + sbURLs.toString() + sbCredits.toString(),
-			DesktopApp.AppName, 
+			app.appName,
 			JOptionPane.PLAIN_MESSAGE, 
 			icon
 		);

@@ -314,7 +314,7 @@ public class EvalGames
 					(
 						context.trial().numMoves() - context.trial().numInitialPlacementMoves() 
 						>= 
-						game.getMaxMoveLimit()
+						game.getMaxMovesLimit()
 					)
 				)
 				{

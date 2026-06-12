@@ -30,6 +30,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
+import app.Apps;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -66,12 +67,28 @@ public class MainMenu extends JMenuBar
 	public JMenuItem showIndexOption;
 	public JMenuItem showCoordinateOption;
 
-	//-------------------------------------------------------------------------
+    public static final int MenuLudii = 0;
+    public static final int MenuFile = 1;
+    public static final int MenuGame = 2;
+    public static final int MenuNavigation = 3;
+    public static final int MenuPuzzle = 4;
+    public static final int MenuAnalysis = 5;
+    public static final int MenuGeneration = 6;
+    public static final int MenuOptions = 7;
+    public static final int MenuRemote = 8;
+    public static final int MenuDemos = 9;
+    public static final int MenuDeveloper = 10;
+    public static final int MenuView = 11;
+    public static final int MenuHelp = 12;
+    public static final int MenuBourryto = 13;
+
+
+    //-------------------------------------------------------------------------
 
 	/**
 	 * Constructor.
 	 */
-	public MainMenu(final PlayerApp app)
+	public MainMenu(final PlayerApp app, Boolean[] menuItems)
 	{
 		// No menu for exhibition app.
 		if (app.settingsPlayer().usingMYOGApp() || SettingsExhibition.exhibitionVersion)
@@ -94,7 +111,7 @@ public class MainMenu extends JMenuBar
 
 		// Ludii Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuLudii]) {
 			menu = new JMenu("Ludii");
 			this.add(menu);
 
@@ -111,7 +128,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// File Menu
 
-		if (app.manager().settingsNetwork().getActiveGameId() == 0)
+		if (app.manager().settingsNetwork().getActiveGameId() == 0 && menuItems[MenuFile])
 		{
 			menu = new JMenu("File");
 			this.add(menu);
@@ -197,7 +214,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// Game Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuGame]) {
 			menu = new JMenu("Game");
 			this.add(menu);
 
@@ -292,7 +309,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// Navigation Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuNavigation]) {
 			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
 				menu = new JMenu("Navigation");
 				this.add(menu);
@@ -345,7 +362,7 @@ public class MainMenu extends JMenuBar
 			//---------------------------------------------------------------------
 			// Puzzle Menu
 
-			if (app.contextSnapshot().getContext(app).game().isDeductionPuzzle()) {
+			if (app.contextSnapshot().getContext(app).game().isDeductionPuzzle() && menuItems[MenuPuzzle]) {
 				menu = new JMenu("Puzzle");
 				this.add(menu);
 
@@ -388,7 +405,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// Analysis Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuAnalysis]) {
 			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
 				menu = new JMenu("Analysis");
 				this.add(menu);
@@ -622,7 +639,7 @@ public class MainMenu extends JMenuBar
 //		//---------------------------------------------------------------------
 //		// Generation menu
 //		
-//		if (app.manager().settingsNetwork().getActiveGameId() == 0)
+//		if (app.manager().settingsNetwork().getActiveGameId() == 0 && menuItems[MenuGeneration])
 //		{
 //			menu = new JMenu("Generation");
 //			this.add(menu);
@@ -646,7 +663,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// Options Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuOptions]) {
 			boolean optionsFound = false;
 			for (int o = 0; o < app.contextSnapshot().getContext(app).game().description().gameOptions().numCategories(); o++) {
 				final List<Option> options = app.contextSnapshot().getContext(app).game().description().gameOptions().categories().get(o).options();
@@ -662,35 +679,35 @@ public class MainMenu extends JMenuBar
 		}
 		//---------------------------------------------------------------------
 		// Network Menu
+        if (menuItems[MenuRemote]) {
+            menu = new JMenu("Remote");
+            this.add(menu);
 
-		menu = new JMenu("Remote");
-		this.add(menu);
+            menuItem = new JMenuItem("Remote Play");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
 
-		menuItem = new JMenuItem("Remote Play");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-		
-		menu.addSeparator();
-		
-		menuItem = new JMenuItem("Initialise Server Socket");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Test Message Socket");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
-		
-		menu.addSeparator();
-		
-		menuItem = new JMenuItem("Select Move from String");
-		menuItem.setAccelerator(KeyStroke.getKeyStroke('S', ALT_DOWN_MASK));
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
+            menu.addSeparator();
 
+            menuItem = new JMenuItem("Initialise Server Socket");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+
+            menuItem = new JMenuItem("Test Message Socket");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+
+            menu.addSeparator();
+
+            menuItem = new JMenuItem("Select Move from String");
+            menuItem.setAccelerator(KeyStroke.getKeyStroke('S', ALT_DOWN_MASK));
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+        }
 		//---------------------------------------------------------------------
 		// Demos Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuDemos]) {
 			if (app.manager().settingsNetwork().getActiveGameId() == 0) {
 				menu = new JMenu("Demos");
 				final String[] demos = findDemos();
@@ -738,7 +755,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// Developer Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuDeveloper]) {
 			if
 			(
 					app.settingsPlayer().devMode()
@@ -1010,7 +1027,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// View Menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuView]) {
 			menu = new JMenu("View");
 			this.add(menu);
 
@@ -1161,7 +1178,7 @@ public class MainMenu extends JMenuBar
 		//---------------------------------------------------------------------
 		// Help menu
 
-		if(!app.isClient) {
+		if(menuItems[MenuHelp]) {
 			menu = new JMenu("Help");
 			this.add(menu);
 
@@ -1170,18 +1187,37 @@ public class MainMenu extends JMenuBar
 			menuItem.addActionListener(al);
 			menu.add(menuItem);
 		}
-		// BOURRYTO: added a test menu, to test some connection ideas
 		//---------------------------------------------------------------------
-		menu = new JMenu("Bourryto");
-		this.add(menu);
+		if (menuItems[MenuBourryto]) {
+            menu = new JMenu("Bourryto");
+            this.add(menu);
 
-		menuItem = new JMenuItem("Test Connection To Port");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
+            for (int otherPort : app.getOtherPorts()) {
+                menuItem = new NetworkJMenuItem("Send to other App " + otherPort, otherPort);
+                menuItem.addActionListener(al);
+                menu.add(menuItem);
+            }
 
-		menuItem = new JMenuItem("Send Game Name");
-		menuItem.addActionListener(al);
-		menu.add(menuItem);
+            menuItem = new JMenuItem("Broadcast Message");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+
+            menuItem = new JMenuItem("Test Connection To Port");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+
+            menuItem = new JMenuItem("Send Game Name");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+
+            menuItem = new JMenuItem("Send Initial Message");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+
+            menuItem = new JMenuItem("New Game");
+            menuItem.addActionListener(al);
+            menu.add(menuItem);
+        }
 
 	}
 
@@ -1384,4 +1420,8 @@ public class MainMenu extends JMenuBar
 	
 	//-------------------------------------------------------------------------
 
+    public static MainMenu getClientMainMenu(final PlayerApp app, Boolean[] menuItems)
+    {
+        return new MainMenu(app, menuItems);
+    }
 }

@@ -53,7 +53,6 @@ import other.context.Context;
 import other.model.Model;
 import other.move.Move;
 import other.state.container.ContainerState;
-import other.topology.Edge;
 import other.trial.Trial;
 import search.minimax.AlphaBetaSearch;
 import search.minimax.AlphaBetaSearch.AllowedSearchDepths;
@@ -519,7 +518,7 @@ public class ExportDbCsvConcepts
 					continue;
 
 				final Game game = GameLoader.loadGameFromName(gameName);
-				game.setMaxMoveLimit(moveLimit);
+				game.setMaxMovesLimit(moveLimit);
 				game.start(new Context(game, new Trial(game)));
 
 				System.out.println("Loading game: " + game.name());
@@ -540,7 +539,7 @@ public class ExportDbCsvConcepts
 						if (!ruleset.optionSettings().isEmpty() && !ruleset.heading().contains("Incomplete")) // We check if the ruleset is implemented.
 						{
 							final Game rulesetGame = GameLoader.loadGameFromName(gameName, ruleset.optionSettings());
-							rulesetGame.setMaxMoveLimit(moveLimit);
+							rulesetGame.setMaxMovesLimit(moveLimit);
 
 							System.out.println("Loading ruleset: " + rulesetGame.getRuleset().heading());
 							final Map<String, Double> playoutConcepts = (numPlayouts == 0)

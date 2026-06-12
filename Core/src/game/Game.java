@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
+import main.collections.Pair;
 import org.apache.commons.rng.RandomProviderState;
 
 import annotations.Hide;
@@ -88,6 +90,8 @@ import main.grammar.Description;
 import main.options.Ruleset;
 import metadata.Metadata;
 import metadata.recon.ReconItem;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import other.AI;
 import other.BaseLudeme;
 import other.Ludeme;
@@ -187,7 +191,7 @@ public class Game extends BaseLudeme implements API, Serializable
 	/** Access container by label. */
 	private final Map<String, Container> mapContainer = new HashMap<>();
 
-	/** Access component by label. */
+	/** Access component by label. */ // BOURRYTO - GETTERS: not "important", all infos also in equipment().components()
 	private final Map<String, Component> mapComponent = new HashMap<>();
 
 	/** The list of the different sets of dice. */
@@ -348,7 +352,104 @@ public class Game extends BaseLudeme implements API, Serializable
 				"";
 	}
 
-	//----------------------------Getter and Shortcuts-----------------------------------
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.append("name", name);                                                  // -String
+        json.append("options", new JSONArray(options));                             // -List<String>
+        json.append("mode", mode.toString());                                         // +Mode
+        // TODO - PLAYERS DONT WORK SO FAR
+        json.append("players", players);                                            // +Players
+        //json.append("equipment", equipment.toJSON());                                        // +Equipment
+        // TODO - RULES DONT WORK SO FAR
+        json.append("rules", rules);                                                // +Rules
+        json.append("metaRules", metaRules.toString());                               // +Metarules
+        //json.append("voteStringsTable", new JSONArray(voteStringsTable));           // -List<String>
+        // TODO - DESCRIPTION DOESNT WORK SO FAR
+        json.append("description", description);                                    // +Description
+        json.append("maxTurnLimit", maxTurnLimit);                                  // -int
+        json.append("maxMovesLimit", maxMovesLimit);                                // -int
+        json.append("numStartingAction", numStartingAction);                        // -int
+        json.append("gameFlags", gameFlags);                                        // -long
+        json.append("booleanConcepts", booleanConcepts.toString());                   // +BitSet
+        json.append("conceptsNonBoolean", new JSONObject(conceptsNonBoolean));      // -Map<Integer, String>
+        json.append("stateReference", stateReference);                              // +State
+        json.append("finishedPreprocessing", finishedPreprocessing);                // -boolean
+        // TODO - START CONTEXT DOENST WORK SO FAR
+        json.append("startContext", startContext);                         // +Context
+        json.append("stochasticStartingRules", stochasticStartingRules);            // -boolean
+//        Map<String, JSONObject> mapContainerJSON = mapContainer.entrySet().stream()
+//                .map(entry -> new Pair(entry.getKey().toString(), entry.getValue().toJSON()))
+//                .collect(Collectors.toMap(p -> p.key().toString(), p -> (JSONObject) p.value()));
+//        json.append("mapContainer", new JSONObject(mapContainerJSON));              // +Map<String, Container>
+        // TODO - here
+       /* Map<String, JSONObject> mapComponentJSON = mapComponent.entrySet().stream()
+                .map(entry -> new Pair(entry.getKey(), entry.getValue().toJSON()))
+                .collect(Collectors.toMap(p -> p.key().toString(), p -> (JSONObject) p.value()));
+        *///json.append("mapComponent", new JSONObject(mapComponentJSON));              // +Map<String, Component>
+        List<String> handDiceJSON = handDice.stream().map(Dice::toString).collect(Collectors.toList());
+        json.append("handDice", new JSONArray(handDiceJSON));                       // +List<Dice>
+        List<String> handDeckJSON = handDeck.stream().map(Deck::toString).collect(Collectors.toList());
+        json.append("handDeck", new JSONArray(handDeckJSON));                       // +List<Deck>
+        json.append("constraintVariables", constraintVariables.toString());           // +TIntArrayList
+        json.append("metadata", metadata);                                 // +Metadata
+        json.append("expectedConcepts", new JSONArray(expectedConcepts.toString()));  // +ArrayList<metadata.recon.concept.Concept>
+        json.append("requirementReport", new JSONArray(requirementReport));         // -List<String>
+        json.append("hasMissingRequirement", hasMissingRequirement);                // -boolean
+        json.append("crashReport", new JSONArray(crashReport));                     // -List<String>
+        json.append("willCrash", willCrash);                                        // -boolean
+        json.append("gameStartCount", gameStartCount);                              // -int
+        return json;
+    }
+
+    /* version for it every class has a toJSON function
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.append("name", name);                                                  // -String
+        json.append("options", new JSONArray(options));                             // -List<String>
+        json.append("mode", mode.toJSON());                                         // +Mode
+        json.append("players", players.toJSON());                                   // +Players
+        json.append("equipment", equipment.toJSON());                               // +Equipment
+        json.append("rules", rules.toJSON());                                       // +Rules
+        json.append("metaRules", metaRules.toJSON());                               // +Metarules
+        json.append("voteStringsTable", new JSONArray(voteStringsTable));           // -List<String>
+        json.append("description", description.toJSON());                           // +Description
+        json.append("maxTurnLimit", maxTurnLimit);                                  // -int
+        json.append("maxMovesLimit", maxMovesLimit);                                // -int
+        json.append("numStartingAction", numStartingAction);                        // -int
+        json.append("gameFlags", gameFlags);                                        // -long
+        json.append("booleanConcepts", booleanConcepts.toJSON());                   // +BitSet
+        json.append("conceptsNonBoolean", new JSONObject(conceptsNonBoolean));      // -Map<Integer, String>
+        json.append("stateReference", stateReference);                              // +State
+        json.append("finishedPreprocessing", finishedPreprocessing);                // -boolean
+        json.append("startContext", startContext.toJSON());                         // +Context
+        json.append("stochasticStartingRules", stochasticStartingRules);            // -boolean
+        Map<String, JSONObject> mapContainerJSON = mapContainer.entrySet().stream()
+                .map(entry -> new Pair(entry.getKey(), entry.getValue().toJSON()))
+                .collect(Collectors.toMap(Pair::key, Pair::value));
+        json.append("mapContainer", new JSONObject(mapContainerJSON));              // +Map<String, Container>
+        // TODO - here
+        Map<String, JSONObject> mapComponentJSON = mapComponent.entrySet().stream()
+                .map(entry -> new Pair(entry.getKey(), entry.getValue().toJSON()))
+                .collect(Collectors.toMap(Pair::key, Pair::value));
+        json.append("mapComponent", new JSONObject(mapComponentJSON));              // +Map<String, Component>
+        List<Dice> handDiceJSON = handDice.stream().map(Dice::toJSON).collect(Collectors.toList());
+        json.append("handDice", new JSONArray(handDiceJSON));                       // +List<Dice>
+        List<Dice> handDeckJSON = handDice.stream().map(Deck::toJSON).collect(Collectors.toList());
+        json.append("handDeck", new JSONArray(handDeckJSON));                       // +List<Deck>
+        json.append("constraintVariables", constraintVariables.toJSON());           // +TIntArrayList
+        json.append("metadata", metadata.toJSON());                                 // +Metadata
+        json.append("expectedConcepts", new JSONArray(expectedConcepts.toJSON()));  // +ArrayList<metadata.recon.concept.Concept>
+        json.append("requirementReport", new JSONArray(requirementReport));         // -List<String>
+        json.append("hasMissingRequirement", hasMissingRequirement);                // -boolean
+        json.append("crashReport", new JSONArray(crashReport));                     // -List<String>
+        json.append("willCrash", willCrash);                                        // -boolean
+        json.append("gameStartCount", gameStartCount);                              // -int
+        return json;
+    }
+
+     */
+    //----------------------------Getter and Shortcuts-----------------------------------
 
 	/**
 	 * @return Game name.
@@ -2448,7 +2549,7 @@ public class Game extends BaseLudeme implements API, Serializable
 		
 		return mapStarting;
 	}
-
+    // BOURRYTO - this getter doesnt get parsed as a getter bc naming
 	/**
 	 * @return The non boolean concepts.
 	 */
@@ -2456,6 +2557,10 @@ public class Game extends BaseLudeme implements API, Serializable
 	{
 		return conceptsNonBoolean;
 	}
+    public Map<Integer, String> conceptsNonBoolean()
+        {
+            return conceptsNonBoolean;
+        }
 
 	//-------------------------Game related methods----------------------------
 
@@ -3140,7 +3245,7 @@ public class Game extends BaseLudeme implements API, Serializable
 				EndType endType = EndType.NaturalEnd;
 				if (state.numTurn() >= getMaxTurnLimit() * players.count())
 					endType = EndType.TurnLimit;
-				else if ((trial.numMoves() - trial.numInitialPlacementMoves()) >= getMaxMoveLimit())
+				else if ((trial.numMoves() - trial.numInitialPlacementMoves()) >= getMaxMovesLimit())
 					endType = EndType.MoveLimit;
 
 				trial.setStatus(new Status(winner, endType));
@@ -3799,7 +3904,7 @@ public class Game extends BaseLudeme implements API, Serializable
 	public boolean checkMaxTurns(final Context context)
 	{
 		return (context.state().numTurn() >= getMaxTurnLimit() * players.count()
-				|| (context.trial().numMoves() - context.trial().numInitialPlacementMoves()) >= getMaxMoveLimit());
+				|| (context.trial().numMoves() - context.trial().numInitialPlacementMoves()) >= getMaxMovesLimit());
 	}
 
 	/**
@@ -3812,9 +3917,8 @@ public class Game extends BaseLudeme implements API, Serializable
 		maxTurnLimit = limitTurn;
 		
 		if (isDeductionPuzzle())
-			setMaxMoveLimit(limitTurn);
+			setMaxMovesLimit(limitTurn);
 	}
-	
 	/**
 	 * @return Max number of turns for this game
 	 */
@@ -3827,19 +3931,19 @@ public class Game extends BaseLudeme implements API, Serializable
 	 * Set the maximum number of moves for this game
 	 * @param limitMoves
 	 */
-	public void setMaxMoveLimit(final int limitMoves)
+	public void setMaxMovesLimit(final int limitMoves)
 	{
 		maxMovesLimit = limitMoves;
 	}
-	
+
 	/**
 	 * @return Max number of moves for this game
 	 */
-	public int getMaxMoveLimit()
+	public int getMaxMovesLimit()
 	{
 		return maxMovesLimit;
 	}
-	
+
 	/**
 	 * @return Options selected when compiling this game.
 	 */
@@ -3862,7 +3966,7 @@ public class Game extends BaseLudeme implements API, Serializable
 	}
 	
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * @return Ruleset that corresponds to the options selected when compiling this game.
 	 */

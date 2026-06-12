@@ -1,7 +1,9 @@
 package other.action;
 
 import java.util.BitSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import annotations.Hide;
 import game.rules.play.moves.Moves;
@@ -10,7 +12,11 @@ import game.util.directions.AbsoluteDirection;
 import game.util.directions.DirectionFacing;
 import game.util.graph.Radial;
 import main.Constants;
+import main.collections.FastArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
 import other.context.Context;
+import other.move.Move;
 import other.state.container.ContainerState;
 import other.topology.Cell;
 import other.topology.Topology;
@@ -427,4 +433,85 @@ public abstract class BaseAction implements Action
 	{
 		return new BitSet();
 	}
+
+    @Override
+    public JSONObject toBourrytoFormat(){
+        JSONObject j = new JSONObject();
+        j.put("from", this.from());
+        j.put("to", this.to());
+        j.put("what", this.what());
+        j.put("actionType", this.actionType().toString());
+
+        // todo: not containing actions in moves so far
+
+        return j;
+    }
+
+    public boolean same(String other, Context context){
+        if (other == null || other.isEmpty()) return false;
+        // from PlayerDesktop.app.menu.MainMenuFunctions under remote > select move from string:
+        final FastArrayList<Move> substringMatchingMoves = new FastArrayList<>();
+        other = other.toLowerCase().replace(" ", "").replace("\n", ""); // remove new lines and whitespaces
+
+        List<String> formats = new LinkedList<>();
+        formats.add(this.toTrialFormat(context));
+        formats.add(this.toTurnFormat(context, true));
+        formats.add(this.toTurnFormat(context, false));
+        formats.add(this.toMoveFormat(context, true));
+        formats.add(this.toMoveFormat(context, false));
+        formats.add(this.toString());
+        formats = formats.stream().map(string -> string.toLowerCase()
+                                                                .replace(" ", "")
+                                                                .replace("\n", "")).collect(Collectors.toList());
+        for (String format : formats){
+            if (format.equals(other) || format.contains(other)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String simplify(String string) {
+        return string.toLowerCase().replace(" ", "").replace("\n", "");
+    }
+    @Override
+    public boolean sameEnough(JSONObject other) throws IllegalArgumentException{
+        //if (other == null || other.isEmpty()) return false;
+        // neccesary keys
+        for (String key: Action.requiredComparisonKeys()){
+//            if (key.equals("from") && this.from() == this.to()){continue;} // add move has same from and to, so we can accept only the to
+            if (!other.has(key)){
+                System.out.println("baseAction - sameEnought() - other doest have the key");
+                throw new IllegalArgumentException(key + " is required but missing.");
+            }
+        }
+        // from depending on game is important, i will leave it in as neccesary
+        try {
+            if (other.getInt("from") != this.from()){return false;}
+        } catch (JSONException e) {throw new IllegalArgumentException("'from' is required but missing.");}
+        try {
+            if (other.getInt("to") != this.to()){return false;}
+        } catch (JSONException e) {throw new IllegalArgumentException("'to' is required but missing.");}
+        try {
+            if (other.getInt("what") != this.what()){return false;}
+        } catch (JSONException e) {throw new IllegalArgumentException("'what' is required but missing.");}
+        try {
+            if (!other.getString("actionType").equalsIgnoreCase(this.actionType().toString())){return false;}
+        } catch (JSONException ignored) {}
+        try {
+            if (!simplify(other.getString("action")).equals(simplify(this.actionType().toString()))){return false;}
+        } catch (JSONException ignored) {}
+        // these keys will be ignored if they don;t exist
+        try {if (!simplify(other.getString("fromType")).equals(simplify(this.fromType().toString()))){return false;}} catch (JSONException ignored) {}
+        try {if (other.getInt("levelFrom") != this.levelFrom()){return false;}} catch (JSONException ignored) {}
+        try {if (!simplify(other.getString("toType")).equals(simplify(this.toType().toString()))){return false;}} catch (JSONException ignored) {}
+        try {if (other.getInt("levelTo") != this.levelTo()){return false;}} catch (JSONException ignored) {}
+        try {if (other.getInt("state") != this.state()){return false;}} catch (JSONException ignored) {}
+        try {if (other.getInt("rotation") != this.rotation()){return false;}} catch (JSONException ignored) {}
+        try {if (other.getInt("value") != this.value()){return false;}} catch (JSONException ignored) {}
+        try {if (other.getInt("count") != this.count()){return false;}} catch (JSONException ignored) {}
+        try {if (other.getInt("who") != this.who()){return false;}} catch (JSONException ignored) {}
+
+        return true;
+    }
 }

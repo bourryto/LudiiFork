@@ -1289,6 +1289,10 @@ public class Context
 		return state;
 	}
 
+    public void setState(State state){
+        this.state = state;
+    }
+
 	/**
 	 * Helper method to return player name for given player index. Takes into
 	 * account whether or not player roles have been swapped in the current state.
@@ -1789,4 +1793,5 @@ public class Context
 		}
 		return s;
 	}
+
 }

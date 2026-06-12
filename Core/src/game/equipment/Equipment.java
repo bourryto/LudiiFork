@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import game.Game;
 import game.equipment.component.Component;
@@ -27,6 +28,8 @@ import game.types.board.SiteType;
 import game.types.play.RoleType;
 import game.types.state.GameType;
 import main.Constants;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import other.BaseLudeme;
 import other.ItemType;
 import other.context.Context;
@@ -275,6 +278,26 @@ public final class Equipment extends BaseLudeme implements Serializable
 
 		return text;
 	}
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("containers", new JSONArray(Arrays.stream(containers).map(Container::toJSON).collect(Collectors.toList())));
+        if(components != null){json.put("components", new JSONArray(components));}
+        if(regions != null){json.put("regions", new JSONArray(regions));}
+        if(maps != null){json.put("maps", new JSONArray(maps));}
+        json.put("totalDefaultSites", totalDefaultSites);
+        //if(containerId != null){json.put("containerId", new JSONArray(containerId));}
+        if(offset != null){json.put("offset", new JSONArray(offset));}
+        if (sitesFrom != null){json.put("sitesFrom", new JSONArray(sitesFrom));}
+        if(vertexWithHints != null){json.put("vertexWithHints", new JSONArray(vertexWithHints));}
+        if(cellWithHints != null){json.put("cellWithHints", new JSONArray(cellWithHints));}
+        if(edgeWithHints != null){json.put("edgeWithHints", new JSONArray(edgeWithHints));}
+        if(vertexHints != null){json.put("vertexHints", new JSONArray(vertexHints));}
+        if(cellHints != null){json.put("cellHints", new JSONArray(cellHints));}
+        if(edgeHints != null){json.put("edgeHints", new JSONArray(edgeHints));}
+        if(itemsToCreate != null){json.put("itemsToCreate", new JSONArray(itemsToCreate));}
+        return json;
+    }
 
 	//-------------------------------------------------------------------------
 	

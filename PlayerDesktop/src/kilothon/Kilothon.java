@@ -147,7 +147,7 @@ public class Kilothon
 						}
 
 						// Start the game.
-						game.setMaxMoveLimit(numPlayers*movesLimitPerPlayer); // Limit of moves per player.
+						game.setMaxMovesLimit(numPlayers*movesLimitPerPlayer); // Limit of moves per player.
 						final Context context = new Context(game, new Trial(game));
 						final Trial trial = context.trial();
 						game.start(context);

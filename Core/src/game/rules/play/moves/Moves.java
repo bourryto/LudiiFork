@@ -10,6 +10,8 @@ import game.rules.meta.no.simple.NoSuicide;
 import game.rules.play.moves.nonDecision.effect.Then;
 import game.types.state.GameType;
 import main.collections.FastArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import other.BaseLudeme;
 import other.context.Context;
 import other.move.Move;
@@ -176,6 +178,23 @@ public abstract class Moves extends BaseLudeme implements GameType
 		
 		return sb.toString();
 	}
+
+    public JSONObject toJSON(){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("then", then.toString());                                      // -Then
+        } catch (Exception e) {
+            json.put("then", "error");
+        }
+        json.put("isDecision", isDecision);                                     // +bool
+        json.put("applyAfterAllMoves", applyAfterAllMoves);                     // +bool
+        JSONArray ja = new JSONArray();
+        for (final Move m : moves){
+            ja.put(m.toJSON());
+        }
+        json.put("moves", ja);
+        return json;
+    }
 	
 	//-------------------------------------------------------------------------
 

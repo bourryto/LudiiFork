@@ -1,10 +1,7 @@
 package game.players;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +23,8 @@ public final class Players extends BaseLudeme implements Serializable
 
 	/** Player records: 0 is empty, then player indices are 1..P. */
 	protected final List<Player> players = new ArrayList<Player>();
+
+    Player myPlayer;
 
 	//-------------------------------------------------------------------------
 
@@ -206,6 +205,21 @@ public final class Players extends BaseLudeme implements Serializable
 		}
 		return willCrash;
 	}
+/*
+
+
+    public void setMyPlayer(int id){
+        for (int i = 0; i < players().size(); i++) {
+            if (players().get(i) == null){continue;}
+            if (players().get(i).index() == id){
+                this.myPlayer = players().get(i);
+                break;
+            }
+        }
+    }
+    public Player getMyPlayer(){
+        return this.myPlayer;
+    }*/
 	
 	//-------------------------------------------------------------------------
 	

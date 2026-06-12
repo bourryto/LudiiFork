@@ -46,8 +46,8 @@ public class AppInfoPage extends TabPage
             addText(String.format("\n\t%d", otherPort));
         }
         addText(String.format("\n%-12s: %s", "Game", app.manager().savedLudName()));
-        addText(String.format("\n%-12s: %s", "Out manager", Arrays.toString(app.manager().central.outgoingMessages.toArray())));
-        addText(String.format("\n%-12s: %s", "Player Index", app.manager().getMyPlayerIndex()));
+        //addText(String.format("\n%-12s: %s", "Out manager", Arrays.toString(app.manager().central.outgoingMessages.toArray())));
+        //addText(String.format("\n%-12s: %s", "Player Index", app.manager().getMyPlayerIndex()));
 //        addText(String.format("\n%-12s: %s",));
         addText(String.format("\n%-12s: %s","Class", app.getClass()));
 

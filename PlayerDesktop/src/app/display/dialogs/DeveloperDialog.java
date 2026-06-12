@@ -1054,7 +1054,7 @@ public class DeveloperDialog extends JDialog
 
 		textFieldMaximumNumberOfTurns.setBounds(970, 495, 86, 20);
 		contentPanel.add(textFieldMaximumNumberOfTurns);
-		textFieldMaximumNumberOfTurns.setText("" + app.contextSnapshot().getContext(app).game().getMaxMoveLimit());
+		textFieldMaximumNumberOfTurns.setText("" + app.contextSnapshot().getContext(app).game().getMaxMovesLimit());
 
 		final JLabel lblNewLabel_1 = new JLabel("Maximum number of moves");
 		lblNewLabel_1.setBounds(719, 498, 241, 14);
@@ -1085,12 +1085,12 @@ public class DeveloperDialog extends JDialog
 				try
 				{
 					app.contextSnapshot().getContext(app).game()
-							.setMaxMoveLimit(Integer.parseInt(textFieldMaximumNumberOfTurns.getText()));
+							.setMaxMovesLimit(Integer.parseInt(textFieldMaximumNumberOfTurns.getText()));
 				}
 				catch (final Exception e)
 				{
 					// not an integer;
-					app.contextSnapshot().getContext(app).game().setMaxMoveLimit(Constants.DEFAULT_MOVES_LIMIT);
+					app.contextSnapshot().getContext(app).game().setMaxMovesLimit(Constants.DEFAULT_MOVES_LIMIT);
 				}
 
 				app.repaint();

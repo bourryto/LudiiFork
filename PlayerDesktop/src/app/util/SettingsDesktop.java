@@ -20,5 +20,10 @@ public class SettingsDesktop
 	
 	/** Whether a separate dialog (settings, puzzle, etc.) is open. */
 	public static JDialog openDialog = null;
-	
+
+    public static int windowWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth());
+    public static int halfWindowWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 4);
+    public static int windowHeight = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+    public static int halfWindowHeight = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2);
+
 }

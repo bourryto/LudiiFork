@@ -464,7 +464,7 @@ public final class LudiiGameWrapper
 	 */
 	public int maxGameLength()
 	{
-		return game.getMaxMoveLimit();
+		return game.getMaxMovesLimit();
 	}
 	
 	/**

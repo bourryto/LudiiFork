@@ -31,7 +31,7 @@ public final class ValueMoveLimit extends BaseIntFunction
 	@Override
 	public int eval(final Context context)
 	{
-		return context.game().getMaxMoveLimit();
+		return context.game().getMaxMovesLimit();
 	}
 
 	//-------------------------------------------------------------------------

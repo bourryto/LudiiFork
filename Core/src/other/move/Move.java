@@ -23,6 +23,9 @@ import main.Constants;
 import main.Status;
 import main.collections.FastArrayList;
 import main.collections.FastTIntArrayList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import other.UndoData;
 import other.action.Action;
 import other.action.ActionType;
@@ -998,6 +1001,23 @@ public class Move extends BaseAction
 		return sb.toString();
 	}
 
+    public JSONObject toJSON() {
+        final JSONObject obj = new JSONObject();
+        obj.put("from", from);                              // int
+        obj.put("to", to);                                  // int
+        //obj.put("between", new JSONArray(between.toArray()));         // Tintarraylist
+        obj.put("state", state);                            // int
+        obj.put("oriented", oriented);                      // bool
+        obj.put("edge", edge);                              // int
+        obj.put("mover", mover);                            // int
+        obj.put("levelMin", levelMin);                      // int
+        obj.put("levelMax", levelMax);                      // int
+        obj.put("actions", new JSONArray(actions));         // List<Action>
+        obj.put("then", new JSONArray(then));               // List<Moves>
+        obj.put("movesLudeme", movesLudeme);                // Moves
+        return obj;
+    }
+
 	//-------------------------------------------------------------------------
 
 	@Override
@@ -1459,6 +1479,24 @@ public class Move extends BaseAction
 
 	//-------------------------------------------------------------------------
 
+    public static String getTrialFormat()
+    {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("[Move:");
+        sb.append("mover=" + "<mover>");
+        sb.append(",from=" + "<from>|UNDEFINED");
+        sb.append(",to=" + "<to>|UNDEFINED");
+        sb.append(",state=" + "<state>|UNDEFINED");
+        sb.append(",oriented=" + "<oriented>|false");
+        sb.append(",edge=" + "<edge>|UNDEFINED");
+        sb.append(",levelMin=" + "<levelMin>|Constants.GROUND_LEVEL");
+        sb.append(",levelMax=" + "<levelMax>|Constants.GROUND_LEVEL");
+        sb.append(",actions=<allActions>|UNDEFINED");
+        sb.append(']');
+
+        return sb.toString();
+    }
 	@Override
 	public String toTrialFormat(final Context context)
 	{
@@ -1723,5 +1761,78 @@ public class Move extends BaseAction
 	}
 	
 	//-------------------------------------------------------------------------
+
+    private String simplify(String string) {
+    return string.toLowerCase().replace(" ", "").replace("\n", "");
+}
+
+//    @Override
+//    public boolean sameEnough(JSONObject other) throws IllegalArgumentException, JSONException{
+//        if (other == null || other.isEmpty()) return false;
+//        // neccesary keys
+//        for (String key: Action.requiredComparisonKeys()){
+//            //if (key.equals("from") && this.from() == this.to()){continue;} // add move has same from and to, so we can accept only the to
+//            if (!other.has(key)){throw new IllegalArgumentException(key + " is required but missing.");}
+//        }
+//        // from depending on game is important, i will leave it in as neccesary
+//        if (this.from() == this.to()){
+//            if (other.has("from") && other.has("to") && other.getInt("from") != other.getInt("to")){return false;}
+//            else if (other.has("from") && other.getInt("from") != this.from()){return false;}
+//            else if (other.has("to") && other.getInt("to") != this.to()){return false;}
+//        }
+//        if (other.getInt("what") != this.what()){return false;}
+//        // these keys will be ignored if they don;t exist
+//        boolean matchingActionType = false;
+//        try {
+//            if (other.getJSONArray("actions").getJSONObject(0).getString("description").equals(this.actionType().toString())){matchingActionType = true;}
+//            if (other.getString("actionType").equals(this.actionType().toString())){matchingActionType = true;}
+//        } catch (JSONException ignored){}
+//        if (! matchingActionType){return false;}
+//        try {if (simplify(other.getString("fromType")).equals(simplify(this.fromType().toString()))){return false;}} catch (JSONException ignored) {}
+//        try {if (other.getInt("levelFrom") != this.levelFrom()){return false;}} catch (JSONException ignored) {}
+//        try {if (simplify(other.getString("toType")).equals(simplify(this.toType().toString()))){return false;}} catch (JSONException ignored) {}
+//        try {if (other.getInt("levelTo") != this.levelTo()){return false;}} catch (JSONException ignored) {}
+//        try {if (other.getInt("state") != this.state()){return false;}} catch (JSONException ignored) {}
+//        try {if (other.getInt("rotation") != this.rotation()){return false;}} catch (JSONException ignored) {}
+//        try {if (other.getInt("value") != this.value()){return false;}} catch (JSONException ignored) {}
+//        try {if (other.getInt("count") != this.count()){return false;}} catch (JSONException ignored) {}
+//        try {if (other.getInt("who") != this.who()){return false;}} catch (JSONException ignored) {}
+//
+//        return true;
+//    }
+
+    public boolean allGivenKeysMatch(JSONObject other){
+        for (String key: other.keySet()){
+            switch (key){
+                case "from":
+                    if (other.getInt("from") != this.from()){return false;}
+                case "to":
+                    if (other.getInt("to") != this.to()){return false;}
+                case "what":
+                    if (other.getInt("what") != this.what()){return false;}
+                case "actionType":
+                    if (other.getString("actionType").equals(this.actionType().toString())){return false;}
+                case "fromType":
+                    if (other.getString("fromType").equals(this.fromType().toString())){return false;}
+                case "levelFrom":
+                    if (other.getInt("levelFrom") != this.levelFrom()){return false;}
+                case "toType":
+                    if (other.getString("toType").equals(this.toType().toString())){return false;}
+                case "levelTo":
+                    if (other.getInt("levelTo") != this.levelTo()){return false;}
+                case "state":
+                    if (other.getInt("state") != this.state()){return false;}
+                case "rotation":
+                    if (other.getInt("rotation") != this.rotation()){return false;}
+                case "value":
+                    if (other.getInt("value") != this.value()){return false;}
+                case "count":
+                    if (other.getInt("count") != this.count()){return false;}
+                case "who":
+                    if (other.getInt("who") != this.who()){return false;}
+            }
+        }
+        return true;
+    }
 
 }

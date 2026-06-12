@@ -240,7 +240,7 @@ public abstract class BaseContainerState implements ContainerState
 	 * @param out
 	 * @throws IOException
 	 */
-	private void writeObject(final ObjectOutputStream out) throws IOException
+	public void writeObject(final ObjectOutputStream out) throws IOException
 	{
 		// Use default writer to write all fields of subclasses, like ChunkSets
 		// this will not include our container, because it's transient

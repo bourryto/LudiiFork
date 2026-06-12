@@ -60,7 +60,7 @@ public class KilothonGUI
 		int sumNumMoves = 0;
 		
 		final DesktopApp app = new DesktopApp();
-		app.createDesktopApp();
+		app.createApp();
 		final String[] choices = FileHandling.listGames();
 		final ArrayList<String> validChoices = new ArrayList<>();
 

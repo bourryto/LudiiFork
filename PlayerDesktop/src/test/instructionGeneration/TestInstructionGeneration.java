@@ -27,7 +27,7 @@ public class TestInstructionGeneration
 				"\n=========================================\nTest: Compile all .lud from memory and load the GUI:\n");
 
 		final DesktopApp app = new DesktopApp();
-		app.createDesktopApp();
+		app.createApp();
 		final String[] choices = FileHandling.listGames();
 		final ArrayList<String> validChoices = new ArrayList<>();
 

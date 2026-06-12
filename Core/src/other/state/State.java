@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import annotations.Hide;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import game.Game;
 import game.Game.StateConstructorLock;
 import game.equipment.container.Container;
@@ -30,6 +31,8 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 import main.Constants;
 import main.collections.FastTIntArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import other.context.Context;
 import other.state.container.ContainerState;
 import other.state.container.ContainerStateFactory;
@@ -46,6 +49,7 @@ import other.state.zhash.ZobristHashUtilities;
  * @author Eric.Piette and cambolbro 
  */
 @Hide
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class State implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -661,7 +665,10 @@ public class State implements Serializable
 		pendingHash = other.pendingHash;
 		scoreHash = other.scoreHash;
 		amountHash = other.amountHash;
-	}
+    }
+
+    public State(){};
+
 
 	//-------------------------------------------------------------------------
 
@@ -1185,6 +1192,77 @@ public class State implements Serializable
 				
 		return str;
 	}
+
+    public void setFromJSON(final JSONObject json, Game game)
+    {
+        System.out.println("State | setting from json");
+        this.setMover(json.getInt("mover"));
+        this.setNext(json.getInt("next"));
+        this.setPrev(json.getInt("prev"));
+        this.setNumTurn(json.getInt("numTurn"));
+        // counter ?
+        // container states!
+        for (String key : json.getJSONObject("board_pieces").getJSONObject("Empty").keySet()) {
+            int value = json.getJSONObject("board_pieces").getJSONObject("Empty").getInt(key);
+            int cell = Integer.parseInt(key.split(" ")[1]);
+            this.containerStates()[0].addToEmptyCell(cell);
+        }
+        System.out.println("State | Found these keys: " + json.getJSONObject("board_pieces").getJSONObject("who").keySet());
+        for (String key : json.getJSONObject("board_pieces").getJSONObject("who").keySet()) {
+            int value = json.getJSONObject("board_pieces").getJSONObject("who").getInt(key);
+            int cell = Integer.parseInt(key.split(" ")[1]);
+            System.out.println("State | setting cell " + cell + " to " + value);
+            //this.containerStates[0].set(cell, value, SiteType.Cell);
+            this.containerStates()[0].addToEmptyCell(cell);
+            //this.containerStates[0].setSite(this, cell, value, value, 1, Constants.UNDEFINED, Constants.UNDEFINED, value, SiteType.Cell);
+
+            //this.containerStates[0].addItem(this, cell, value, value, game);
+            System.out.println("State | cell " + cell + " is now " + this.containerStates()[0].whoCell(cell));
+        }
+        System.out.println("State | Current state: " + this.toString());
+        //Empty = {chunk 0 = 1, chunk 1 = 1, chunk 2 = 1, chunk 3 = 1, chunk 6 = 1}
+        //Who = {chunk 4 = 2, chunk 5 = 1, chunk 7 = 1, chunk 8 = 2}
+    }
+
+    public JSONObject toJSON()
+    {
+        JSONObject obj = new JSONObject();
+        obj.put("mover", mover);
+        obj.put("next", next);
+        obj.put("prev", prev);
+        obj.put("triggered", triggered);
+        JSONArray containerStates = new JSONArray();
+        for (ContainerState c : this.containerStates){
+            containerStates.put(c);
+        }
+        obj.put("containerStates", containerStates);
+        obj.put("counter", counter);
+        obj.put("amount", amount);
+        obj.put("moneyPot", moneyPot);
+        obj.put("currentPhase", currentPhase);
+        obj.put("sumDice", sumDice);
+        obj.put("currentDice", sumDice);
+        obj.put("diceAllEqual", diceAllEqual);
+        obj.put("numTurnsSamePlayer", numTurnSamePlayer);
+        obj.put("numTurn", numTurn);
+        obj.put("trumSuit", trumpSuit);
+        obj.put("propositions", propositions);
+        obj.put("votes", votes);
+        obj.put("valuesPlayer", valuesPlayer);
+        obj.put("isDecided", isDecided);
+        obj.put("rememberingValues", rememberingValues);
+        obj.put("mapRememberingValues", mapRememberingValues);
+        obj.put("notes", notes);
+        obj.put("owned", owned);
+        obj.put("onTrackIndices", onTrackIndices);
+        obj.put("visited", visited);
+        obj.put("sitesToRemove", sitesToRemove);
+        obj.put("teams", teams);
+        obj.put("playerOrder", playerOrder);
+        obj.put("remaingDominoes", remainingDominoes);
+        obj.put("numConsecutivePasses", numConsecutivePasses);
+        return obj;
+    }
 
 	//-------------------------------------------------------------------------
 

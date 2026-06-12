@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import game.Game;
@@ -32,7 +35,7 @@ public class LocalFunctions
 	static Socket socket;
 	
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Initialise the server socket and await messages.
 	 */
@@ -56,7 +59,8 @@ public class LocalFunctions
 						
 						// Print any messages from socket.
 						final String message = dis.readUTF();
-						System.out.println("message= " + message); 
+						System.out.println("message= " + message);
+						manager.getPlayerInterface().addIncomingMessage(message);
 						
 						// Reply string to respond to incoming messages.
 						String reply = "";
@@ -121,6 +125,55 @@ public class LocalFunctions
 					}  
 				} 
 		    }
+		}).start();
+	}
+
+	// Init Serversocket direct connection
+	public static void initialiseDirectServerSocket(final Manager manager, final int port)
+	{
+		new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					serverSocket = new ServerSocket(port);
+
+					while (true)
+					{
+						// Establish connection.
+						socket = serverSocket.accept();
+						System.out.println("Client accepted");	// FOR-TESTING
+						final DataInputStream dis = new DataInputStream(socket.getInputStream());
+
+						// Print any messages from socket.
+						final String message = dis.readUTF();
+						System.out.println("message= " + message);
+						// Reply string to respond to incoming messages.
+						String reply = port + " " + manager.getPlayerInterface().incomingMessage(message);
+						// BOURRYTO - TODO: im afraid im coucht in one party still sending, in really need to make this parralel
+						initialiseClientSocket(Integer.parseInt(message.substring(0,4)), reply);
+
+						System.out.println("Reply= " + reply);
+					}
+				}
+				catch(final Exception e)
+				{
+					e.printStackTrace();
+					System.out.println("Socket["+port+"] was closed following Exception");
+					try
+					{
+						serverSocket.close();
+						socket.close();
+					}
+					catch (final IOException e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+				System.out.println("Socket["+port+"] was closed naturally");
+			}
 		}).start();
 	}
 
@@ -314,5 +367,131 @@ public class LocalFunctions
 	}
 	
 	//-------------------------------------------------------------------------
-	
+	/*
+	public class CommunicationManager {
+		Mailbox mailbox;
+		Thread mailboxThread;
+		Pen pen;
+		Ear ear;
+		Thread earThread;
+		int port;
+		int otherPort;
+
+		public CommunicationManager(int port, int otherPort){
+			this.port = port;
+			this.otherPort = otherPort;
+			mailbox = new Mailbox();
+			mailboxThread = new Thread(mailbox);
+			mailboxThread.start();
+			pen = new Pen(otherPort);
+			try {
+				ear = new Ear(mailbox, port);
+				earThread = new Thread(ear);
+				earThread.start();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public void sendMessage(String message){
+			this.pen.sendMessage(message);
+		}
+
+		private class Pen implements Runnable{
+			private Socket socket = null;
+			private DataOutputStream out = null;
+
+			public Pen(int port){
+				try {
+					this.socket = new Socket("localhost", port);
+					this.out = new DataOutputStream(this.socket.getOutputStream());
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			public synchronized void run(){
+				while(true){
+				}
+			}
+
+			public void sendMessage(String message) {
+				try  {
+					out.writeUTF(message);
+					out.flush();
+					System.out.println("send");
+				} catch (final Exception e) {
+					try {
+						out.close();
+						socket.close();
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
+					}
+
+					e.printStackTrace();
+				}
+			}
+		}
+
+		private class Ear implements Runnable {
+			Mailbox mailbox;
+			int port;
+			ServerSocket serverSocket;
+
+			public Ear(Mailbox mailbox, int port) throws IOException {
+				this.port = port;
+				this.mailbox = mailbox;
+				this.serverSocket = new ServerSocket(port);
+			}
+			public void run(){
+				while (true) {
+					try {
+						Socket socket = serverSocket.accept();
+						System.out.println("accepted");
+						final DataInputStream dis = new DataInputStream(socket.getInputStream());
+						while (true) {
+							String message = dis.readUTF();
+							if(!message.isEmpty()){
+								mailbox.deliverMail(message);
+							}
+
+						}
+					} catch (final Exception e) {
+						e.printStackTrace();
+						try {
+							serverSocket.close();
+							socket.close();
+						} catch (final IOException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+
+		private class Mailbox implements Runnable{
+			LinkedList<String> incoming = new LinkedList<>();
+
+			public synchronized void deliverMail(String message){
+				incoming.add(message);
+				System.out.println("added mail to inbox");
+				notify();
+			}
+
+			public synchronized void run(){
+				while (true){
+					try {
+						if (incoming.isEmpty()) {
+							wait();
+						}
+						System.out.println(incoming.poll());
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}
+	}
+
+	 */
 }

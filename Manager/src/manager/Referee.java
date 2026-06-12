@@ -51,6 +51,8 @@ public class Referee
 	/** Thread for checking model to make moves. */
 	private RefereeStepThread moveThread = null;
 
+    /*boolean isNetworkGame = false;
+*/
 	//-------------------------------------------------------------------------
 
 	/**
@@ -74,6 +76,11 @@ public class Referee
 		return this;
 	}
 
+    /*public void setNetworkGame(final boolean networkGame)
+    {
+        isNetworkGame = networkGame;
+    }
+*/
 	//-------------------------------------------------------------------------
 
 	/**
@@ -96,14 +103,14 @@ public class Referee
 	}
 
 	//-------------------------------------------------------------------------
-	
+
 	/**
 	 * Apply human move to game.
 	 */
 	public synchronized void applyHumanMoveToGame(final Manager manager, final Move move)
 	{
 		final Model model = context.model();
-		
+
 		if (model.isReady())
 			if (!nextMove(manager, true))
 				return;
@@ -158,7 +165,7 @@ public class Referee
 		};
 		
 		runnable.run();
-	}
+}
 	
 	//-------------------------------------------------------------------------
 
@@ -167,6 +174,13 @@ public class Referee
 	 */
 	public synchronized boolean applyNetworkMoveToGame(final Manager manager, final Move move)
 	{
+
+		// BOURRYTO
+		//System.out.println("ref - isNetworkGame: " + isNetworkGame + " , is incomingMove: " + isIncomingMove + "myPLayerID " + this.getMyPlayerID());
+		//System.out.println("ref = active player is" + this.context().state().mover());
+
+
+		String moveString =move.getActionsWithConsequences(context).toString();
 		// Check that the model is ready to apply this move.
 		final Model model = context.model();
 		if (model.isReady() && !nextMove(manager, true))
@@ -192,6 +206,15 @@ public class Referee
 		return true;
 	}
 
+    /*public int getMyPlayerIndex() {
+        try {
+            return this.context().game().players().getMyPlayer().index();
+        } catch (NullPointerException e) {
+
+        }
+        return -1;
+    }
+*/
 	//-------------------------------------------------------------------------
 
 	/**

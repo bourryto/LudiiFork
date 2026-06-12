@@ -197,6 +197,8 @@ public class SettingsPlayer
 	private boolean loadedFromMemory = false;
 	
 	private String savedStatusTabString = "";
+
+    private String savedMessagesTabString = "";
 	
 	private boolean sandboxMode = false;
 
@@ -695,10 +697,22 @@ public class SettingsPlayer
 		return savedStatusTabString;
 	}
 
+    public String savedMessagesTabString()
+	{
+		return savedMessagesTabString;
+	}
+
+
+
 	public void setSavedStatusTabString(final String savedStatusTabString) 
 	{
 		this.savedStatusTabString = savedStatusTabString;
 	}
+
+    public void setSavedMessagesTabString(final String savedMessagesTabString)
+    {
+        this.savedMessagesTabString = savedMessagesTabString;
+    }
 
 	public AnimationParameters animationParameters() 
 	{

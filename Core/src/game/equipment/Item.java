@@ -5,6 +5,7 @@ import java.util.BitSet;
 import game.Game;
 import game.types.play.RoleType;
 import main.Constants;
+import org.json.JSONObject;
 import other.BaseLudeme;
 import other.ItemType;
 
@@ -208,4 +209,14 @@ public abstract class Item extends BaseLudeme
 	{
 		return null;
 	}
+
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("type", type);
+        json.put("index", index);
+        json.put("owner", owner);
+        return json;
+    }
 }

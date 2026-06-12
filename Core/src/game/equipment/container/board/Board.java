@@ -21,6 +21,8 @@ import game.util.graph.Graph;
 import main.Constants;
 import main.math.Vector;
 import metadata.graphics.util.ContainerStyleType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import other.BaseLudeme;
 import other.StringAssistant;
 import other.concept.Concept;
@@ -356,6 +358,48 @@ public class Board extends Container
 				"\n\tcontroller=" + controller +
 				"\n\tdefaultSite=" + defaultSite;
 	}
+
+    public JSONObject toJSON() {
+        JSONObject parentJSON = super.toJSON();
+        JSONObject json = new JSONObject();
+        json.append("graph", graph);                            //-
+        json.append("graphFunction", graphFunction);
+        json.append("edgeRange", edgeRange);                    //-
+        json.append("cellRange", cellRange);                    //-
+        json.append("vertexRange", vertexRange);                //-
+        json.append("largeStack", largeStack);                  //-
+        json.append("topology", topology);
+        json.append("numSites", numSites);
+        json.append("tracks", tracks);
+        json.append("ownedTracks", ownedTracks);
+        json.append("style", style);
+        json.append("controller", controller);
+        json.append("defaultSite", defaultSite);
+
+        for (String key: parentJSON.keySet()) {
+            if (!json.has(key)) {
+                json.put(key, parentJSON.get(key));
+            }
+        }
+        return json;
+        /*
+        return "Board:" +
+                //"\n" + StringAssistant.addIndent(graph.toString()) + // not neccesary, as graph is printed in topography too
+                "\n" + StringAssistant.addIndent(graphFunction.toString()) +
+                //"\n\tedgeRange=" + edgeRange +
+                //"\n\tcellRange=" + cellRange +
+                //"\n\tvertexRange=" + vertexRange +
+                //"\n\tlargeStack=" + largeStack +
+                "\n" + StringAssistant.addIndent(topology.toString()) +
+                "\n\tnumSites=" + numSites +
+                "\n\ttracks=" + tracks +
+                //"\n\townedTracks=" + Arrays.toString(ownedTracks) +
+                "\n\tstyle=" + style +
+                "\n\tcontroller=" + controller +
+                "\n\tdefaultSite=" + defaultSite;
+
+         */
+    }
 
 	//----------------------------------
 	

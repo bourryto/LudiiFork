@@ -1,11 +1,6 @@
 package app;
 
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Frame;
-import java.awt.GraphicsDevice;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
@@ -16,6 +11,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -26,12 +22,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import app.display.MainWindow;
-import app.loading.FileChoosers;
-import manager.network.local.LocalFunctions;
+import app.network.CommunicationManager;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import app.display.MainWindowDesktop;
 import app.display.dialogs.AboutDialog;
 import app.display.dialogs.SettingsDialog;
 import app.display.dialogs.MoveDialog.PossibleMovesDialog;
@@ -72,12 +66,18 @@ import utils.AIFactory;
  */
 public class App extends PlayerApp
 {
-    public int port = 9999;
+    public boolean multipleWindows = false;
+    private CommunicationManager communicationManager;
     /** App name. */
-    public static final String AppName = "Ludii Player";
+    public String appName = "Ludii App";
 
     private static Integer idCounter = 0;
-    private Integer id;
+    private final Integer id;
+    public final Instance instance;
+
+    public Boolean[] menuItems = new Boolean[]{true, true, true, true, true,
+                                                true, true, true, true, true,
+                                                true, true, true, true};
 
 
     /** Set me to false if we are making a release jar.
@@ -165,14 +165,33 @@ public class App extends PlayerApp
     /**
      * Constructor.
      */
-    public App()
+    public App(Instance instance, int port, LinkedList<Integer> otherPorts)
     {
+        this(instance);
+        this.setPort(port);
+        otherPorts.addAll(otherPorts);
+        if(!otherPorts.isEmpty()){multipleWindows=true;}
+        //if (multipleWindows) setNetworkGame(true);
+
+        // Do nothing.
+    }
+    public App(Instance instance, boolean multipleWindows){
+        this(instance);
+        this.multipleWindows = multipleWindows;
+        //if (multipleWindows) setNetworkGame(true);
+    }
+    public App(){
+        this(Instance.APP);
+    }
+    public App(Instance instance){
         this.id = App.idCounter++;
+        this.instance = instance;
         Apps.addApp(this);
         this.manager().setAppID(this.id);
-
         this.view = new MainWindow(this);
-        // Do nothing.
+
+        this.communicationManager = CommunicationManager.getFromCountingUpPorts(this.getPort(), this.manager());
+        this.addOtherPorts(this.communicationManager.getOtherPorts());
     }
 
     //-------------------------------------------------------------------------
@@ -217,7 +236,7 @@ public class App extends PlayerApp
     public String getFrameTitle(final Context context)
     {
         final Game game = context.game();
-        String frameTitle = AppName + " - " + game.name();
+        String frameTitle = this.appName + " - " + game.name();
         GameOptions gameOptions = game.description().gameOptions();
 
         if (manager().settingsManager().userSelections().ruleset() != Constants.UNDEFINED && !SettingsExhibition.exhibitionVersion)
@@ -380,7 +399,7 @@ public class App extends PlayerApp
 
         try
         {
-            frame = new JFrameListener(AppName, this);
+            frame = new JFrameListener(this.appName, this);
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
             // Logo
@@ -395,9 +414,20 @@ public class App extends PlayerApp
                 e.printStackTrace();
             }
 
-            frame.setContentPane(view);
-            frame.setSize(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight);
 
+            GraphicsEnvironment ge = GraphicsEnvironment
+                    .getLocalGraphicsEnvironment();
+            GraphicsDevice[] gs = ge.getScreenDevices();
+
+            frame.setContentPane(view);
+            if(multipleWindows){
+                // Window is never smaller than half the window width. If 2 windows, the height is full, over 2, its always a quater of the sceen. over 4 will get slightly offset
+
+                frame.setSize(gs[1].getDefaultConfiguration().getBounds().width/2,gs[1].getDefaultConfiguration().getBounds().height/(Apps.numberInstances() > 2 ? 2 : 1));
+                //frame.setSize(SettingsDesktop.halfWindowWidth, Apps.numberInstances() > 2 ? SettingsDesktop.halfWindowHeight : SettingsDesktop.windowHeight);
+            } else {
+                frame.setSize(SettingsDesktop.defaultWidth, SettingsDesktop.defaultHeight);
+            }
             if (SettingsExhibition.exhibitionVersion)
             {
                 frame.setUndecorated(true);
@@ -407,13 +437,21 @@ public class App extends PlayerApp
 
             try
             {
-                if (settingsPlayer().defaultX() == -1 || settingsPlayer().defaultY() == -1)
-                    frame.setLocationRelativeTo(null);
-                else
-                    frame.setLocation(settingsPlayer().defaultX(), settingsPlayer().defaultY());
+                if (multipleWindows){
+                    // BOURRYTO : this is not fully working, it sort of does it, but the screensize doesnt get calculated properly, the frame around the
+                    //                  window is not put into consideration, so all is ab it off
+                    // ids start with 0, so uneven left
+                    frame.setLocation(gs[1].getDefaultConfiguration().getBounds().x + (id%2)*frame.getWidth() + (10*(id/4)), gs[1].getDefaultConfiguration().getBounds().y + ((id%4)/2)*frame.getHeight() + (10*(id/4)));
+                    //frame.setLocation(id%2 * SettingsDesktop.halfWindowWidth + (10*(id/4)), id%4/2 * SettingsDesktop.halfWindowHeight + (10*(id/4)));
+                } else {
+                    if (settingsPlayer().defaultX() == -1 || settingsPlayer().defaultY() == -1)
+                        frame.setLocationRelativeTo(null);
+                    else
+                        frame.setLocation(settingsPlayer().defaultX(), settingsPlayer().defaultY());
 
-                if (settingsPlayer().frameMaximised())
-                    frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
+                    if (settingsPlayer().frameMaximised())
+                        frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
+                }
             }
             catch (final Exception e)
             {
@@ -437,9 +475,10 @@ public class App extends PlayerApp
             });
 
             loadInitialGame(true);
-            // BOURRYTO - COMMENT: open local port on startup
-            LocalFunctions.initialiseServerSocket(this.manager(), 4444);
+            System.out.println("Loaded initial game, manager().savedLudName()='" + manager().savedLudName());
+            // BOURRYTO - TODO: ADD THIS PRINT TO EVERYWHERE A NEW GAME GETS LOADD SO I HAVE THE PATH TO LOAD A GAME VIA NETWORK
         }
+
         catch (final Exception e)
         {
             System.out.println("Failed to create application frame.");
@@ -493,8 +532,13 @@ public class App extends PlayerApp
                     });
                 }
             }
-
-            frame.setJMenuBar(new MainMenu(this));
+            switch (instance){
+                case CLIENT:
+                    frame.setJMenuBar(MainMenu.getClientMainMenu(this, menuItems));
+                    break;
+                default:
+                    frame.setJMenuBar(new MainMenu(this, menuItems));
+            }
 
             for (int i = 1; i <=  manager().ref().context().game().players().count(); i++)
                 if (aiSelected()[i] != null)
@@ -706,7 +750,7 @@ public class App extends PlayerApp
 
         if (alsoUpdateMenu)
         {
-            frame().setJMenuBar(new MainMenu(this));
+            frame().setJMenuBar(new MainMenu(this, menuItems));
             view().createPanels();
         }
     }
@@ -725,6 +769,7 @@ public class App extends PlayerApp
     public void loadGameFromName(final String name, final List<String> options, final boolean debug)
     {
         GameLoading.loadGameFromName(this, name, options, debug);
+        System.out.println("Loading game from name with manager().savedLudName()='" + manager().savedLudName() + "' and argument name='" + name + "'");
     }
 
     @Override
@@ -884,6 +929,31 @@ public class App extends PlayerApp
     }
 
     @Override
+    public void addIncomingMessage(final String message){
+        try {
+            view.tabPanel().addMessage(message);
+        } catch (final Exception e) {
+            System.out.println("Could not add incoming Message as tab panel dont exist yet");
+        }
+    }
+
+    @Override
+    public String incomingMessage(final String message){
+        addIncomingMessage(message);
+        String[] messageParts = message.split(" ");
+        if(messageParts.length <=1){
+            System.out.println("Message was too short["+messageParts.length+"]");
+        }
+        if (messageParts[0].length() != 4){
+            System.out.println("Message needs to start with a 4 digit port number. Original Message:'"+message+"'");
+        }
+        // BOURRYTO - TODO: throws Socket exeption, if inputdialogwindow is closed or the cancel button is pressed, add catching there
+        String reply = JOptionPane.showInputDialog("You've got mail:\n" + message + "\nWrite your Answer:");
+        return reply;
+        // BOURRYTO - TODO: after twice back and forth, input dialog doesnt open anymore? and sends null
+    }
+
+    @Override
     public void showPuzzleDialog(final int site)
     {
         PuzzleDialog.createAndShowGUI(this, manager().ref().context(), site);
@@ -984,7 +1054,7 @@ public class App extends PlayerApp
     @Override
     public void resetMenuGUI()
     {
-        frame().setJMenuBar(new MainMenu(this));
+        frame().setJMenuBar(new MainMenu(this, menuItems));
     }
 
     @Override
@@ -1082,5 +1152,8 @@ public class App extends PlayerApp
     public Integer getID(){
         return id;
     }
+
+    public CommunicationManager getCommunicationManager(){return communicationManager;}
+    //public void setNetworkGame(final boolean isNetworkGame){this.manager().setNetworkGame(isNetworkGame);}
 
 }

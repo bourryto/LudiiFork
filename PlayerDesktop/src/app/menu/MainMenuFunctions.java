@@ -11,16 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
@@ -55,6 +47,8 @@ import app.loading.GameLoading;
 import app.loading.MiscLoading;
 import app.loading.TrialLoading;
 import app.manualGeneration.ManualGeneration;
+import app.network.Address;
+import app.network.Message;
 import app.utils.GameSetup;
 import app.utils.GameUtil;
 import app.utils.PuzzleSelectionType;
@@ -86,6 +80,8 @@ import manager.ai.AIUtil;
 import manager.network.local.LocalFunctions;
 import metadata.ai.features.Features;
 import metadata.ai.heuristics.Heuristics;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import other.AI;
 import other.GameLoader;
 import other.action.Action;
@@ -1262,7 +1258,7 @@ public class MainMenuFunctions extends JMenuBar
 				app.addTextToStatusPanel("Please enter a valid four digit port number.\n");
 				return;
 			}
-			LocalFunctions.initialiseServerSocket(app.manager(), portNumber);
+			LocalFunctions.initialiseDirectServerSocket(app.manager(), portNumber);
 		}
 		else if (source.getText().equals("Test Message Socket"))
 		{
@@ -1280,7 +1276,8 @@ public class MainMenuFunctions extends JMenuBar
 				return;
 			}
 			final String message = JOptionPane.showInputDialog("Message");
-			LocalFunctions.initialiseClientSocket(portNumber, message);
+			app.getCommunicationManager().sendMessage(Message.createMessageContent(message.split(";")), new Address(portNumber));
+			//LocalFunctions.initialiseClientSocket(portNumber, message);
 		}
 		else if (source.getText().equals("Select Move from String"))
 		{
@@ -1519,6 +1516,16 @@ public class MainMenuFunctions extends JMenuBar
 			displayPredictionResults(app, heuristicPredictions, useClassifier, true);
 		}
 		// BOURRYTO: added a test menu and here its functions, to test some connection ideas
+        else if (source.getText().startsWith("Send to other App")){
+            if (e.getSource() instanceof NetworkJMenuItem){
+                final String message = JOptionPane.showInputDialog("Message");
+                app.getCommunicationManager().sendMessage(Message.createMessageContent(message.split(";")), new Address(((NetworkJMenuItem) e.getSource()).port));
+            }
+        }
+        else if(source.getText().equals("Broadcast Message")){
+            final String message = JOptionPane.showInputDialog("Message");
+            app.getCommunicationManager().broadcastMessage(message);
+        }
 		else if (source.getText().equals("Test Connection To Port"))
 		{
 			final String port = JOptionPane.showInputDialog("Port Number (4 digits)");
@@ -1534,8 +1541,9 @@ public class MainMenuFunctions extends JMenuBar
 				app.addTextToStatusPanel("Please enter a valid four digit port number.\n");
 				return;
 			}
-			final String message = String.format("%d ping", app.port);
-			LocalFunctions.initialiseClientSocket(portNumber, message);
+			final String message = String.format("%d ping", app.getPort());
+			app.getCommunicationManager().sendMessage((new JSONObject()).put("command", "do").put("option", "ping"), new Address(portNumber));
+			//LocalFunctions.initialiseClientSocket(portNumber, message);
 		}
 		else if (source.getText().equals("Send Game Name"))
 		{
@@ -1552,9 +1560,39 @@ public class MainMenuFunctions extends JMenuBar
 				app.addTextToStatusPanel("Please enter a valid four digit port number.\n");
 				return;
 			}
-			final String message = String.format("%d sending game_name %s", app.port, app.manager().ref().context().game().name());
-			LocalFunctions.initialiseClientSocket(portNumber, message);
+			String[] message = {"sending", "game_name", app.manager().ref().context().game().name()};
+			app.getCommunicationManager().sendMessage(Message.createMessageContent(message), new Address(portNumber));
+			//LocalFunctions.initialiseClientSocket(portNumber, message);
 		}
+		else if (source.getText().equals("Send Initial Message"))
+		{
+			final String port = JOptionPane.showInputDialog("Port Number (4 digits)");
+			int portNumber = 0;
+			try
+			{
+				if (port.length() != 4)
+					throw new Exception("Port number must be four digits long.");
+				portNumber = Integer.parseInt(port);
+			}
+			catch (final Exception E)
+			{
+				app.addTextToStatusPanel("Please enter a valid four digit port number.\n");
+				return;
+			}
+			String message = "" + app.getPort() + " hi";
+			//LocalFunctions.initialiseClientSocket(portNumber, message);
+			app.getCommunicationManager().sendMessage((new JSONObject()).put("command", "add_text_to_status_panel").put("option", "hi"), new Address(portNumber));
+		}
+        else if (source.getText().equals("New Game")){
+//            if (!app.manager().settingsManager().agentsPaused())
+//            {
+//                app.manager().settingsManager().setAgentsPaused(app.manager(), true);
+//            }
+//            final String[] choices = FileHandling.listGames();
+//            String choice = GameLoaderDialog.showDialog(app.frame(), choices, choices[0]);
+            GameLoading.loadGameFromMemory(app, false);
+            int playerCount = app.manager().ref().context().game().players().count();
+        }
 		
 		EventQueue.invokeLater(() ->
 		{
@@ -1896,7 +1934,14 @@ public class MainMenuFunctions extends JMenuBar
 		
 		Container currentContainer = source;
 		for (int i = 0; i < depth; i++)
-			currentContainer = ((JMenu)((JPopupMenu) currentContainer.getParent()).getInvoker());
+			try {
+				currentContainer = ((JMenu) ((JPopupMenu) currentContainer.getParent()).getInvoker());
+				return "";
+			} catch (Exception e) {
+				// BOURRYTO: I have 0 clou, why, but sometimes i get a 'app.menu.MainMenu cannot be cast to javax.swing.JPopupMenu' error
+				// 				I never touched that part of code, but this might work for now
+				System.out.println("something in the menu didnt work. its known, but in have no clue why and how to fix it");
+			}
 		
 		return ((JMenu)currentContainer).getText();
 	}

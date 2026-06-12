@@ -91,7 +91,7 @@ public class GenerateTrialsCluster
 		gamePath = gamePath.replaceAll(Pattern.quote("\\"), "/");
 		
 		final Game game = GameLoader.loadGameFromName(gamePath);
-		game.setMaxMoveLimit(moveLimit);
+		game.setMaxMovesLimit(moveLimit);
 		game.start(new Context(game, new Trial(game)));
 			
 		System.out.println("Loading game: " + game.name());
@@ -127,7 +127,7 @@ public class GenerateTrialsCluster
 				if (!ruleset.optionSettings().isEmpty()) // We check if the ruleset is implemented.
 				{
 					final Game rulesetGame = GameLoader.loadGameFromName(gamePath, ruleset.optionSettings());
-					rulesetGame.setMaxMoveLimit(moveLimit);
+					rulesetGame.setMaxMovesLimit(moveLimit);
 
 					final String rulesetFolderPath = gameFolderPath + File.separator + rulesetGame.getRuleset().heading().replace("/", "_");
 					final File rulesetFolderFile = new File(rulesetFolderPath);

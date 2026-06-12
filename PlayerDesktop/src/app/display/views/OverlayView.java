@@ -15,17 +15,12 @@ import javax.imageio.ImageIO;
 import javax.swing.JTextArea;
 
 import app.Apps;
-import app.ClientApp;
-import app.DesktopApp;
 import app.PlayerApp;
 import app.display.MainWindow;
-import app.display.MainWindowClient;
-import app.display.MainWindowDesktop;
 import app.move.MoveVisuals;
 import app.move.animation.MoveAnimation;
 import app.utils.BufferedImageUtil;
 import app.utils.DrawnImageInfo;
-import app.utils.EnglishSwedishTranslations;
 import app.utils.SettingsExhibition;
 import app.views.View;
 import app.views.tools.ToolView;

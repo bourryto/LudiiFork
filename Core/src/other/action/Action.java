@@ -6,6 +6,7 @@ import java.util.BitSet;
 import annotations.Hide;
 import game.rules.play.moves.Moves;
 import game.types.board.SiteType;
+import org.json.JSONObject;
 import other.context.Context;
 
 /**
@@ -319,4 +320,10 @@ public interface Action extends Serializable
 	 * @return Accumulated flags corresponding to the action/move concepts.
 	 */
 	public BitSet concepts(final Context context, final Moves movesLudeme);
+
+    public JSONObject toBourrytoFormat();
+    public boolean sameEnough(JSONObject object);
+    public static String[] requiredComparisonKeys(){
+        return new String[]{"from", "to", "what"};
+    }
 }

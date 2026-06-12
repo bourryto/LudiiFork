@@ -64,7 +64,7 @@ public class RunGame extends Thread
 			EventQueue.invokeAndWait(() ->
 			{
 				GameLoading.loadGameFromName(app, gameName, new ArrayList<String>(), false);
-				manager.ref().context().game().setMaxMoveLimit(numPlayers*moveLimitPerPlayer); // limit of moves per player.
+				manager.ref().context().game().setMaxMovesLimit(numPlayers*moveLimitPerPlayer); // limit of moves per player.
 				for(int pid = 1; pid <= numPlayers; pid++)
 				{
 					final String AIName = pid == 1 ? "UCT" : "Random";

@@ -2,6 +2,8 @@ package app;
 
 import com.sun.security.ntlm.Client;
 
+import java.util.LinkedList;
+
 /**
  * Main point of Entry for running the Ludii application.
  *
@@ -20,11 +22,11 @@ public class StartClientApp
             /*
             DesktopApp = new DesktopApp();
             DesktopApp.isClient = true;
-            DesktopApp.createDesktopApp();
+            DesktopApp.createApp();
              */
 
-            ClientApp = new ClientApp();
-            ClientApp.createClientApp();
+            ClientApp = new ClientApp(4444, new LinkedList<>());
+            ClientApp.createApp();
         }
         else
         {

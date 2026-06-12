@@ -9,6 +9,7 @@ import game.rules.play.moves.Moves;
 import game.types.board.SiteType;
 import gnu.trove.list.array.TIntArrayList;
 import main.Constants;
+import org.json.JSONObject;
 import other.action.Action;
 import other.action.ActionType;
 import other.action.BaseAction;
@@ -565,6 +566,26 @@ public final class ActionAdd extends BaseAction
 
 		return sb.toString();
 	}
+
+    @Override
+    public JSONObject toBourrytoFormat()
+    {
+        // todo: add actions maybe to this move
+        JSONObject j = new JSONObject();
+        j.put("from", this.from());
+        j.put("to", this.to());
+        j.put("what", this.what());
+        if (this.type != null) {j.put("actionType", "Add");}
+        if (this.level != Constants.UNDEFINED) {j.put("level", this.level);}
+        if (count > 1) {j.put("count", this.count());}
+        if (state != Constants.UNDEFINED){j.put("state", this.state());}
+        if (rotation != Constants.UNDEFINED) {j.put("rotation", this.rotation());}
+        if (value != Constants.UNDEFINED) {j.put("value", this.value());}
+        if (onStack) {j.put("onStack", this.onStack);}
+        if (decision) {j.put("decision", this.decision);}
+
+        return j;
+    }
 	
 	@Override
 	public int hashCode()

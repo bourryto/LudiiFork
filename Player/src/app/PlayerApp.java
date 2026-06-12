@@ -10,12 +10,9 @@ import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
+//import manager.network.local.CommunicationManager;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 import app.move.MoveHandler;
@@ -63,15 +60,30 @@ import util.StringUtil;
  */
 public abstract class PlayerApp implements PlayerInterface, ActionListener, ItemListener, PlatformGraphics
 {
+    public String appName;
 	/** Client Option for light weight client if used with controller*/
 	public boolean isClient;
+    //public Queue<String> outgoingMessages = new LinkedList<>();
 
-	private final Manager manager = new Manager(this);
+	private final Manager manager = new Manager(this/*, outgoingMessages*/);
 	private final Bridge bridge = new Bridge();
 	private final ContextSnapshot contextSnapshot = new ContextSnapshot();
 	private final SettingsPlayer settingsPlayer = new SettingsPlayer();
 	private final GraphicsCache graphicsCache = new GraphicsCache();
 	private final RemoteDialogFunctionsPublic remoteDialogFunctionsPublic = RemoteDialogFunctionsPublic.construct();
+
+    // BOURRYTO - LATER: ADD CHECKS THAT PORT NUMBERS CANT BE DUBLICATES
+    public static final int firstPortNumber = 4444; private static int portCounter = firstPortNumber;
+    private int port = portCounter++; public int getPort(){return port;} public void setPort(int port){this.port = port;}
+    private LinkedList<Integer> otherPorts = new LinkedList<>(); public LinkedList<Integer> getOtherPorts(){return otherPorts;}
+    public void addOtherPort(int otherPort){if(!otherPorts.contains(otherPort)){this.otherPorts.add(otherPort);}}
+    public void addOtherPorts(LinkedList<Integer> otherPorts){
+        for(Integer otherPort: otherPorts){
+            if(!otherPorts.contains(otherPort)){
+                this.otherPorts.add(otherPort);
+            }
+        }
+    }
 
 	//-------------------------------------------------------------------------
 	

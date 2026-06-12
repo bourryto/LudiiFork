@@ -1,7 +1,6 @@
 package app.display;
 
 import app.App;
-import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.MoveDialog.SandboxDialog;
 import app.display.util.DevTooltip;
@@ -16,6 +15,7 @@ import app.utils.MVCSetup;
 import app.utils.SettingsExhibition;
 import app.utils.sandbox.SandboxValueType;
 import app.views.BoardView;
+import app.views.messaging.MessagingView;
 import app.views.View;
 import app.views.players.PlayerView;
 import app.views.tools.ToolView;
@@ -107,6 +107,14 @@ public class MainWindow extends JPanel implements MouseListener, MouseMotionList
     // View page for MYOG app
     protected int page = 0;
 
+    // BOURRYTO - TODO: update this to the enum Instance
+    public static final int InstanceApp = 0;
+    public static final int InstanceDesktop = 1;
+    public static final int InstanceServer = 2;
+    public static final int InstanceClient = 3;
+
+    private int instance;
+
     //-------------------------------------------------------------------------
 
     /**
@@ -125,7 +133,10 @@ public class MainWindow extends JPanel implements MouseListener, MouseMotionList
     /**
      * Create UI panels.
      */
-    public void createPanels()
+    public void createPanels(){
+        createPanels(0);
+    }
+    public void createPanels(Integer instance)
     {
         MVCSetup.setMVC(app);
         panels.clear();
@@ -137,6 +148,8 @@ public class MainWindow extends JPanel implements MouseListener, MouseMotionList
         boardPanel = new BoardView(app, false);
         panels.add(boardPanel);
 
+        // BOURRYTO - TODO: start here next time. Goal is to open the player picker, it shoudl be wehen clicking playerviewuser or something
+        //                  so far i have not found it, but persist and it will fall in your lap :)
         // create the player panel
         playerPanel = new PlayerView(app, portraitMode, false);
         panels.add(playerPanel);
@@ -148,7 +161,13 @@ public class MainWindow extends JPanel implements MouseListener, MouseMotionList
         // Create tab panel
         if (!app.settingsPlayer().isPerformingTutorialVisualisation())
         {
-            tabPanel = new TabView(app, portraitMode);
+            switch (instance){
+                case InstanceClient:
+                    tabPanel = TabView.getClientTabView(app, portraitMode);
+                    break;
+                default:
+                    tabPanel = new TabView(app, portraitMode);
+            }
             panels.add(tabPanel);
         }
 
@@ -519,6 +538,19 @@ public class MainWindow extends JPanel implements MouseListener, MouseMotionList
     public boolean[] playerNameHover()
     {
         return playerNameHover;
+    }
+
+    public void setInstance(int instance){
+        this.instance = instance;
+    }
+
+    //-------------------
+
+    public static MainWindow getClientMainWindow(final App app)
+    {
+        MainWindow mainWindow = new MainWindow(app);
+        mainWindow.setInstance(InstanceClient);
+        return mainWindow;
     }
 
 }
