@@ -700,7 +700,7 @@ public class CommunicationManager {
 				[5x5 rectangle board with square tiling,
 				]
 				 */
-                case "legal":
+                case "legal_moves":
                     // TODO: testing with different move output
                     final Context context = manager.ref().context();
                     final Moves legal = context.game().moves(context);
@@ -736,7 +736,7 @@ public class CommunicationManager {
                     }
                      */
                     break;
-                case "simple_legal":
+                case "simple_legal_legal":
                     final Context simple_context = manager.ref().context();
                     final Moves simple_legal = simple_context.game().moves(simple_context);
                     JSONArray simple_legalMoves = new JSONArray();
@@ -786,7 +786,7 @@ public class CommunicationManager {
             String text = "";
             boolean success = true;
             switch (options.get(0).toString().toLowerCase()) {
-                case "game_restart":
+                case "restart_game":
                     communicationManager.manager.getPlayerInterface().restartGame();
                     break;
                 case "add_text_to_status_panel":
@@ -921,7 +921,7 @@ public class CommunicationManager {
                         break;
                     }
                     break;
-                case "move_from_json":
+                case "move":
                     // asserting its players turn
                     mover = context.state().mover();
                     // not checking player index for now as it annoyes me that all is burning
