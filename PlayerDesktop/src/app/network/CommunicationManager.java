@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import other.action.Action;
+import other.action.ActionType;
 import other.action.BaseAction;
 import other.context.Context;
 import other.move.Move;
@@ -765,6 +766,8 @@ public class CommunicationManager {
                 case "required_move_keys":
                     reply.put("result", Action.requiredComparisonKeys());
                     break;
+                case "action_types":
+                    reply.put("result", new JSONArray(ActionType.class.getEnumConstants()));
                 default:
                     reply.put("success", false);
                     reply.put("result", "");
