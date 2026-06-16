@@ -737,7 +737,7 @@ public class CommunicationManager {
                     }
                      */
                     break;
-                case "simple_legal_legal":
+                case "simple_legal_moves":
                     final Context simple_context = manager.ref().context();
                     final Moves simple_legal = simple_context.game().moves(simple_context);
                     JSONArray simple_legalMoves = new JSONArray();
@@ -961,7 +961,7 @@ public class CommunicationManager {
                                 break;
                             }
                         } catch (Exception e) {
-                            print("Error mathcing keys");
+                            print("Error matching keys");
                             errorMessage = e.getMessage();
                             success = false;
                             break;
@@ -986,10 +986,10 @@ public class CommunicationManager {
                     break;
                 case "set_player":
                     this.communicationManager.logger.info("setting_player with current players: " + this.communicationManager.portPlayerMapper.toString() + ", " + this.communicationManager.playerPortMapper.toString());
-                    int playerIndex = message.getContent().getInt("index");;
-                    if (playerIndex == 0){
+                    int playerNumber = message.getContent().getInt("number");;
+                    if (playerNumber == 0){
                         success = false;
-                        errorMessage =("Player Index 0 is reserved for the game. Try getting unset players, and choose one of those.");
+                        errorMessage =("Player Number 0 is reserved for the game. Try getting unset players, and choose one of those.");
                         break;
                     }
                     //System.out.println("playerid: " + playerID);
@@ -1001,7 +1001,7 @@ public class CommunicationManager {
                         break;
                     }
                     try{
-                        if (this.communicationManager.playerPortMapper.get(playerIndex) != null) {
+                        if (this.communicationManager.playerPortMapper.get(playerNumber) != null) {
                             success = false;
                             errorMessage = ("This Player index is already assigned. Try getting unset player indices.");
                             break;
@@ -1009,19 +1009,19 @@ public class CommunicationManager {
                     } catch (NullPointerException ignored){}
 
                     int maxPlayers = this.communicationManager.manager().ref().context().players().size();
-                    if (playerIndex > maxPlayers){
+                    if (playerNumber > maxPlayers){
                         success = false;
-                        errorMessage =("This Player index does not exists. There are only " + maxPlayers + " players in this gaem.");
+                        errorMessage =("This Player number does not exists. There are only " + maxPlayers + " players in this gaem.");
                         break;
                     }
                     try{
-                        Integer oldPlayerIndex = this.communicationManager.portPlayerMapper.get(message.senderPort);
-                        this.communicationManager.playerPortMapper.remove(oldPlayerIndex);
+                        Integer oldPlayerNumber = this.communicationManager.portPlayerMapper.get(message.senderPort);
+                        this.communicationManager.playerPortMapper.remove(oldPlayerNumber);
                         this.communicationManager.portPlayerMapper.remove(message.senderPort);
                     } catch (NullPointerException ignored) {}
-                    this.communicationManager.addPlayer(message.senderPort, playerIndex);
+                    this.communicationManager.addPlayer(message.senderPort, playerNumber);
                     this.communicationManager.logger.info("setting_player now players: " + this.communicationManager.portPlayerMapper.toString() + ", " + this.communicationManager.playerPortMapper.toString());
-                    communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\nPlayer "+ playerIndex+ " was set. Mapper: " + this.communicationManager.playerPortMapper.toString());
+                    communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\nPlayer "+ playerNumber+ " was set. Mapper: " + this.communicationManager.playerPortMapper.toString());
                     break;
                 case "notify":
                     int notifyMover = message.getContent().getInt("index");
