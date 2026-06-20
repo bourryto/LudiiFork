@@ -212,14 +212,14 @@ public class CommunicationManager {
                     JSONObject content = new JSONObject();
                     content.put("method", "connect");
                     content.put("success", true);
-                    content.put("request_target", new JSONArray());
+                    content.put("request_target", "");
                     sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
                 }
                 sendMessage("connected", replyTo);
                 JSONObject content = new JSONObject();
                 content.put("method", "connected");
                 content.put("success", true);
-                content.put("request_target", new JSONArray());
+                content.put("request_target", "");
                 sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
             }
             else {
@@ -229,7 +229,7 @@ public class CommunicationManager {
                 JSONObject content = new JSONObject();
                 content.put("method", "already_connected");
                 content.put("success", true);
-                content.put("request_target", new JSONArray());
+                content.put("request_target", "");
                 content.put("error_message", "");
                 sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
             }
@@ -278,7 +278,7 @@ public class CommunicationManager {
         public void sendMessage(String message, JSONObject replyTO){
             JSONObject content = new JSONObject();
             content.put("method", message);
-            content.put("request_target", new JSONArray());
+            content.put("request_target", "");
             sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTO));
         }
         public void sendMessage(String message){
@@ -463,7 +463,8 @@ public class CommunicationManager {
             if (content.isEmpty()) {
                 JSONObject response = new JSONObject();
                 response.put("method", "replying");
-                response.put("request_target", new JSONArray(new String[]{"error"}));
+                response.put("request_target", "error");
+                // todo - better error handling!
                 communicationManager.sendMessage(parseGet(message), this.message.getFrom(), this.message.jsonObject);
                 return;
             }
@@ -491,18 +492,18 @@ public class CommunicationManager {
                 case "ping":
                     JSONObject reply = new JSONObject();
                     reply.put("method", "pong");
-                    reply.put("request_target", (new JSONArray()).put(0));
+                    reply.put("request_target", "0"); // todo - change this, request target should not be int
                     reply.put("success", true);
                     reply.put("error_message", "");
                     communicationManager.sendMessage(reply, this.message.getFrom(), message.jsonObject);
                     break;
                     // TODO - change counter to request_target, but i need to do that on the interface too, and i dont want to open it rn
                 case "pong":
-                    int pongCounter = message.getContent().getJSONArray("request_target").getInt(0);
+                    int pongCounter = Integer.parseInt(message.getContent().getString("request_target"));
                     if (pongCounter < maxPongs){
                         JSONObject pong = new JSONObject();
                         pong.put("method", "pong");
-                        pong.put("request_target", (new JSONArray()).put(pongCounter+1));
+                        pong.put("request_target", Integer.toString(pongCounter+1));
                         pong.put("success", true);
                         pong.put("error_message", "");
                         communicationManager.sendMessage(pong, this.message.getFrom(), message.jsonObject);
@@ -531,7 +532,7 @@ public class CommunicationManager {
         container
          */
         private JSONObject parseGet(Message message){
-            JSONArray request_target = message.getContent().getJSONArray("request_target");
+            String request_target = message.getContent().getString("request_target");
             String result = "";
             JSONObject reply = new JSONObject();
             reply.put("success", true);
@@ -539,7 +540,7 @@ public class CommunicationManager {
             reply.put("request_target", request_target);
             reply.put("error_message", "");
             final Context context = manager.ref().context();
-            switch (request_target.get(0).toString().toLowerCase()){
+            switch (request_target.toLowerCase()){
                 case "game":
                     Game game = communicationManager.manager.ref().context().game();
                     reply.put("result", game.toJSON());
@@ -628,20 +629,18 @@ public class CommunicationManager {
                     //reply = "unsupported method";
                     break;
             }
-
-            //response.put(request_target.get(0).toString(), reply);
             return reply;
         }
 
         private void parseDo(Message message) {
             System.out.println("doing (executing)");
             // BOURRYTO - TODO: add confirmation message for all messages
-            JSONArray request_target = message.getContent().getJSONArray("request_target");
+            String request_target = message.getContent().getString("request_target");
             final Context context = manager.ref().context();
             String errorMessage = "";
             String text = "";
             boolean success = true;
-            switch (request_target.get(0).toString().toLowerCase()) {
+            switch (request_target.toLowerCase()) {
                 case "restart_game":
                     communicationManager.manager.getPlayerInterface().restartGame();
                     break;
@@ -896,7 +895,7 @@ public class CommunicationManager {
                     break;
                 default:
                     success = false;
-                    errorMessage ="Unknown request_target '"+request_target.get(0)+ "'";
+                    errorMessage ="Unknown request_target '"+request_target+ "'";
                     break;
             }
             JSONObject reply = new JSONObject();
