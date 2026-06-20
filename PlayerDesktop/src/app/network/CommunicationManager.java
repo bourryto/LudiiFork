@@ -210,14 +210,14 @@ public class CommunicationManager {
                 print("connected to ear on port " + otherPort);
                 if (shouldRequestConnectionBack) {
                     JSONObject content = new JSONObject();
-                    content.put("command", "connect");
+                    content.put("method", "connect");
                     content.put("success", true);
                     content.put("options", new JSONArray());
                     sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
                 }
                 sendMessage("connected", replyTo);
                 JSONObject content = new JSONObject();
-                content.put("command", "connected");
+                content.put("method", "connected");
                 content.put("success", true);
                 content.put("options", new JSONArray());
                 sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
@@ -227,7 +227,7 @@ public class CommunicationManager {
                 this.out = new DataOutputStream(this.socket.getOutputStream());
                 print("already connected");
                 JSONObject content = new JSONObject();
-                content.put("command", "already_connected");
+                content.put("method", "already_connected");
                 content.put("success", true);
                 content.put("options", new JSONArray());
                 content.put("error_message", "");
@@ -277,7 +277,7 @@ public class CommunicationManager {
         }
         public void sendMessage(String message, JSONObject replyTO){
             JSONObject content = new JSONObject();
-            content.put("command", message);
+            content.put("method", message);
             content.put("options", new JSONArray());
             sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTO));
         }
@@ -462,17 +462,17 @@ public class CommunicationManager {
             this.communicationManager.manager.getPlayerInterface().addIncomingMessage("from " + this.message.senderPort + ": " + content);
             if (content.isEmpty()) {
                 JSONObject response = new JSONObject();
-                response.put("command", "replying");
+                response.put("method", "replying");
                 response.put("options", new JSONArray(new String[]{"error"}));
                 communicationManager.sendMessage(parseGet(message), this.message.getFrom(), this.message.jsonObject);
                 return;
             }
-            String command = content.getString("command");
-            // BOURRYTO - LATER: Maybe check if command is 'sending' bevor splitting, sending returns text with sooooo many spaces
+            String method = content.getString("method");
+            // BOURRYTO - LATER: Maybe check if method is 'sending' bevor splitting, sending returns text with sooooo many spaces
 
             print("got message from " + this.message.senderPort + ": '" + content.toString(2)+ "'");
 
-            switch (command.toLowerCase()){
+            switch (method.toLowerCase()){
                 case "connect":
                     try {
                         if(communicationManager.penDictionary.get(this.message.senderPort) == null){
@@ -490,7 +490,7 @@ public class CommunicationManager {
                     break;
                 case "ping":
                     JSONObject reply = new JSONObject();
-                    reply.put("command", "pong");
+                    reply.put("method", "pong");
                     reply.put("options", (new JSONArray()).put(0));
                     reply.put("success", true);
                     reply.put("error_message", "");
@@ -501,7 +501,7 @@ public class CommunicationManager {
                     int pongCounter = message.getContent().getJSONArray("options").getInt(0);
                     if (pongCounter < maxPongs){
                         JSONObject pong = new JSONObject();
-                        pong.put("command", "pong");
+                        pong.put("method", "pong");
                         pong.put("options", (new JSONArray()).put(pongCounter+1));
                         pong.put("success", true);
                         pong.put("error_message", "");
@@ -517,13 +517,13 @@ public class CommunicationManager {
                 default:
                     reply = content;
                     reply.put("success", false);
-                    reply.put("error_message", "command not supported");
+                    reply.put("error_message", "method not supported");
                     communicationManager.sendMessage(reply, this.message.getFrom(), message.jsonObject);
                     break;
             }
         }
 
-        /* Supported Commands
+        /* Supported options
         game
         board
         state
@@ -535,175 +535,37 @@ public class CommunicationManager {
             String result = "";
             JSONObject reply = new JSONObject();
             reply.put("success", true);
-            reply.put("command", "sending");    // inverse to get
+            reply.put("method", "sending");    // inverse to get
             reply.put("options", options);
             reply.put("error_message", "");
+            final Context context = manager.ref().context();
             switch (options.get(0).toString().toLowerCase()){
                 case "game":
                     Game game = communicationManager.manager.ref().context().game();
-                    // quick version
                     reply.put("result", game.toJSON());
-                    /* serialization versuch
-                    try {
-                        String boardString = objectMapper.writeValueAsString(game);
-                        replyOptions.put(new JSONObject(boardString));
-                    } catch (IOException e) {
-                        logger.warning("could not serialize game");
-                        logger.warning(e.getMessage());
-                        replyOptions.put("error");
-                    }
-                     */
                     break;
                 case "simple_board":
                     JSONObject simpleBoard = new JSONObject();
-                    simpleBoard.put("graph", manager.ref().context().board().graph());
-                    //simpleBoard.put("components", manager.ref().context().state().);
+                    simpleBoard.put("graph", context.board().graph());
                     reply.put("result", simpleBoard);
                 case "board":	// ME-TODO get better board rep, with actual board descrition of current status
-                    reply.put("result", manager.ref().context().board().toJSON());
-                    /* serialization versuch
-                    try {
-                        String boardString = objectMapper.writeValueAsString(manager.ref().context().board().toEnglish(manager.ref().context().game()));
-                        replyOptions.put(new JSONObject(boardString));
-                    } catch (IOException e) {
-                        logger.warning("could not serialize board");
-                        logger.warning(e.getMessage());
-                        replyOptions.put("error");
-                    }
-                     */
-                    //Context context = communicationManager.manager.ref().context();
-				/*
-				reply = "Game Flags: " + context.game().gameFlags();
-				if(context.game().isBoardless()){
-					reply += "\nGame is Boardless!";
-					break;
-				}
-				if(context.isGraphGame()){
-					reply += "\nGraphGame:\n" + context.topology().graph().toString() + "\n\n---\n\nTopology:\n" + context.topology().toString();
-				}
-				if(context.game().isDeductionPuzzle()){
-					reply +="\nGame is a Deduction Puzzle";
-				}
-				if(context.game().hasCard()){
-					reply += "\n[" + context.game().handDeck().stream().map(Deck::toString).collect(Collectors.joining(",")) + "]";
-				}
-				if(context.game().usesLineOfPlay()){
-					reply += "Game uses Line of Play";
-				}
-				if(context.game().hasTrack()){
-					reply += "\n[" + context.game().board().tracks().stream().map(Track::toString).collect(Collectors.joining(",")) + "]";
-				}
-				reply += "\n" + context.game().board();
-                    reply += "\n\n" + context.getBoardRep();
-                    // TODO ME: add representation where pieces are
-				*/
+                    reply.put("result", context.board().toJSON());
                     break;
                 case "state":
-                    reply.put("result", manager.ref().context().state().toJSON());
-//                    OutputStream os = new ByteArrayOutputStream();
-//                    try {
-//                        ObjectOutputStream out = new ObjectOutputStream(os);
-//                        manager.ref().context().state().containerStates()[0].writeObject(out);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                        System.out.println("COMM | could not serialize state");
-//                    }
-                    //replyOptions.put(ExportUtils.toJSONWrapper(manager.ref().context().state()));
-//                    JSONObject state = new JSONObject(manager.ref().context().state());
-//                    ObjectMapper mapper = new ObjectMapper();
-//                    mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-//                    try {
-//                        String value = mapper.writeValueAsString(manager.ref().context().state());
-//                        replyOptions.put(value);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-                    /* jackson verions
-                    try {
-                        String stateString = objectMapper.writeValueAsString(manager.ref().context().state());
-                        replyOptions.put(new JSONObject(stateString));
-                    } catch (IOException e) {
-                        logger.warning("could not serialize state");
-                        logger.warning(e.getMessage());
-                        replyOptions.put("error");
-                    }
-                     */
+                    reply.put("result", context.state().toJSON());
                     break;
-				/* example
-				mvr=1, nxt=2, prv=0.
-				[ContainerState type = class other.state.container.ContainerFlatState
-				Empty = {chunk 5 = 1, chunk 6 = 1, chunk 7 = 1, chunk 8 = 1, chunk 9 = 1, chunk 11 = 1, chunk 12 = 1, chunk 13 = 1, chunk 15 = 1, chunk 16 = 1, chunk 17 = 1, chunk 18 = 1, chunk 19 = 1}
-				Who = {chunk 0 = 1, chunk 1 = 2, chunk 2 = 1, chunk 3 = 2, chunk 4 = 1, chunk 10 = 1, chunk 14 = 2, chunk 20 = 2, chunk 21 = 1, chunk 22 = 2, chunk 23 = 1, chunk 24 = 2}
-				]
-				 */
                 case "equipment":
-                    reply.put("result", communicationManager.manager.ref().context().game().equipment().toJSON());
-                    /* jackson verison
-                    try {
-                        String equipmentString = objectMapper.writeValueAsString(communicationManager.manager.ref().context().game().equipment());
-                        replyOptions.put(new JSONObject(equipmentString));
-                    } catch (IOException e) {
-                        logger.warning("could not serialize equipment");
-                        logger.warning(e.getMessage());
-                        replyOptions.put("error");
-                    }
-                     */
-                    //reply = communicationManager.manager.ref().context().game().equipment().toEnglish(communicationManager.manager.ref().context().game());
+                    reply.put("result", context.game().equipment().toJSON());
                     break;
-				/* example
-				on a 5x5 rectangle board with square tiling.
-				All players play with Queens.
-				Rules for Pieces:
-					 Queens slide from the location of the piece in the adjacent direction through [between] is in the set of empty cells.
-				 */
-
                 case "containers":
-                    //replyOptions.put(new JSONArray(Arrays.stream(communicationManager.manager.ref().context().game().equipment().containers()).map(Container::toJSON).collect(Collectors.toList())));
                     JSONArray c = new JSONArray();
                     System.out.println("container amount: "+ communicationManager.manager.ref().context().game().equipment().containers().length);
                     for (Container container: communicationManager.manager.ref().context().game().equipment().containers()){
                         c.put(container.toJSON());
                     }
                     reply.put("result", c);
-                    /* jackson verion
-                    try {
-                        String containerString = objectMapper.writeValueAsString(communicationManager.manager.ref().context().game().equipment().containers());
-                        if (!containerString.startsWith("{")){
-                            // BOURRYTO - TODO: THIS IS AN ARRAY, CONVERT DIFFRENTLY!
-                            logger.warning("container converted to string properly");
-                            logger.warning(containerString);
-                            break;
-                        }
-                        replyOptions.put(new JSONObject(containerString));
-                    } catch (IOException e) {
-                        logger.warning("could not serialize containers");
-                        logger.warning(e.getMessage());
-                        replyOptions.put("error");
-                    }
-                     */
-                    /*
-                    reply = "[";
-                    for(Container container: communicationManager.manager.ref().context().game().equipment().containers()){
-                        reply += container.toEnglish(communicationManager.manager.ref().context().game()) +
-                                "\n\tTopology: " + container.topology().graph().toString() +
-                                "\n\tnumSites: " + container.numSites() +
-                                "\n\tStyle: " + container.style().name() +
-                                "\n\tlabel: " + container.name() +
-                                "\n\tindex: " + container.index() +
-                                "\n\trole: " + container.role().toString();
-
-                    }
-                    reply += "]\n";
-
-                     */
                     break;
-				/* example
-				[5x5 rectangle board with square tiling,
-				]
-				 */
                 case "legal_moves":
-                    // TODO: testing with different move output
-                    final Context context = manager.ref().context();
                     final Moves legal = context.game().moves(context);
                     JSONArray legalMoves = new JSONArray();
                     for (int i = 0; i < legal.moves().size(); i++) {
@@ -711,41 +573,22 @@ public class CommunicationManager {
                         legalMoves.put(legal.moves().get(i).getMoveWithConsequences(context).toBourrytoFormat());
                     }
                     reply.put("result", legalMoves);
-                    /* jackson version
-                    try {
-                        for (int i = 0; i < legal.moves().size(); i++) {
-                            legalMoves.put(objectMapper.writeValueAsString(legal.moves().get(i)));
-                            //reply += i + " - " + legal.moves().get(i).getActionsWithConsequences(context) + "\n";
-                        }
-                    } catch (IOException e){
-                        logger.warning("could not serialize legal");
-                        logger.warning(e.getMessage());
-                        replyOptions.put("error");
-                    }
-                    replyOptions.put(new JSONObject(legalMoves));
-                     */
-                    /*
-                    try {
-                        String legalString = objectMapper.writeValueAsString(manager.ref().context().game().moves(manager.ref().context()));
-                        System.out.println(legalString);
-                        System.out.println(manager.ref().context().game().moves(manager.ref().context()).moves().toString());
-                        replyOptions.put(new JSONObject(legalString));
-                    } catch (IOException e) {
-                        logger.warning("could not serialize legal");
-                        logger.warning(e.getMessage());
-                        replyOptions.put("error");
-                    }
-                     */
                     break;
                 case "simple_legal_moves":
-                    final Context simple_context = manager.ref().context();
-                    final Moves simple_legal = simple_context.game().moves(simple_context);
+                    final Moves simple_legal = context.game().moves(context);
                     JSONArray simple_legalMoves = new JSONArray();
                     for (int i = 0; i < simple_legal.moves().size(); i++) {
-                        simple_legalMoves.put(simple_legal.moves().get(i).getMoveWithConsequences(simple_context).toBourrytoFormat());
-
+                        simple_legalMoves.put(simple_legal.moves().get(i).getMoveWithConsequences(context).toBourrytoFormat());
                     }
                     reply.put("result", simple_legalMoves);
+                    break;
+                case "legal_moves_json":
+                    final Moves legalJson = context.game().moves(context);
+                    JSONArray legalMovesJSON = new JSONArray();
+                    for (int i = 0; i < legalJson.moves().size(); i++) {
+                        legalMovesJSON.put(legalJson.moves().get(i).getMoveWithConsequences(context).toJSON());
+                    }
+                    reply.put("result", legalMovesJSON);
                     break;
                 case "mover":
                     reply.put("result", manager.ref().context().state().mover());
@@ -768,11 +611,21 @@ public class CommunicationManager {
                     break;
                 case "action_types":
                     reply.put("result", new JSONArray(ActionType.class.getEnumConstants()));
+                    break;
+                case "raw_game_config_file_content":
+                    reply.put("result", manager().ref().context().game().description().raw());
+                    break;
+                case "winners":
+                    reply.put("result", new JSONArray(manager().ref().context().winners().toArray()));
+                    break;
+                case "is_over":
+                    reply.put("result", manager().ref().context().game().moves(manager().ref().context()).moves().isEmpty());
+                    break;
                 default:
                     reply.put("success", false);
                     reply.put("result", "");
-                    reply.put("error_message", new JSONArray().put("unsupported command"));
-                    //reply = "unsupported command";
+                    reply.put("error_message", new JSONArray().put("unsupported method"));
+                    //reply = "unsupported method";
                     break;
             }
 
@@ -814,7 +667,7 @@ public class CommunicationManager {
                         break;
                     }
                     communicationManager.resetPlayers();
-                    communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\nLoaded Game from name via command. Current Game: " + this.communicationManager.manager.ref().context().game().name());
+                    communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\nLoaded Game from name via request. Current Game: " + this.communicationManager.manager.ref().context().game().name());
                     break;
                 // BOURRYTO - TODO : ISSUES WITH CAPTURING MOVES NOT BEING ABLE TO APPLY
                 case "move_from_string":
@@ -948,6 +801,20 @@ public class CommunicationManager {
                     }
                     foundMove = null;
                     JSONObject incoming_move= message.getContent().getJSONObject("move");
+                    if(incoming_move.keySet().contains("what")){
+                        int what = incoming_move.getInt("what");
+                        // later todo important - this only works for t3, chess will have more what, we need to differenciate later. this is only a temporary solution!
+                        if(what == 0){
+                            errorMessage = ("what with the value 0 is reserved for the game, it can't be used by players.");
+                            success = false;
+                            break;
+                        }
+                        if(what != mover){
+                            errorMessage = ("There are no legal moves with 'what'="+Integer.toString(what)+". Check if you have used the right value for 'what'.");
+                            success = false;
+                            break;
+                        }
+                    }
                     this.communicationManager.logger.info("got following move: " + incoming_move.toString());
                     // if the move containes multiple actions (chess swith or something probably, this needs to be considered and changed
                     for (final Move m : context.game().moves(context).moves()) {
@@ -1042,12 +909,12 @@ public class CommunicationManager {
                     break;*/
                 default:
                     success = false;
-                    errorMessage ="Unknown command option '"+options.get(0)+ "'";
+                    errorMessage ="Unknown option '"+options.get(0)+ "'";
                     break;
             }
             JSONObject reply = new JSONObject();
             reply.put("success", success);
-            reply.put("command", "did"); // inverse to do
+            reply.put("method", "did"); // inverse to do
             reply.put("options", options);
             reply.put("error_message", errorMessage);
             sendMessage(reply, message.getFrom(), message.jsonObject);
