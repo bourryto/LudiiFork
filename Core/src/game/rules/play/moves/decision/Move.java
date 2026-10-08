@@ -49,6 +49,7 @@ import game.util.moves.From;
 import game.util.moves.Piece;
 import game.util.moves.Player;
 import game.util.moves.To;
+import org.json.JSONObject;
 import other.context.Context;
 
 /**
@@ -969,4 +970,11 @@ public final class Move extends Decision
 	
 	//-------------------------------------------------------------------------
 
+	public JSONObject toJSON(){
+		JSONObject jsonObject = new JSONObject();
+		JSONObject move = new JSONObject();
+		jsonObject.put("class", "decision/Move");
+		jsonObject.put("content", move);
+		return jsonObject;
+	}
 }

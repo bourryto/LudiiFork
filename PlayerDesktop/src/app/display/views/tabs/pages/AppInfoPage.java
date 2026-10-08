@@ -9,9 +9,9 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * Tab for displaying information about the current game.
+ * Tab for displaying information about the Application like network information
  * 
- * @author Matthew.Stephenson
+ * @author Bourryto
  */
 public class AppInfoPage extends TabPage
 {

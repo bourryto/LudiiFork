@@ -39,7 +39,7 @@ Move=[Move:mover=1,from=49,to=49,actions=[Add:type=Cell,to=49,level=0,what=2,dec
 Move=[Move:mover=1,actions=[SetNextPlayer:player=2,decision=true]]
 Move=[Move:mover=2,actions=[SetNextPlayer:player=1,decision=true]]
 Move=[Move:mover=1,actions=[SetNextPlayer:player=2,decision=true]]
-Move=[Move:mover=2,actions=[Pass:decision=true],[Note:message=Player 1 remains White. Player 2 remains Black.,to=1],[SetNextPlayer:player=1],[SetTemp:temp=1],[Note:message=Player 1 remains White. Player 2 remains Black.,to=2],[SetNextPlayer:player=1],[SetTemp:temp=1]]
+Move=[Move:mover=2,actions=[Pass:decision=true],[Note:request=Player 1 remains White. Player 2 remains Black.,to=1],[SetNextPlayer:player=1],[SetTemp:temp=1],[Note:request=Player 1 remains White. Player 2 remains Black.,to=2],[SetNextPlayer:player=1],[SetTemp:temp=1]]
 Move=[Move:mover=1,from=98,to=98,actions=[Add:type=Cell,to=98,level=0,what=1,decision=true]]
 Move=[Move:mover=2,from=51,to=51,actions=[Add:type=Cell,to=51,level=0,what=2,decision=true]]
 Move=[Move:mover=1,from=3,to=3,actions=[Add:type=Cell,to=3,level=0,what=1,decision=true]]

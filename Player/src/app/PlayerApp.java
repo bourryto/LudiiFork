@@ -72,7 +72,6 @@ public abstract class PlayerApp implements PlayerInterface, ActionListener, Item
 	private final GraphicsCache graphicsCache = new GraphicsCache();
 	private final RemoteDialogFunctionsPublic remoteDialogFunctionsPublic = RemoteDialogFunctionsPublic.construct();
 
-    // BOURRYTO - LATER: ADD CHECKS THAT PORT NUMBERS CANT BE DUBLICATES
     public static final int firstPortNumber = 4444; private static int portCounter = firstPortNumber;
     private int port = portCounter++; public int getPort(){return port;} public void setPort(int port){this.port = port;}
     private LinkedList<Integer> otherPorts = new LinkedList<>(); public LinkedList<Integer> getOtherPorts(){return otherPorts;}

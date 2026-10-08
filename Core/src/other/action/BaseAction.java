@@ -471,11 +471,46 @@ public abstract class BaseAction implements Action
         return false;
     }
 
+	public JSONObject toJSON(){
+		JSONObject jsonWrapper = new JSONObject();
+		JSONObject json = new JSONObject();
+		jsonWrapper.put("class", this.getClass().getName());
+		jsonWrapper.put("package", this.getClass().getPackage());
+		jsonWrapper.put("content", json);
+		json.put("from", from());
+		json.put("fromType", fromType());
+		json.put("levelFrom", levelFrom());
+		json.put("to", to());
+		json.put("toType", toType());
+		json.put("levelTo", levelTo());
+		json.put("what", what());
+		json.put("state", state());
+		json.put("rotation", rotation());
+		json.put("value", value());
+		json.put("count", count());
+		json.put("isStacking", isStacking());
+		json.put("hidden", hidden());
+		json.put("who", who());
+		json.put("isDecision", isDecision());
+		json.put("isPass", isPass());
+		json.put("isForfeit", isForfeit());
+		json.put("isSwap", isSwap());
+		json.put("isVote", isVote());
+		json.put("isPropose", isPropose());
+		json.put("isAlwaysGUILegal", isAlwaysGUILegal());
+		json.put("proposition", proposition());
+		json.put("vote", vote());
+		json.put("message", message());
+		json.put("actionType", actionType());
+		return jsonWrapper;
+	}
+
     private String simplify(String string) {
         return string.toLowerCase().replace(" ", "").replace("\n", "");
     }
+	// simple version of comparing incoming moves. Works for many moves and makes passing on parameters easier. used mostly for testing, not good stable verion for all cases
     @Override
-    public boolean sameEnough(JSONObject other) throws IllegalArgumentException{
+    public boolean sameEnough(JSONObject other, boolean possibly_ignore_from) throws IllegalArgumentException{
         //if (other == null || other.isEmpty()) return false;
         // neccesary keys
         for (String key: Action.requiredComparisonKeys()){
@@ -487,7 +522,11 @@ public abstract class BaseAction implements Action
         }
         // from depending on game is important, i will leave it in as neccesary
         try {
-            if (other.getInt("from") != this.from()){return false;}
+			if (possibly_ignore_from && this.from() != this.to()) {
+				if (other.getInt("from") != this.from()) {
+					return false;
+				}
+			}
         } catch (JSONException e) {throw new IllegalArgumentException("'from' is required but missing.");}
         try {
             if (other.getInt("to") != this.to()){return false;}

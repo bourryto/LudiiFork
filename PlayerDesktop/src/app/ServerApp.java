@@ -1,13 +1,6 @@
 package app;
 
 import app.network.Address;
-import app.network.Message;
-import app.utils.SettingsExhibition;
-import game.Game;
-import game.rules.phase.Phase;
-import main.Constants;
-import main.StringRoutines;
-import main.options.GameOptions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import other.context.Context;

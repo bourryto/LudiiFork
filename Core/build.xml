@@ -107,7 +107,7 @@
         <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="build-project"/>
     </target>
     <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
+        <echo request="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" createMissingPackageInfoClass="false" encoding="UTF-8">
             <src path="src"/>
             <exclude name="game/equipment/component/piece/state/LargePiece.java"/>

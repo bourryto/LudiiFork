@@ -26,13 +26,9 @@ package app.network;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import game.functions.dim.math.Add;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** JSON Message Format:
@@ -106,9 +102,9 @@ public class CommunicationManagerTest {
         print("now running");
     }
 
-    public void sendMessage(Message message){
-        if(!otherPorts.contains(message.getTo().port)){
-            print("Trying to send a message to a port not recognized: " + message.getTo() + ". Options are: Error in code, maybe lost connections, or some function not yet implemented." +
+    public void sendMessage(Request request){
+        if(!otherPorts.contains(request.getTo().port)){
+            print("Trying to send a message to a port not recognized: " + request.getTo() + ". Options are: Error in code, maybe lost connections, or some function not yet implemented." +
                     "this is for a reason, i currently only want to support ports i know are within my code, but maybe a function for later");
             System.out.println("other ports: " + otherPorts);
             // if it is desired:
@@ -120,21 +116,21 @@ public class CommunicationManagerTest {
             // }
             return;
         }
-        this.penDictionary.get(message.getTo().port).sendMessage(message);
+        this.penDictionary.get(request.getTo().port).sendMessage(request);
     }
 
     public void sendMessage(JSONObject content, Address recipient, JSONObject replyTo){
-        sendMessage(new Message(content, recipient, new Address(this.port), replyTo));
+        sendMessage(new Request(content, recipient, new Address(this.port), replyTo));
     }
 
     public void sendMessage(JSONObject content, Address recipient){
-        sendMessage(new Message(content, recipient, new Address(this.port), new JSONObject()));
+        sendMessage(new Request(content, recipient, new Address(this.port), new JSONObject()));
     }
 
-    public void broadcastMessage(Message message){
-        print("broadcasting message: " + message);
+    public void broadcastMessage(Request request){
+        print("broadcasting message: " + request);
         for (Pen pen: penList){
-            pen.sendMessage(message);
+            pen.sendMessage(request);
         }
     }
 
@@ -192,15 +188,15 @@ public class CommunicationManagerTest {
             }
         }
 
-        public void sendMessage(Message message) {
+        public void sendMessage(Request request) {
             if (out == null){
-                print("sending Message '" + message + "' unsuccesfull, no connection to other port, trying to build this connection");
+                print("sending Message '" + request + "' unsuccesfull, no connection to other port, trying to build this connection");
                 try {
                     connect(false);
                 } catch (IOException e) {print("could not connect while sending message, try to connect bevor sending message"); return;}
             }
             try  {
-                out.writeUTF(message.toString());
+                out.writeUTF(request.toString());
                 out.flush();
                 //print(" send message '" + message + "' to port " + this.otherPort);
             } catch (final Exception e) {
@@ -218,7 +214,7 @@ public class CommunicationManagerTest {
             JSONObject content = new JSONObject();
             content.put("command", message);
             content.put("option", "");
-            sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), new JSONObject()));
+            sendMessage(new Request(content, new Address(this.otherPort), new Address(this.port), new JSONObject()));
         }
 
         public void print(String text){
@@ -311,24 +307,24 @@ public class CommunicationManagerTest {
 
     private class Postoffice implements Runnable {
         CommunicationManagerTest communicationManager;
-        LinkedList<Message> outgoingMessages;
+        LinkedList<Request> outgoingRequests;
 
         public Postoffice(CommunicationManagerTest communicationManager) {
             this.communicationManager = communicationManager;
-            this.outgoingMessages = new LinkedList<>();
+            this.outgoingRequests = new LinkedList<>();
         }
 
         public void run() {
-            Message message;
+            Request request;
             while (true) {
                 try {
-                    message = this.outgoingMessages.pop();
-                    if (message != null) {
+                    request = this.outgoingRequests.pop();
+                    if (request != null) {
                         //System.out.println("communicationmanager outgoing messages lsit size " + this.central.outgoingMessages.size());
-                        if (message.getTo().ip.equals("255.255.255.255")){
-                            this.communicationManager.broadcastMessage(message);
+                        if (request.getTo().ip.equals("255.255.255.255")){
+                            this.communicationManager.broadcastMessage(request);
                         } else {
-                            this.communicationManager.sendMessage(message);
+                            this.communicationManager.sendMessage(request);
                         }
                     }
                 } catch (NoSuchElementException e) {
@@ -374,12 +370,12 @@ public class CommunicationManagerTest {
     }
 
     private class Postbote extends Thread{
-        Message message;
+        Request request;
         CommunicationManagerTest communicationManager;
         final Integer maxPongs = 3;
 
         public Postbote(String message, CommunicationManagerTest communicationManager){
-            this.message = new Message(message);
+            this.request = new Request(message);
             this.communicationManager = communicationManager;
         }
 
@@ -387,23 +383,23 @@ public class CommunicationManagerTest {
         public void run() {
             // How i would parse the option if neccessary:
             // (messageComplex.getJSONObject("content").get("option").getClass() == JSONObject.class)
-            JSONObject content = this.message.getContent();
+            JSONObject content = this.request.getRequestLine();
             if (content.isEmpty()){return;}
             String command = content.getString("command");
             // BOURRYTO - LATER: Maybe check if command is 'sending' bevor splitting, sending returns text with sooooo many spaces
 
-            print("got message from " + this.message.senderPort + ": '" + content.toString(2)+ "'");
+            print("got message from " + this.request.senderPort + ": '" + content.toString(2)+ "'");
 
             switch (command.toLowerCase()){
                 case "connect":
                     try {
-                        if(communicationManager.penDictionary.get(this.message.senderPort) == null){
-                            communicationManager.addPen(new Pen(communicationManager.port, this.message.senderPort, false));
+                        if(communicationManager.penDictionary.get(this.request.senderPort) == null){
+                            communicationManager.addPen(new Pen(communicationManager.port, this.request.senderPort, false));
                         } else {
-                            communicationManager.penDictionary.get(this.message.senderPort).connect(false);
+                            communicationManager.penDictionary.get(this.request.senderPort).connect(false);
                         }
                     } catch (IOException e) {
-                        print("could not connect to " + this.message.senderPort);
+                        print("could not connect to " + this.request.senderPort);
                     }
                     break;
                 case "connected":
@@ -413,35 +409,35 @@ public class CommunicationManagerTest {
                     JSONObject reply = new JSONObject();
                     reply.put("command", "pong");
                     reply.put("counter", 0);
-                    communicationManager.sendMessage(reply, this.message.getFrom(), message.jsonObject);
+                    communicationManager.sendMessage(reply, this.request.getFrom(), request.jsonObject);
                     break;
                 case "pong":
-                    Integer pongCounter = message.getContent().getInt("counter");
+                    Integer pongCounter = request.getRequestLine().getInt("counter");
                     if (pongCounter < maxPongs){
                         JSONObject pong = new JSONObject();
                         pong.put("command", "pong");
                         pong.put("counter", pongCounter + 1);
-                        communicationManager.sendMessage(pong, this.message.getFrom(), message.jsonObject);
+                        communicationManager.sendMessage(pong, this.request.getFrom(), request.jsonObject);
                     }
                     break;
                 case "get":
-                    communicationManager.sendMessage(parseGet(message), this.message.getFrom(), this.message.jsonObject);
+                    communicationManager.sendMessage(parseGet(request), this.request.getFrom(), this.request.jsonObject);
                     break;
                 case "sending":
                     // this is where we get infos we asked for
-                    parseSending(message);
+                    parseSending(request);
                     break;
                 case "do":
-                    parseDo(message);
+                    parseDo(request);
                     break;
                 case "did":
-                    parseDid(message);
+                    parseDid(request);
                     break;
                 case "help":
                     JSONObject help = new JSONObject();
                     help.put("command", "sending");
                     help.put("option", parseHelp());
-                    communicationManager.sendMessage(help, this.message.getFrom(), message.jsonObject);
+                    communicationManager.sendMessage(help, this.request.getFrom(), request.jsonObject);
             }
         }
 
@@ -452,9 +448,9 @@ public class CommunicationManagerTest {
         equipment
         container
          */
-        private JSONObject parseGet(Message message){
+        private JSONObject parseGet(Request request){
             String reply = "";
-            String option = message.getContent().getString("option");
+            String option = request.getRequestLine().getString("option");
             switch (option.toLowerCase()){
                 case "game":
                     reply = "this is a game";
@@ -532,8 +528,8 @@ public class CommunicationManagerTest {
         [ ] equipment
         [ ] container
          */
-        private void parseSending(Message message){
-            String option = message.getContent().getString("option");
+        private void parseSending(Request request){
+            String option = request.getRequestLine().getString("option");
             switch (option.toLowerCase()){
                 // handle replies to get-type messages
                 // like loading a game, doing a move maybe?
@@ -552,48 +548,48 @@ public class CommunicationManagerTest {
             }
         }
 
-        private void parseDo(Message message) {
+        private void parseDo(Request request) {
             // BOURRYTO - TODO: add confirmation message for all messages
-            String option = message.getContent().getJSONObject("option").getString("command");
+            String option = request.getRequestLine().getJSONObject("option").getString("command");
             String text = "";
             switch (option.toLowerCase()) {
                 case "game_restart":
                     print("restarted game");
                     break;
                 case "add_text_to_status_panel":
-                    text = message.getContent().getJSONObject("option").getString("option");
+                    text = request.getRequestLine().getJSONObject("option").getString("option");
                     print("added following text to status panel: " + text);
                     break;
                 case "set_temporary_message":
-                    text = message.getContent().getJSONObject("option").getString("option");
+                    text = request.getRequestLine().getJSONObject("option").getString("option");
                     print("set temporary Message: " + text);
                     break;
                 case "load_game_from_name":
                     // BOURRYTO - TODO: works and loads, but message isnt added to message panel
                     // this assumes we all work with the same database, should for now always be true but maybe not forever depending on added features
-                    String gameName = message.getContent().getJSONObject("option").getString("option");
+                    String gameName = request.getRequestLine().getJSONObject("option").getString("option");
                     // BOURRYTO - LATER: add game options support
                     // currently not supporting gameoptions, we pass an empty list. this could be solved by sending game options along with the name
                     print("Loaded following game: " + gameName);
                     break;
                 // BOURRYTO - TODO : ISSUES WITH CAPTURING MOVES NOT BEING ABLE TO APPLY
                 case "move":
-                    String move = message.getContent().getJSONObject("option").getString("option");
+                    String move = request.getRequestLine().getJSONObject("option").getString("option");
                     print("did move: " + move);
                     break;
                 case "set_player":
-                    int playerIndex = message.getContent().getJSONObject("option").getInt("option");
+                    int playerIndex = request.getRequestLine().getJSONObject("option").getInt("option");
                     print("set player to following index: " + playerIndex);
                     break;
             }
             JSONObject reply = new JSONObject();
             reply.put("command", "did");
-            reply.put("option", message.getContent().getJSONObject("option"));
-            sendMessage(reply, message.getFrom(), message.jsonObject);
+            reply.put("option", request.getRequestLine().getJSONObject("option"));
+            sendMessage(reply, request.getFrom(), request.jsonObject);
         }
 
-        private void parseDid(Message message){
-            switch (message.getContent().getString("option").toLowerCase()) {
+        private void parseDid(Request request){
+            switch (request.getRequestLine().getString("option").toLowerCase()) {
                 case "set_player":
                     print("did set player");
             }

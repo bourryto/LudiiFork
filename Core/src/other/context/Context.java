@@ -31,6 +31,7 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import main.Constants;
 import main.math.BitTwiddling;
 import metadata.Metadata;
+import org.json.JSONObject;
 import other.GameLoader;
 import other.UndoData;
 import other.action.Action;
@@ -1793,5 +1794,23 @@ public class Context
 		}
 		return s;
 	}
+
+    public JSONObject toJSON(){
+        JSONObject obj = new JSONObject();
+        obj.put("game", game.toJSON());
+        obj.put("state", state.toJSON() );
+        obj.put("models", models.toString() );
+        obj.put("trial", trial.toString());
+        obj.put("numLossesDecided", numLossesDecided);
+        obj.put("numWinsDecided", numWinsDecided);
+        obj.put("scores", Arrays.toString(scores));
+        obj.put("payoffs", Arrays.toString(payoffs));
+        obj.put("active", active);
+        obj.put("winners", winners);
+        obj.put("losers", losers);
+        obj.put("haveStarted", haveStarted);
+        obj.put("diceSiteStates", diceSiteStates.toString());
+        return obj;
+    }
 
 }

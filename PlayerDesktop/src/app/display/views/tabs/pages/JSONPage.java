@@ -8,7 +8,9 @@ import game.Game;
 import game.equipment.container.Container;
 import game.equipment.component.Component;
 import main.ExportUtils;
+import org.json.JSONArray;
 import other.context.Context;
+import other.move.Move;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,13 +20,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Tab for displaying the rules of the current game.
- * 
- * @author Matthew.Stephenson
+ * Tab for displaying Internal Object Data
+ *
  */
 public class JSONPage extends TabPage
 {
-    String[] buttons = new String[]{"Game", "Board", "Moves",/* "Game-Util", "Board-Util", "Moves-Util", */"Board-Full"};
+    String[] buttons = new String[]{"Game", "Board", "Moves", "Moves_JSON", "Moves_JSON_Cons", "State", "Context","Board-Full"};
     private static final String resetOn = "game-util";
     JPanel gamePanel = new JPanel();
     JPanel buttonPanel = new JPanel();
@@ -99,18 +100,25 @@ public class JSONPage extends TabPage
             case "moves":
                 jsonString = game.moves(app.contextSnapshot().getContext(app)).toJSON().toString(4);
                 break;
-            /*
-            case "game-util":
-                jsonString = ExportUtils.toJSONWrapper(app.contextSnapshot().getContext(app).game()).toString(4);
+            case "moves_json":
+                jsonString = "";
+                for (Move move: game.moves(app.contextSnapshot().getContext(app)).moves()) {
+                    jsonString += move.toJSON().toString(4) + "\n";
+                }
                 break;
-            case "board-util":
-                jsonString = ExportUtils.toJSONWrapper(game.board()).toString(4);
+            case "moves_json_cons":
+                jsonString = "";
+                for (Move move: game.moves(app.contextSnapshot().getContext(app)).moves()) {
+                    jsonString += move.getMoveWithConsequences(app.contextSnapshot().getContext(app)).toJSON().toString(4) + "\n";
+                }
                 break;
-            case "moves-util":
-                jsonString = ExportUtils.toJSONWrapper(game.moves(app.contextSnapshot().getContext(app))).toString(4);
+            case "state":
+                jsonString = app.contextSnapshot().getContext(app).state().toJSON().toString(4);
+                break;
+            case "context":
+                jsonString = app.contextSnapshot().getContext(app).toJSON().toString(4);
                 break;
 
-             */
             case "board-full":
                 //jsonString = Arrays.toString(game.equipment().regions()) +"\n"+ Arrays.toString(game.equipment().containers()) +"\n"+ Arrays.toString(game.equipment().components());
                 jsonString += "\nGraph basis and shape: " + game.board().graph().basis() + " " + game.board().graph().shape();

@@ -28,7 +28,6 @@ import agentPrediction.external.MetricPredictionExternal;
 import agentPrediction.internal.AgentPredictionInternal;
 import agentPrediction.internal.models.LinearRegression;
 import app.App;
-import app.DesktopApp;
 import app.PlayerApp;
 import app.display.dialogs.AboutDialog;
 import app.display.dialogs.DeveloperDialog;
@@ -48,7 +47,7 @@ import app.loading.MiscLoading;
 import app.loading.TrialLoading;
 import app.manualGeneration.ManualGeneration;
 import app.network.Address;
-import app.network.Message;
+import app.network.Request;
 import app.utils.GameSetup;
 import app.utils.GameUtil;
 import app.utils.PuzzleSelectionType;
@@ -80,7 +79,6 @@ import manager.ai.AIUtil;
 import manager.network.local.LocalFunctions;
 import metadata.ai.features.Features;
 import metadata.ai.heuristics.Heuristics;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import other.AI;
 import other.GameLoader;
@@ -1276,7 +1274,7 @@ public class MainMenuFunctions extends JMenuBar
 				return;
 			}
 			final String message = JOptionPane.showInputDialog("Message");
-			app.getCommunicationManager().sendMessage(Message.createMessageContent(message.split(";")), new Address(portNumber));
+			app.getCommunicationManager().sendMessage(Request.createMessageContent(message.split(";")), new Address(portNumber));
 			//LocalFunctions.initialiseClientSocket(portNumber, message);
 		}
 		else if (source.getText().equals("Select Move from String"))
@@ -1519,7 +1517,7 @@ public class MainMenuFunctions extends JMenuBar
         else if (source.getText().startsWith("Send to other App")){
             if (e.getSource() instanceof NetworkJMenuItem){
                 final String message = JOptionPane.showInputDialog("Message");
-                app.getCommunicationManager().sendMessage(Message.createMessageContent(message.split(";")), new Address(((NetworkJMenuItem) e.getSource()).port));
+                app.getCommunicationManager().sendMessage(Request.createMessageContent(message.split(";")), new Address(((NetworkJMenuItem) e.getSource()).port));
             }
         }
         else if(source.getText().equals("Broadcast Message")){
@@ -1561,7 +1559,7 @@ public class MainMenuFunctions extends JMenuBar
 				return;
 			}
 			String[] message = {"sending", "game_name", app.manager().ref().context().game().name()};
-			app.getCommunicationManager().sendMessage(Message.createMessageContent(message), new Address(portNumber));
+			app.getCommunicationManager().sendMessage(Request.createMessageContent(message), new Address(portNumber));
 			//LocalFunctions.initialiseClientSocket(portNumber, message);
 		}
 		else if (source.getText().equals("Send Initial Message"))

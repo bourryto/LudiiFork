@@ -322,7 +322,7 @@ public interface Action extends Serializable
 	public BitSet concepts(final Context context, final Moves movesLudeme);
 
     public JSONObject toBourrytoFormat();
-    public boolean sameEnough(JSONObject object);
+    public boolean sameEnough(JSONObject object, boolean possibly_ignore_from);
     public static String[] requiredComparisonKeys(){
         return new String[]{"from", "to", "what"};
     }

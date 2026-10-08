@@ -766,9 +766,16 @@ public class App extends PlayerApp
     //-------------------------------------------------------------------------
 
     @Override
-    public void loadGameFromName(final String name, final List<String> options, final boolean debug)
+    public void loadGameFromName(final String name, final List<String> options, final boolean debug) throws IllegalArgumentException
     {
-        GameLoading.loadGameFromName(this, name, options, debug);
+        try {
+            GameLoading.loadGameFromName(this, name, options, debug);
+        } catch (IllegalArgumentException ie){
+            throw new IllegalArgumentException("Bad input.");
+        }
+        catch(Exception e){
+            System.out.println("Error loading game from name with name="+name+" and error="+e.getMessage());
+        }
         System.out.println("Loading game from name with manager().savedLudName()='" + manager().savedLudName() + "' and argument name='" + name + "'");
     }
 

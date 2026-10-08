@@ -359,24 +359,24 @@ public class Game extends BaseLudeme implements API, Serializable
         json.append("options", new JSONArray(options));                             // -List<String>
         json.append("mode", mode.toString());                                         // +Mode
         // TODO - PLAYERS DONT WORK SO FAR
-        json.append("players", players);                                            // +Players
-        //json.append("equipment", equipment.toJSON());                                        // +Equipment
+        json.append("players", players.toEnglish(this));                                            // +Players
+        json.append("equipment", equipment.toJSON());                                        // +Equipment
         // TODO - RULES DONT WORK SO FAR
-        json.append("rules", rules);                                                // +Rules
+        json.append("rules", rules.toEnglish(this));                           // +Rules
         json.append("metaRules", metaRules.toString());                               // +Metarules
         //json.append("voteStringsTable", new JSONArray(voteStringsTable));           // -List<String>
         // TODO - DESCRIPTION DOESNT WORK SO FAR
-        json.append("description", description);                                    // +Description
+        json.append("description", description.toString());                                    // +Description
         json.append("maxTurnLimit", maxTurnLimit);                                  // -int
         json.append("maxMovesLimit", maxMovesLimit);                                // -int
         json.append("numStartingAction", numStartingAction);                        // -int
         json.append("gameFlags", gameFlags);                                        // -long
         json.append("booleanConcepts", booleanConcepts.toString());                   // +BitSet
         json.append("conceptsNonBoolean", new JSONObject(conceptsNonBoolean));      // -Map<Integer, String>
-        json.append("stateReference", stateReference);                              // +State
+        json.append("stateReference", stateReference.toJSON());                              // +State
         json.append("finishedPreprocessing", finishedPreprocessing);                // -boolean
         // TODO - START CONTEXT DOENST WORK SO FAR
-        json.append("startContext", startContext);                         // +Context
+        json.append("startContext", startContext.toString());                         // +Context
         json.append("stochasticStartingRules", stochasticStartingRules);            // -boolean
 //        Map<String, JSONObject> mapContainerJSON = mapContainer.entrySet().stream()
 //                .map(entry -> new Pair(entry.getKey().toString(), entry.getValue().toJSON()))
@@ -392,7 +392,7 @@ public class Game extends BaseLudeme implements API, Serializable
         List<String> handDeckJSON = handDeck.stream().map(Deck::toString).collect(Collectors.toList());
         json.append("handDeck", new JSONArray(handDeckJSON));                       // +List<Deck>
         json.append("constraintVariables", constraintVariables.toString());           // +TIntArrayList
-        json.append("metadata", metadata);                                 // +Metadata
+        json.append("metadata", metadata.toString());                                 // +Metadata
         json.append("expectedConcepts", new JSONArray(expectedConcepts.toString()));  // +ArrayList<metadata.recon.concept.Concept>
         json.append("requirementReport", new JSONArray(requirementReport));         // -List<String>
         json.append("hasMissingRequirement", hasMissingRequirement);                // -boolean

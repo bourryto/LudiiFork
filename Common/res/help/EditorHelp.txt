@@ -2925,7 +2925,7 @@ EXAMPLE: (move Select (from (sites Occupied by:Mover) if:(!= (state at:(to)) 0) 
 NEW CTOR
 (move <moveMessageType> (<string>  | {<string>}) [<then>])
 PARAM JAVADOC: <moveMessageType>: The type of move.
-PARAM JAVADOC: <string>: The message.
+PARAM JAVADOC: <string>: The request.
 PARAM JAVADOC: {<string>}: The messages.
 PARAM JAVADOC: [<then>]: The moves applied after that move is applied.
 EXAMPLE: (move Propose "End")
@@ -2994,7 +2994,7 @@ PARAM JAVADOC: [<then>]: The moves applied after that move is applied.
 EXAMPLE: (move Add (to (sites Empty)))
 EXAMPLE: (move Claim (to Cell (site)))
 TYPE: game.rules.play.moves.decision.MoveMessageType
-TYPE JAVADOC: Defines the types of decision move relative to a message.
+TYPE JAVADOC: Defines the types of decision move relative to a request.
 CONST JAVADOC: Propose: Makes a propose move.
 CONST JAVADOC: Vote: Makes a vote move.
 TYPE: game.rules.play.moves.decision.MoveSimpleType
@@ -3268,17 +3268,17 @@ TYPE: game.rules.play.moves.nonDecision.effect.Note
 TYPE JAVADOC: Makes a note to a player or to all the players.
 NEW CTOR
 (note ([player:<int>]  | [Player:<roleType>]) (<string> (<int>  | <intArrayFunction>  | <floatFunction>  | <boolean>  | <region>  | <rangeFunction>  | <direction>  | <graphFunction>) ([to:<player>] ([To:<roleType>]))
-PARAM JAVADOC: [player:<int>]: The index of the player to add at the beginning of the message.
-PARAM JAVADOC: [Player:<roleType>]: The role of the player to add at the beginning of the message.
-PARAM JAVADOC: <string>: The message as a string.
-PARAM JAVADOC: <int>: The message as an integer.
-PARAM JAVADOC: <intArrayFunction>: The message as an array of integer.
-PARAM JAVADOC: <floatFunction>: The message as a float.
-PARAM JAVADOC: <boolean>: The message as a boolean.
-PARAM JAVADOC: <region>: The message as a region.
-PARAM JAVADOC: <rangeFunction>: The message as a range.
-PARAM JAVADOC: <direction>: The message as a set of directions.
-PARAM JAVADOC: <graphFunction>: The message as a graph.
+PARAM JAVADOC: [player:<int>]: The index of the player to add at the beginning of the request.
+PARAM JAVADOC: [Player:<roleType>]: The role of the player to add at the beginning of the request.
+PARAM JAVADOC: <string>: The request as a string.
+PARAM JAVADOC: <int>: The request as an integer.
+PARAM JAVADOC: <intArrayFunction>: The request as an array of integer.
+PARAM JAVADOC: <floatFunction>: The request as a float.
+PARAM JAVADOC: <boolean>: The request as a boolean.
+PARAM JAVADOC: <region>: The request as a region.
+PARAM JAVADOC: <rangeFunction>: The request as a range.
+PARAM JAVADOC: <direction>: The request as a set of directions.
+PARAM JAVADOC: <graphFunction>: The request as a graph.
 PARAM JAVADOC: [to:<player>]: The index of the player.
 PARAM JAVADOC: [To:<roleType>]: The role of the player [ALL].
 EXAMPLE: (note "Opponent has played")
@@ -4871,7 +4871,7 @@ NEW CTOR
 (features [{<featureSet>}])
 PARAM JAVADOC: [{<featureSet>}]: A sequence of multiple feature sets (typically each applying to a different player).
 EXAMPLE: (features { (featureSet P1 { (pair "rel:to=<{}>:pat=<els=[-{}]>" 1.0) }) (featureSet P2 { (pair "rel:to=<{}>:pat=<els=[-{}]>" -1.0) }) })
-REMARKS: The basic format of these features is described in: Browne, C., Soemers, D. J. N. J., and Piette, E. (2019). ``Strategic features for general games.'' In Proceedings of the 2nd Workshop on Knowledge Extraction from Games (KEG) (pp. 70–75).
+REMARKS: The basic format of these features is described in: Browne, C., Soemers, D. J. N. J., and Piette, E. (2019). ``Strategic features for general games.'' In Proceedings of the 2nd Workshop on Knowledge Extraction from Games (KEG) (pp. 70ï¿½75).
 TYPE: metadata.ai.features.trees.FeatureTrees
 TYPE JAVADOC: Describes one or more sets of features (local, geometric patterns),   represented as decision / regression trees.
 NEW CTOR
@@ -5506,7 +5506,7 @@ PARAM JAVADOC: [<siteType>]: The GraphElementType for the specified sites [Verte
 PARAM JAVADOC: [<lineStyle>]: Line style [Thin].
 PARAM JAVADOC: [<colour>]: The colour of the line.
 PARAM JAVADOC: [scale:<float>]: The scale of the line.
-PARAM JAVADOC: [curve:{<float>}]: The control points for the line to create a Bézier curve with (4 values: x1, y1, x2, y2, between 0 and 1).
+PARAM JAVADOC: [curve:{<float>}]: The control points for the line to create a Bï¿½zier curve with (4 values: x1, y1, x2, y2, between 0 and 1).
 PARAM JAVADOC: [<curveType>]: Type of curve [Spline].
 EXAMPLE: (show Line { {1 0} {2 4} })
 NEW CTOR

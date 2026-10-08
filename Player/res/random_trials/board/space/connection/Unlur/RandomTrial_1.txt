@@ -21,7 +21,7 @@ Move=[Move:mover=2,from=38,to=38,actions=[Add:type=Cell,to=38,level=0,what=2,dec
 Move=[Move:mover=1,from=83,to=83,actions=[Add:type=Cell,to=83,level=0,what=2,decision=true]]
 Move=[Move:mover=2,from=23,to=23,actions=[Add:type=Cell,to=23,level=0,what=2,decision=true]]
 Move=[Move:mover=1,from=59,to=59,actions=[Add:type=Cell,to=59,level=0,what=2,decision=true]]
-Move=[Move:mover=2,actions=[Pass:decision=true],[Note:message=Player 1 remains White. Player 2 remains Black.,to=1],[SetNextPlayer:player=1],[SetTemp:temp=1],[Note:message=Player 1 remains White. Player 2 remains Black.,to=2],[SetNextPlayer:player=1],[SetTemp:temp=1]]
+Move=[Move:mover=2,actions=[Pass:decision=true],[Note:request=Player 1 remains White. Player 2 remains Black.,to=1],[SetNextPlayer:player=1],[SetTemp:temp=1],[Note:request=Player 1 remains White. Player 2 remains Black.,to=2],[SetNextPlayer:player=1],[SetTemp:temp=1]]
 Move=[Move:mover=1,from=69,to=69,actions=[Add:type=Cell,to=69,level=0,what=1,decision=true]]
 Move=[Move:mover=2,from=28,to=28,actions=[Add:type=Cell,to=28,level=0,what=2,decision=true]]
 Move=[Move:mover=1,from=16,to=16,actions=[Add:type=Cell,to=16,level=0,what=1,decision=true]]

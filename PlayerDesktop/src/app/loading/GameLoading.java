@@ -161,11 +161,12 @@ public class GameLoading
 	 * @param name Filename + .lud extension.
 	 * @param options List of options to select
 	 */
-	public static void loadGameFromName(final PlayerApp app, final String name, final List<String> options, final boolean debug)
+	public static void loadGameFromName(final PlayerApp app, final String name, final List<String> options, final boolean debug)throws IllegalArgumentException
 	{
 		try
 		{
 			final String gameDescriptionString = getGameDescriptionRawFromName(app, name);
+			System.out.println("Debugging - GameLoading.java - loadGameFromName() - gamedescription="+gameDescriptionString);
 			
 			if (gameDescriptionString == null)
 			{
@@ -179,10 +180,13 @@ public class GameLoading
 				GameSetup.compileAndShowGame(app, gameDescriptionString, false);
 			}
 		}
+		catch (IllegalArgumentException ie){
+			throw new IllegalArgumentException("Bad input.");
+		}
 		catch (final Exception e)
 		{
 			// used if a recent game was selected from an external file.
-			
+			// also used if bad input that might parse to a test file
 		}
 	}
 	
@@ -191,14 +195,20 @@ public class GameLoading
 	/**
 	 * Returns the raw game description for a game, based on the name.
 	 */
-	public static String getGameDescriptionRawFromName(final PlayerApp app, final String name)
+	public static String getGameDescriptionRawFromName(final PlayerApp app, final String name) throws IllegalArgumentException
 	{
 		final String filePath = GameLoader.getFilePath(name);
-		
+		System.out.println("Debugging - GameLoading.java - getGameDescriptionRawFromName() - filePath="+filePath);
+
 		// Probably loading from an external .lud file.
 		if (filePath == null)
 			return null;
-		
+		// Inputs where name is for example "1", will result in crazy test case games which don't parse correctly
+		if (filePath.contains("/test")){
+			System.out.println("Debugging - GameLoading.java - getGameDescriptionRawFromName() - filepath contained '/test', therefor was thrown out");
+			throw new IllegalArgumentException("No File with this that is an actual game");
+		}
+
 		final StringBuilder sb = new StringBuilder();
 		
 		app.manager().setSavedLudName(filePath);

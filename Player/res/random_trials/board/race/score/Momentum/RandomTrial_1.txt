@@ -19,7 +19,7 @@ Move=[Move:mover=2,from=42,to=42,actions=[Add:type=Cell,to=42,what=2,decision=tr
 Move=[Move:mover=1,from=1,to=1,actions=[Add:type=Cell,to=1,what=1,decision=true],[SetScore:player=1,score=1,add=true]]
 Move=[Move:mover=2,from=3,to=3,actions=[Add:type=Cell,to=3,what=2,decision=true],[SetScore:player=2,score=1,add=true],[Move:typeFrom=Cell,from=10,typeTo=Cell,to=17]]
 Move=[Move:mover=1,from=47,to=47,actions=[Add:type=Cell,to=47,what=1,decision=true],[SetScore:player=1,score=1,add=true],[Move:typeFrom=Cell,from=46,typeTo=Cell,to=45]]
-Move=[Move:mover=2,from=13,to=13,actions=[Add:type=Cell,to=13,what=2,decision=true],[SetScore:player=2,score=1,add=true],[Remove:type=Cell,to=5],[SetScore:player=1,score=-1,add=true],[Move:typeFrom=Cell,from=19,typeTo=Cell,to=25],[Note:message=Opponent is one move away from a win,to=1],[Note:message=Opponent is one move away from a win,to=2]]
+Move=[Move:mover=2,from=13,to=13,actions=[Add:type=Cell,to=13,what=2,decision=true],[SetScore:player=2,score=1,add=true],[Remove:type=Cell,to=5],[SetScore:player=1,score=-1,add=true],[Move:typeFrom=Cell,from=19,typeTo=Cell,to=25],[Note:request=Opponent is one move away from a win,to=1],[Note:request=Opponent is one move away from a win,to=2]]
 Move=[Move:mover=1,from=20,to=20,actions=[Add:type=Cell,to=20,what=1,decision=true],[SetScore:player=1,score=1,add=true],[Move:typeFrom=Cell,from=13,typeTo=Cell,to=6]]
 Move=[Move:mover=2,from=41,to=41,actions=[Add:type=Cell,to=41,what=2,decision=true],[SetScore:player=2,score=1,add=true],[Move:typeFrom=Cell,from=17,typeTo=Cell,to=9],[Remove:type=Cell,to=47],[SetScore:player=1,score=-1,add=true]]
 LEGAL MOVES LIST SIZE = 49

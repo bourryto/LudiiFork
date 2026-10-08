@@ -79,7 +79,7 @@
     	<ant antfile="build.xml" dir="${Language.location}" inheritAll="false" target="build-project"/>
     </target>
     <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
+        <echo request="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
             <classpath refid="AI.classpath"/>

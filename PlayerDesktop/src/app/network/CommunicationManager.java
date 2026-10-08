@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import other.action.Action;
 import other.action.ActionType;
-import other.action.BaseAction;
 import other.context.Context;
 import other.move.Move;
 
@@ -22,6 +21,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 import java.util.logging.Logger;
+
+/*
+* Manages all local Network Communication
+*
+ */
 
 public class CommunicationManager {
     //public Central central;
@@ -36,7 +40,7 @@ public class CommunicationManager {
     Thread earThread;
     int port;
     LinkedList<Integer> otherPorts;
-    Manager manager;
+    Manager manager; // Manager connects us to all functions and data in the Application
     Logger logger;
     Dictionary<Integer, Integer> portPlayerMapper = new Hashtable<>();
     Dictionary<Integer, Integer> playerPortMapper = new Hashtable<>();
@@ -50,19 +54,9 @@ public class CommunicationManager {
         return new CommunicationManager(port, otherPorts, manager);
     }
 
-    // Bourryto TODO: add reaction to "disconnect" message
     public CommunicationManager(int port, LinkedList<Integer> otherPorts, Manager manager){
         this.logger = Logger.getLogger("CommTest");
         this.logger.info("Logger started");
-//        this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);  // ! setting jackson to also do private fields
-//        //this.objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-//        this.objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.PUBLIC_ONLY);
-//        //this.objectMapper.setAccessorNaming(new DefaultAccessorNamingStrategy.Provider().withGetterPrefix(""));
-//        this.objectMapper.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
-//        this.objectMapper.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.NONE);
-//        //this.objectMapper.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED, false);
-
-        //this.central = manager.central();
         this.port = port;
         this.otherPorts = otherPorts;
         this.penDictionary = new Hashtable<>();
@@ -91,21 +85,20 @@ public class CommunicationManager {
         print("now running");
     }
 
-    //public Central central() {return central;}
-
-    public void sendMessage(Message message){
-        if(!otherPorts.contains(message.getTo().port)){
-            print("Trying to send a message to a port not recognized: " + message.getTo() + ". Options are: Error in code, maybe lost connections, or some function not yet implemented." +
+    // Converts request to message and sends it according to the desired port. Assures connection exists
+    public void sendMessage(Request request){
+        if(!otherPorts.contains(request.getTo().port)){
+            print("Trying to send a message to a port not recognized: " + request.getTo() + ". Options are: Error in code, maybe lost connections, or some function not yet implemented." +
                     "this is for a reason, i currently only want to support ports i know are within my code, but maybe a function for later");
             System.out.println("other ports: " + otherPorts);
-            Pen newPen = new Pen(this.port, message.getTo().port);
+            Pen newPen = new Pen(this.port, request.getTo().port);
             try {
                 newPen.connect(false);
             } catch (IOException e) {
                 System.out.println("Couldn't connect new Pen to other Server");
             }
             this.addPen(newPen);
-            sendMessage(message);
+            sendMessage(request);
             // it this is whished:
             // Pen newPen = new Pen(this.port, recipientPort);
             // this.addPen(newPen);
@@ -115,24 +108,24 @@ public class CommunicationManager {
             // }
             return;
         }
-        this.penDictionary.get(message.getTo().port).sendMessage(message);
+        this.penDictionary.get(request.getTo().port).sendMessage(request);
     }
 
-    public void sendMessage(JSONObject content, Address recipient, JSONObject replyTo){
-        sendMessage(new Message(content, recipient, new Address(this.port), replyTo));
+    public void sendMessage(JSONObject request_line, Address recipient, JSONObject replyTo){
+        sendMessage(new Request(request_line, recipient, new Address(this.port), replyTo));
     }
-    public void sendMessage(JSONObject content, Address recipient){
-        sendMessage(new Message(content, recipient, new Address(this.port), new JSONObject()));
+    public void sendMessage(JSONObject request_line, Address recipient){
+        sendMessage(new Request(request_line, recipient, new Address(this.port), new JSONObject()));
     }
 
     public void broadcastMessage(String message){
-        broadcastMessage(new Message(message));
+        broadcastMessage(new Request(message));
     }
 
-    public void broadcastMessage(Message message){
-        print("broadcasting message: " + message);
+    public void broadcastMessage(Request request){
+        print("broadcasting message: " + request);
         for (Pen pen: penList){
-            pen.sendMessage(message);
+            pen.sendMessage(request);
         }
     }
 
@@ -140,7 +133,7 @@ public class CommunicationManager {
         System.out.println("[" + port + "] " + text);
     }
 
-    // BOURRYTO - LATER: create the new pen here and check that it doenst already exists
+    // adding new communication partner
     void addPen(Pen pen){
         this.penList.add(pen);
         this.penDictionary.put(pen.otherPort, pen);
@@ -148,7 +141,8 @@ public class CommunicationManager {
         Apps.getApp(manager).addOtherPort(pen.otherPort);
     }
 
-    void addPlayer(int port, int playerIndex){
+    // mappes ports to the players they want to controll
+    void addPlayer(int port, int playerIndex) {
         this.portPlayerMapper.put(port, playerIndex);
         this.playerPortMapper.put(playerIndex, port);
     }
@@ -161,6 +155,7 @@ public class CommunicationManager {
 
     public Manager manager(){return manager;}
 
+    // if set, ports will be notified when its their players turn
     public void setNotify(int mover, int port){
         Pen pen = penDictionary.get(port);
         pen.notifyOnTurn = true;
@@ -168,6 +163,7 @@ public class CommunicationManager {
         notifyPens.put(mover, pen);
     }
 
+    // sends messages
     static class Pen implements Runnable{
         private Socket socket = null;
         private DataOutputStream out = null;
@@ -209,18 +205,20 @@ public class CommunicationManager {
                 this.out = new DataOutputStream(this.socket.getOutputStream());
                 print("connected to ear on port " + otherPort);
                 if (shouldRequestConnectionBack) {
-                    JSONObject content = new JSONObject();
-                    content.put("method", "connect");
-                    content.put("success", true);
-                    content.put("request_target", "");
-                    sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
+                    JSONObject request_line = new JSONObject();
+                    request_line.put("method", "connect");
+                    request_line.put("success", true);
+                    request_line.put("request_target", "");
+                    sendMessage(new Request(request_line, new Address(this.otherPort), new Address(this.port), replyTo));
                 }
-                sendMessage("connected", replyTo);
-                JSONObject content = new JSONObject();
-                content.put("method", "connected");
-                content.put("success", true);
-                content.put("request_target", "");
-                sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
+                else {
+                    sendMessage("connected", replyTo);
+                    JSONObject request_line = new JSONObject();
+                    request_line.put("method", "connected");
+                    request_line.put("success", true);
+                    request_line.put("request_target", "");
+                    sendMessage(new Request(request_line, new Address(this.otherPort), new Address(this.port), replyTo));
+                }
             }
             else {
                 this.socket = new Socket("127.0.0.1", otherPort);
@@ -231,20 +229,19 @@ public class CommunicationManager {
                 content.put("success", true);
                 content.put("request_target", "");
                 content.put("error_message", "");
-                sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTo));
+                sendMessage(new Request(content, new Address(this.otherPort), new Address(this.port), replyTo));
             }
 
         }
-        // BOURRYTO - TODO: I think im doing the thread wrong, i should look over it
         public synchronized void run(){
             while(true){
 
             }
         }
 
-        public void sendMessage(Message message) {
+        public void sendMessage(Request request) {
             if (out == null){
-                print("sending Message '" + message + "' unsuccesfull, no connection to other port, trying to build this connection");
+                print("sending Message '" + request + "' unsuccesfull, no connection to other port, trying to build this connection");
                 try {
                     connect(false);
                 } catch (IOException e) {print("could not connect while sending message, try to connect bevor sending message"); return;}
@@ -261,9 +258,9 @@ public class CommunicationManager {
             }
 
             try  {
-                out.writeUTF(message.toString());
+                out.writeUTF(request.toString());
                 out.flush();
-                print(" send message '" + message.getContent().toString()+ "' full: '"+ message + "' to port " + this.otherPort);
+                print(" send message '" + request.getRequestLine().toString()+ "' full: '"+ request + "' to port " + this.otherPort);
             } catch (final Exception e) {
                 try {
                     out.close();
@@ -276,10 +273,10 @@ public class CommunicationManager {
             }
         }
         public void sendMessage(String message, JSONObject replyTO){
-            JSONObject content = new JSONObject();
-            content.put("method", message);
-            content.put("request_target", "");
-            sendMessage(new Message(content, new Address(this.otherPort), new Address(this.port), replyTO));
+            JSONObject request_line = new JSONObject();
+            request_line.put("method", message);
+            request_line.put("request_target", "");
+            sendMessage(new Request(request_line, new Address(this.otherPort), new Address(this.port), replyTO));
         }
         public void sendMessage(String message){
             sendMessage(message, new JSONObject());
@@ -299,6 +296,7 @@ public class CommunicationManager {
         }
     }
 
+    // listens for messages
     private class Ear implements Runnable {
         Mailbox mailbox;
         int port;
@@ -378,28 +376,29 @@ public class CommunicationManager {
         }
     }
 
+    // if undelivered messages, sends the messages
     private class Postoffice implements Runnable {
         CommunicationManager communicationManager;
         //Central central;
-        LinkedList<Message> outgoingMessages;
+        LinkedList<Request> outgoingRequests;
 
         public Postoffice(CommunicationManager communicationManager) {
             this.communicationManager = communicationManager;
             //this.central = communicationManager.central();
-            this.outgoingMessages = new LinkedList<>();
+            this.outgoingRequests = new LinkedList<>();
         }
 
         public void run() {
-            Message message;
+            Request request;
             while (true) {
                 try {
-                    message = this.outgoingMessages.pop();
-                    if (message != null) {
+                    request = this.outgoingRequests.pop();
+                    if (request != null) {
                         //System.out.println("communicationmanager outgoing messages lsit size " + this.central.outgoingMessages.size());
-                        if (message.getTo().ip.equals("255.255.255.255")){
-                            this.communicationManager.broadcastMessage(message);
+                        if (request.getTo().ip.equals("255.255.255.255")){
+                            this.communicationManager.broadcastMessage(request);
                         } else {
-                            this.communicationManager.sendMessage(message);
+                            this.communicationManager.sendMessage(request);
                         }
                     }
                 } catch (NoSuchElementException e) {
@@ -409,6 +408,7 @@ public class CommunicationManager {
         }
     }
 
+    // Is a thread listening to new incoming messages. Starts new thread to handle these messages per message
     private class Mailbox implements Runnable{
         LinkedList<String> incoming = new LinkedList<>();
         int port;
@@ -444,13 +444,14 @@ public class CommunicationManager {
         }
     }
 
+    // handles an incoming message, calls the correct functions per case
     private class Postbote extends Thread{
-        Message message;
+        Request request;
         CommunicationManager communicationManager;
         final Integer maxPongs = 3;
 
         public Postbote(String message, CommunicationManager communicationManager){
-            this.message = new Message(message);
+            this.request = new Request(message);
             this.communicationManager = communicationManager;
         }
 
@@ -458,32 +459,32 @@ public class CommunicationManager {
         public void run() {
             // How i would parse the option if neccessary:
             // (messageComplex.getJSONObject("content").get("option").getClass() == JSONObject.class)
-            JSONObject content = this.message.getContent();
-            this.communicationManager.manager.getPlayerInterface().addIncomingMessage("from " + this.message.senderPort + ": " + content);
+            JSONObject content = this.request.getRequestLine();
+            this.communicationManager.manager.getPlayerInterface().addIncomingMessage("from " + this.request.senderPort + ": " + content);
             if (content.isEmpty()) {
                 JSONObject response = new JSONObject();
                 response.put("method", "replying");
                 response.put("request_target", "error");
                 // todo - better error handling!
-                communicationManager.sendMessage(parseGet(message), this.message.getFrom(), this.message.jsonObject);
+                communicationManager.sendMessage(parseGet(request), this.request.getFrom(), this.request.jsonObject);
                 return;
             }
             String method = content.getString("method");
             // BOURRYTO - LATER: Maybe check if method is 'sending' bevor splitting, sending returns text with sooooo many spaces
 
-            print("got message from " + this.message.senderPort + ": '" + content.toString(2)+ "'");
+            print("got message from " + this.request.senderPort + ": '" + content.toString(2)+ "'");
 
             switch (method.toLowerCase()){
                 case "connect":
                     try {
-                        if(communicationManager.penDictionary.get(this.message.senderPort) == null){
+                        if(communicationManager.penDictionary.get(this.request.senderPort) == null){
                             System.out.println("creating new pen");
-                            communicationManager.addPen(new Pen(communicationManager.port, this.message.senderPort));
+                            communicationManager.addPen(new Pen(communicationManager.port, this.request.senderPort));
                         }
                         System.out.println("connecting to pen");
-                        communicationManager.penDictionary.get(this.message.senderPort).connect(false, message.jsonObject);
+                        communicationManager.penDictionary.get(this.request.senderPort).connect(false, request.jsonObject);
                     } catch (IOException e) {
-                        print("could not connect to " + this.message.senderPort);
+                        print("could not connect to " + this.request.senderPort);
                     }
                     break;
                 case "connected":
@@ -495,45 +496,55 @@ public class CommunicationManager {
                     reply.put("request_target", "0"); // todo - change this, request target should not be int
                     reply.put("success", true);
                     reply.put("error_message", "");
-                    communicationManager.sendMessage(reply, this.message.getFrom(), message.jsonObject);
+                    communicationManager.sendMessage(reply, this.request.getFrom(), request.jsonObject);
                     break;
                     // TODO - change counter to request_target, but i need to do that on the interface too, and i dont want to open it rn
                 case "pong":
-                    int pongCounter = Integer.parseInt(message.getContent().getString("request_target"));
+                    int pongCounter = -1;
+                    try {
+                        pongCounter = Integer.parseInt(request.getRequestLine().getString("request_target"));
+                    } catch(JSONException e){
+                        try{
+                            pongCounter = request.getRequestLine().getInt("request_target");
+                        } catch(JSONException f){
+                            System.out.println("Pong Counter neither Parsable String nor integer");
+                        }
+                    }
+                    if (pongCounter == -1){
+                        JSONObject pong = new JSONObject();
+                        pong.put("method", "pong");
+                        pong.put("request_target", "");
+                        pong.put("success", false);
+                        pong.put("error_message", "Request Target was neither Integer nor String representation of Integer.");
+                        communicationManager.sendMessage(pong, this.request.getFrom(), request.jsonObject);
+                        break;
+                    }
                     if (pongCounter < maxPongs){
                         JSONObject pong = new JSONObject();
                         pong.put("method", "pong");
                         pong.put("request_target", Integer.toString(pongCounter+1));
                         pong.put("success", true);
                         pong.put("error_message", "");
-                        communicationManager.sendMessage(pong, this.message.getFrom(), message.jsonObject);
+                        communicationManager.sendMessage(pong, this.request.getFrom(), request.jsonObject);
                     }
                     break;
                 case "get":
-                    communicationManager.sendMessage(parseGet(message), this.message.getFrom(), this.message.jsonObject);
+                    communicationManager.sendMessage(parseGet(request), this.request.getFrom(), this.request.jsonObject);
                     break;
                 case "do":
-                    parseDo(message);
+                    parseDo(request);
                     break;
                 default:
                     reply = content;
                     reply.put("success", false);
                     reply.put("error_message", "method not supported");
-                    communicationManager.sendMessage(reply, this.message.getFrom(), message.jsonObject);
+                    communicationManager.sendMessage(reply, this.request.getFrom(), request.jsonObject);
                     break;
             }
         }
-
-        /* Supported request_targets
-        game
-        board
-        state
-        equipment
-        container
-         */
-        private JSONObject parseGet(Message message){
-            String request_target = message.getContent().getString("request_target");
-            String result = "";
+        // resolves get type requests
+        private JSONObject parseGet(Request request){
+            String request_target = request.getRequestLine().getString("request_target");
             JSONObject reply = new JSONObject();
             reply.put("success", true);
             reply.put("method", "sending");    // inverse to get
@@ -632,10 +643,11 @@ public class CommunicationManager {
             return reply;
         }
 
-        private void parseDo(Message message) {
+        // resolves executing requests
+        private void parseDo(Request request) {
             System.out.println("doing (executing)");
             // BOURRYTO - TODO: add confirmation message for all messages
-            String request_target = message.getContent().getString("request_target");
+            String request_target = request.getRequestLine().getString("request_target");
             final Context context = manager.ref().context();
             String errorMessage = "";
             String text = "";
@@ -645,22 +657,52 @@ public class CommunicationManager {
                     communicationManager.manager.getPlayerInterface().restartGame();
                     break;
                 case "add_text_to_status_panel":
-                    text = message.getContent().getString("text");
+                    try {
+                        text = request.getRequestLine().getString("text");
+                    } catch (JSONException je){
+                        success = false;
+                        errorMessage = "'text' variable is missing from request.";
+                        break;
+                    }
                     communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\n"+text);
                     break;
                 case "set_temporary_message":
-                    text = message.getContent().getString("text");
+                    try {
+                        text = request.getRequestLine().getString("text");
+                    } catch (JSONException je){
+                        success = false;
+                        errorMessage = "'text' variable is missing from request.";
+                        break;
+                    }
                     communicationManager.manager.getPlayerInterface().setTemporaryMessage(text);
                     break;
                 case "load_game_from_name":
                     // BOURRYTO - TODO: works and loads, but message isnt added to message panel
                     // this assumes we all work with the same database, should for now always be true but maybe not forever depending on added features
-                    text = message.getContent().getString("name");
+                    try {
+                        text = request.getRequestLine().getString("name");
+                    }  catch (JSONException je){
+                        success = false;
+                        errorMessage = "'name' variable is missing from request.";
+                        break;
+                    }
                     // BOURRYTO - LATER: add game options support
                     // currently not supporting gameoptions, we pass an empty list. this could be solved by sending game options along with the name
-                    Apps.getApp(communicationManager.manager).loadGameFromName(text, new ArrayList<>(), false);
+                    try {
+                        Apps.getApp(communicationManager.manager).loadGameFromName(text, new ArrayList<>(), false);
+                    } catch (IllegalArgumentException ie){
+                        success = false;
+                        errorMessage = "No Game with this name.";
+                        break;
+                    }
+                    catch(Exception e){
+                        communicationManager.logger.warning(e.getMessage());
+                        success = false;
+                        errorMessage = "Exception while trying to load the game. Error Message="+e.getMessage();
+                        break;
+                    }
                     if (!this.communicationManager.manager.ref().context().game().name().equalsIgnoreCase(text)) {
-                        errorMessage = "Tried loading game "+text+", but current game is "+this.communicationManager.manager.ref().context().game().name();
+                        errorMessage = "Failed loading game "+text+".";
                         communicationManager.logger.warning(errorMessage);
                         success = false;
                         break;
@@ -691,7 +733,14 @@ public class CommunicationManager {
 
                      */
                     Move foundMove = null;
-                    String moveString = message.getContent().getString("move").replace(" ", "");
+                    String moveString = "";
+                    try {
+                        moveString = request.getRequestLine().getString("move").replace(" ", "");
+                    } catch (JSONException je){
+                        success = false;
+                        errorMessage = "'move' variable is missing from request.";
+                        break;
+                    }
                     this.communicationManager.logger.info("got following move: " + moveString);
                     // currently never accepting index moves for simplicity
                     boolean acceptingIndexMoves = false;
@@ -709,8 +758,8 @@ public class CommunicationManager {
                                 break;
                             }
                         } catch (NumberFormatException e) {
-                            System.out.println(e);
-                            errorMessage =("Move index number must be a positive integer");
+                            System.out.println(e.getMessage());
+                            errorMessage ="Move index number must be a positive integer";
                             success = false;
                             break;
                         }
@@ -754,7 +803,7 @@ public class CommunicationManager {
                             if (substringMatchingMoves.size() == 1) {
                                 foundMove = substringMatchingMoves.get(0);
                             } else if (substringMatchingMoves.size() > 1) {
-                                errorMessage = "clarify which move, found these moves: " + substringMatchingMoves;
+                                errorMessage = "Multiple Mathcing Moves. Clarify which move out of these moves: " + substringMatchingMoves;
                                 success = false;
                                 break;
                             } else {
@@ -782,11 +831,11 @@ public class CommunicationManager {
                     // not checking player index for now as it annoyes me that all is burning
                     boolean isAdmin = false;
                     try{
-                        isAdmin = message.getContent().get("password").equals(CommunicationManager.adminPassword);
+                        isAdmin = request.getRequestLine().get("password").equals(CommunicationManager.adminPassword);
                     } catch (JSONException ignored) {}
                     if (!isAdmin) {
                         try {
-                            senderPlayer = communicationManager.portPlayerMapper.get(message.senderPort);
+                            senderPlayer = communicationManager.portPlayerMapper.get(request.senderPort);
                         } catch (NullPointerException nullPointerException) {
                             errorMessage = ("No Player set for this PORT, set player number first and try again");
                             success = false;
@@ -799,20 +848,53 @@ public class CommunicationManager {
                         }
                     }
                     foundMove = null;
-                    JSONObject incoming_move= message.getContent().getJSONObject("move");
+                    JSONObject incoming_move = null;
+                    try {
+                        incoming_move= request.getRequestLine().getJSONObject("move");
+                    } catch (JSONException je){
+                        success = false;
+                        errorMessage = "'move' variable is missing from request.";
+                        break;
+                    }
+
+                    if(!incoming_move.keySet().contains("what")){
+                        errorMessage = "Move parameter is missing 'what' key.";
+                        success = false;
+                        break;
+                    }if(!incoming_move.keySet().contains("to")){
+                        errorMessage = "Move parameter is missing 'to' key.";
+                        success = false;
+                        break;
+                    }if(!incoming_move.keySet().contains("from")){
+                        errorMessage = "Move parameter is missing 'from' key.";
+                        success = false;
+                        break;
+                    }if(!incoming_move.keySet().contains("actionType")){
+                        errorMessage = "Move parameter is missing 'actionType' key.";
+                        success = false;
+                        break;
+                    }
+
                     if(incoming_move.keySet().contains("what")){
-                        int what = incoming_move.getInt("what");
+                        // todo - this only applies to add move, need to change logic when moving to chess
+                        if(incoming_move.isNull("what")){errorMessage = "what needs to be an integer Value!"; success = false;break;}
+                        int what;
+                        try {
+                            what = incoming_move.getInt("what");
+                        } catch (JSONException e){
+                            errorMessage = "'what' needs to be an Integer."; success = false;break;
+                        }
                         // later todo important - this only works for t3, chess will have more what, we need to differenciate later. this is only a temporary solution!
-                        if(what == 0){
-                            errorMessage = ("what with the value 0 is reserved for the game, it can't be used by players.");
-                            success = false;
-                            break;
-                        }
-                        if(what != mover){
-                            errorMessage = ("There are no legal moves with 'what'="+Integer.toString(what)+". Check if you have used the right value for 'what'.");
-                            success = false;
-                            break;
-                        }
+//                        if(what == 0){
+//                            errorMessage = "what with the value 0 is reserved for the game, it can't be used by players.";
+//                            success = false;
+//                            break;
+//                        }
+//                        if(what != mover){
+//                            errorMessage = "There are no legal moves with 'what'="+Integer.toString(what)+". Check if you have used the right value for 'what'.";
+//                            success = false;
+//                            break;
+//                        }
                     }
                     this.communicationManager.logger.info("got following move: " + incoming_move.toString());
                     // if the move containes multiple actions (chess swith or something probably, this needs to be considered and changed
@@ -821,7 +903,7 @@ public class CommunicationManager {
                         this.communicationManager.logger.info("move from:" + m.from() + " to:" + m.to()+" what:" + m.what()+" actionType:" + m.actionType().toString());
                         //this.communicationManager.logger.info("move from:" + incoming_move.getInt("from") + " to:" + incoming_move.getInt("to")+" what:" + incoming_move.getInt("what")+" actionType:" + incoming_move.getString("actionType"));
                         try {
-                            if (m.sameEnough(incoming_move)) {
+                            if (m.sameEnough(incoming_move, true)) {
                                 this.communicationManager.logger.info("found same move");
                                 foundMove = m;
                                 break;
@@ -851,47 +933,96 @@ public class CommunicationManager {
                     communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\nPlayers where reset. Mapper: " + this.communicationManager.playerPortMapper.toString());
                     break;
                 case "set_player":
+
                     this.communicationManager.logger.info("setting_player with current players: " + this.communicationManager.portPlayerMapper.toString() + ", " + this.communicationManager.playerPortMapper.toString());
-                    int playerNumber = message.getContent().getInt("number");;
+                    isAdmin = false;
+                    try{
+                        isAdmin = request.getRequestLine().get("password").equals(CommunicationManager.adminPassword);
+                        this.communicationManager.logger.info("is admin: "+ isAdmin);
+                    } catch (JSONException ignored) {}
+                    int playerNumber;
+                    try {
+                        playerNumber = request.getRequestLine().getInt("number");
+                    } catch (JSONException je){
+                        errorMessage = "'number' variable is missing from request.";
+                        success = false;
+                        break;
+                    }
                     if (playerNumber == 0){
                         success = false;
                         errorMessage =("Player Number 0 is reserved for the game. Try getting unset players, and choose one of those.");
                         break;
                     }
-                    //System.out.println("playerid: " + playerID);
-                    // test wether the user already set a player. its only possible if no moves have been made to avoid
-                    // llm just switching players and playing against itself
-                    if (this.communicationManager.manager.ref().context().trial().numMoves() > 0) {
-                        success = false;
-                        errorMessage =("Can't set player after moves have been made alrady. Try restarting the Game or starting a new one.");
-                        break;
+                    boolean adminSuccess = false;
+                    if (isAdmin) {
+                        try{
+                            int port_to_set = request.getRequestLine().getInt("port");
+                            this.communicationManager.logger.info("Got port: "+port_to_set);
+                            Integer oldPlayerNumber = this.communicationManager.portPlayerMapper.get(port_to_set);
+                            this.communicationManager.logger.info("Got old player number: "+oldPlayerNumber);
+                            try {
+                                this.communicationManager.playerPortMapper.remove(oldPlayerNumber);
+                                this.communicationManager.logger.info("removed old player number form mapping");
+                                this.communicationManager.portPlayerMapper.remove(port_to_set);
+                                this.communicationManager.logger.info("removed old port number form mapping");
+                            } catch (NullPointerException ignored){}
+                            this.communicationManager.addPlayer(port_to_set, playerNumber);
+                            this.communicationManager.logger.info("added player");
+                            this.communicationManager.logger.info("injected setting_player now players: " + this.communicationManager.portPlayerMapper.toString() + ", " + this.communicationManager.playerPortMapper.toString());
+                            communicationManager.manager.getPlayerInterface().addTextToStatusPanel("Injected \nPlayer "+ playerNumber+ " was set. Mapper: " + this.communicationManager.playerPortMapper.toString());
+                            this.communicationManager.logger.info("added text to status panel");
+                            adminSuccess = true;
+                        } catch (NullPointerException | JSONException nullPointerException) {
+                            this.communicationManager.logger.info("No Port was set when trying to set player as inject.");
+                        }
                     }
-                    try{
-                        if (this.communicationManager.playerPortMapper.get(playerNumber) != null) {
+                    if (!adminSuccess) {
+                        //System.out.println("playerid: " + playerID);
+                        // test wether the user already set a player. its only possible if no moves have been made to avoid
+                        // llm just switching players and playing against itself
+
+                        if (this.communicationManager.manager.ref().context().trial().numberRealMoves() > 0) {
                             success = false;
-                            errorMessage = ("This Player index is already assigned. Try getting unset player indices.");
+                            this.communicationManager.logger.info("Number of moves made: "+this.communicationManager.manager.ref().context().trial().numMoves());
+                            errorMessage = "Can't set player after moves have been made alrady. Try restarting the Game or starting a new one.";
                             break;
                         }
-                    } catch (NullPointerException ignored){}
+                        try {
+                            if (this.communicationManager.playerPortMapper.get(playerNumber) != null) {
+                                success = false;
+                                errorMessage = "This Player index is already assigned. Try getting unset player indices.";
+                                break;
+                            }
+                        } catch (NullPointerException ignored) {
+                        }
 
-                    int maxPlayers = this.communicationManager.manager().ref().context().players().size();
-                    if (playerNumber > maxPlayers){
-                        success = false;
-                        errorMessage =("This Player number does not exists. There are only " + maxPlayers + " players in this gaem.");
-                        break;
+                        int maxPlayers = this.communicationManager.manager().ref().context().players().size();
+                        if (playerNumber > maxPlayers) {
+                            success = false;
+                            errorMessage = ("This Player number does not exists. There are only " + maxPlayers + " players in this gaem.");
+                            break;
+                        }
+                        try {
+                            Integer oldPlayerNumber = this.communicationManager.portPlayerMapper.get(request.senderPort);
+                            this.communicationManager.playerPortMapper.remove(oldPlayerNumber);
+                            this.communicationManager.portPlayerMapper.remove(request.senderPort);
+                        } catch (NullPointerException ignored) {
+                        }
+                        this.communicationManager.addPlayer(request.senderPort, playerNumber);
+                        this.communicationManager.logger.info("setting_player now players: " + this.communicationManager.portPlayerMapper.toString() + ", " + this.communicationManager.playerPortMapper.toString());
+                        communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\nPlayer " + playerNumber + " was set. Mapper: " + this.communicationManager.playerPortMapper.toString());
                     }
-                    try{
-                        Integer oldPlayerNumber = this.communicationManager.portPlayerMapper.get(message.senderPort);
-                        this.communicationManager.playerPortMapper.remove(oldPlayerNumber);
-                        this.communicationManager.portPlayerMapper.remove(message.senderPort);
-                    } catch (NullPointerException ignored) {}
-                    this.communicationManager.addPlayer(message.senderPort, playerNumber);
-                    this.communicationManager.logger.info("setting_player now players: " + this.communicationManager.portPlayerMapper.toString() + ", " + this.communicationManager.playerPortMapper.toString());
-                    communicationManager.manager.getPlayerInterface().addTextToStatusPanel("\nPlayer "+ playerNumber+ " was set. Mapper: " + this.communicationManager.playerPortMapper.toString());
                     break;
                 case "notify":
-                    int notifyMover = message.getContent().getInt("index");
-                    setNotify(notifyMover, message.senderPort);
+                    int notifyMover;
+                    try {
+                        notifyMover = request.getRequestLine().getInt("index");
+                    } catch (JSONException je){
+                        errorMessage = "'index' variable missing from request.";
+                        success = false;
+                        break;
+                    }
+                    setNotify(notifyMover, request.senderPort);
                     break;
                 default:
                     success = false;
@@ -903,7 +1034,7 @@ public class CommunicationManager {
             reply.put("method", "did"); // inverse to do
             reply.put("request_target", request_target);
             reply.put("error_message", errorMessage);
-            sendMessage(reply, message.getFrom(), message.jsonObject);
+            sendMessage(reply, request.getFrom(), request.jsonObject);
         }
 
         public void print(String text){
